@@ -18,6 +18,15 @@ Code-Bezeichner Englisch.
 
 Kein Test-Runner, kein Linter.
 
+## Deployment
+
+Live: **https://vebzyyhere.github.io/woodbeat/** (GitHub Pages, Repo
+`VebzyyHere/woodbeat`, öffentlich). Deploy = einfach auf `master` pushen —
+`.github/workflows/deploy.yml` baut und veröffentlicht automatisch.
+`vite.config.js` setzt `base: '/woodbeat/'` nur im CI (`GITHUB_ACTIONS`),
+lokal bleibt alles unter `/`. Die `og:image`-URL in `index.html` ist absolut
+auf die Pages-Domain eingetragen.
+
 ## Architektur
 
 Inhalt und Darstellung sind strikt getrennt:
