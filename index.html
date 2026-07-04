@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <title>WoodBeat 2026 — unser Festival</title>
+</head>
+<body>
+  <header class="topbar">
+    <a class="topbar__logo" href="#top">Wood<span>Beat</span></a>
+    <nav class="topbar__nav" aria-label="Hauptnavigation">
+      <a href="#timetable">Timetable</a>
+      <a href="#anfahrt">Anfahrt</a>
+      <a href="#wuensche">Mitbringen</a>
+      <a href="#abstimmen">Abstimmen</a>
+      <a href="#playlist">Playlist</a>
+      <a href="#kosten">Kosten</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <!-- Hero -->
+    <section class="hero" aria-label="Intro">
+      <!-- Rotierendes Sticker-Badge -->
+      <svg class="badge-spin" viewBox="0 0 100 100" aria-hidden="true">
+        <defs>
+          <path id="badge-circle" d="M50,50 m-38,0 a38,38 0 1,1 76,0 a38,38 0 1,1 -76,0" />
+        </defs>
+        <text>
+          <textPath href="#badge-circle">✦ WOODBEAT ✦ PRIVATE RAVE ✦ IM WALD&#160;</textPath>
+        </text>
+      </svg>
+      <!-- Logo: Baumscheibe (Wood) trifft Waveform (Beat) -->
+      <svg class="logo" viewBox="0 0 120 120" role="img" aria-label="WoodBeat Logo">
+        <defs>
+          <clipPath id="logo-clip">
+            <rect x="0" y="0" width="120" height="46" />
+            <rect x="0" y="74" width="120" height="46" />
+          </clipPath>
+        </defs>
+        <g class="logo__rings" clip-path="url(#logo-clip)">
+          <circle cx="60" cy="62" r="10" stroke-width="3"   opacity="0.9" />
+          <circle cx="59" cy="61" r="18" stroke-width="2"   opacity="0.55" />
+          <circle cx="61" cy="63" r="26" stroke-width="3.5" opacity="0.8" />
+          <circle cx="58" cy="62" r="34" stroke-width="2"   opacity="0.45" />
+          <circle cx="61" cy="61" r="42" stroke-width="3"   opacity="0.7" />
+          <circle cx="60" cy="63" r="50" stroke-width="2"   opacity="0.35" />
+        </g>
+        <path class="logo__wave"
+          d="M6 60 H24 L30 50 L36 74 L42 34 L48 84 L54 48 L60 70 L66 38 L72 80 L78 54 L84 66 L90 58 H114" />
+      </svg>
+      <p class="hero__kicker">Privates Festival · Nur mit Einladung</p>
+      <h1 class="hero__title">WoodBeat <em>2026</em></h1>
+      <p class="hero__claim" id="hero-claim"></p>
+      <div class="hero__facts">
+        <span class="pill" id="hero-date"></span>
+        <span class="pill" id="hero-location"></span>
+        <span class="pill pill--countdown" id="hero-countdown" hidden></span>
+      </div>
+      <a class="btn btn--primary" href="#timetable">Zum Timetable</a>
+    </section>
+
+    <!-- Laufband -->
+    <div class="marquee" aria-hidden="true">
+      <div class="marquee__track" id="marquee-track"></div>
+    </div>
+
+    <!-- Timetable -->
+    <section id="timetable" class="section">
+      <h2>Timetable</h2>
+      <p class="section__intro">Was passiert wann? Tag auswählen:</p>
+      <div class="chips" id="day-chips" role="tablist" aria-label="Festivaltag wählen"></div>
+      <ol class="timeline" id="slot-list"></ol>
+    </section>
+
+    <!-- Anfahrt -->
+    <section id="anfahrt" class="section">
+      <h2>Anfahrt</h2>
+      <div class="card">
+        <p class="card__label">Ort</p>
+        <p class="card__big" id="anfahrt-name"></p>
+        <p id="anfahrt-address"></p>
+        <a class="btn btn--primary" id="anfahrt-maps" href="#" target="_blank" rel="noopener">Route planen</a>
+      </div>
+      <ul class="hints" id="anfahrt-hints"></ul>
+    </section>
+
+    <!-- Wünsche & Mitbringliste -->
+    <section id="wuensche" class="section">
+      <h2>Wünsche &amp; Mitbringliste</h2>
+      <p class="section__intro">
+        Hak ab, was du eingepackt hast — die Häkchen bleiben auf deinem Gerät gespeichert.
+      </p>
+      <p class="checklist-progress" id="checklist-progress" aria-live="polite"></p>
+      <ul class="checklist" id="checklist"></ul>
+    </section>
+
+    <!-- Abstimmen / Umfragen -->
+    <section id="abstimmen" class="section">
+      <h2>Abstimmen</h2>
+      <p class="section__intro">
+        Ihr entscheidet mit, wie WoodBeat 2026 wird. Antippen, fertig — deine Auswahl
+        bleibt auf deinem Gerät gespeichert.
+      </p>
+      <div id="umfragen-list"></div>
+      <div class="card">
+        <label class="card__label" for="eigene-idee">💡 Eigene Idee</label>
+        <textarea id="eigene-idee" rows="2"
+          placeholder="Was fehlt noch? Schreib's rein …"></textarea>
+      </div>
+      <button class="btn btn--primary" id="share-votes" type="button">
+        📲 Stimmen in die Gruppe schicken
+      </button>
+      <p class="muted">
+        Der Button öffnet WhatsApp (oder das Teilen-Menü) mit deinen Stimmen als
+        fertiger Nachricht — abgestimmt wird in der Gruppe.
+      </p>
+    </section>
+
+    <!-- Playlist -->
+    <section id="playlist" class="section">
+      <h2>Playlist</h2>
+      <p class="section__intro">
+        Der offizielle WoodBeat-Soundtrack — folge der Playlist und wirf deine Wünsche rein. 🎧
+      </p>
+      <div id="spotify-embed"></div>
+    </section>
+
+    <!-- Kosten -->
+    <section id="kosten" class="section">
+      <h2>Kosten</h2>
+      <div class="card card--accent">
+        <p class="card__label">Beitrag</p>
+        <p class="card__big" id="kosten-beitrag"></p>
+        <p class="card__label">Darin enthalten</p>
+        <ul id="kosten-includes"></ul>
+        <p class="muted" id="kosten-hinweis"></p>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section id="faq" class="section">
+      <h2>FAQ</h2>
+      <div id="faq-list"></div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>WoodBeat 2026 — privat organisiert, mit Liebe und Lagerfeuer. Fragen? Meld dich in der Gruppe. 🌲🎶</p>
+  </footer>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

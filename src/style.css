@@ -1,0 +1,633 @@
+/* ============================================================
+   WoodBeat 2026 — Design-Tokens & Styles
+   Grundton: dunkles Waldgrün (Festivalnacht im Grünen),
+   Akzent: warmes Bernstein (Lagerfeuer, Lichterketten, Holz).
+   Farben/Abstände NUR über die Variablen hier ändern.
+   ============================================================ */
+
+:root {
+  /* Akzent — Bernstein/Holz */
+  --accent:        oklch(0.78 0.14 78);
+  --accent-hover:  oklch(0.72 0.14 78);
+  --accent-text:   oklch(0.22 0.03 78);   /* dunkler Text AUF Akzentfläche */
+
+  /* Neutrale — Waldgrün-Schwarz, gelayert */
+  --bg:         oklch(0.17 0.02 155);
+  --surface:    oklch(0.21 0.02 155);
+  --surface-2:  oklch(0.25 0.02 155);
+  --border:     oklch(0.32 0.02 155);
+  --text:       oklch(0.95 0.01 100);
+  --text-muted: oklch(0.72 0.02 130);
+
+  /* Spacing (4px-Raster) */
+  --s-1: 4px; --s-2: 8px; --s-3: 12px; --s-4: 16px;
+  --s-6: 24px; --s-8: 32px; --s-12: 48px; --s-16: 64px;
+
+  --radius: 12px;
+  --shadow: 0 4px 16px oklch(0 0 0 / 0.3);
+  --content-width: 880px;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+h1, h2, h3 { line-height: 1.15; margin: 0 0 var(--s-4); }
+h2 { font-size: clamp(1.5rem, 1.2rem + 1.5vw, 2rem); font-weight: 700; }
+
+a { color: var(--accent); }
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ---------- Topbar ---------- */
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-4);
+  padding: var(--s-3) var(--s-6);
+  background: oklch(0.17 0.02 155 / 0.85);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border);
+}
+
+.topbar__logo {
+  font-weight: 800;
+  font-size: 1.2rem;
+  letter-spacing: 0.02em;
+  color: var(--text);
+  text-decoration: none;
+}
+.topbar__logo span { color: var(--accent); }
+
+.topbar__nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2) var(--s-4);
+}
+.topbar__nav a {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 0.95rem;
+  padding: var(--s-1) var(--s-2);
+  border-radius: 6px;
+  transition: color 0.15s;
+}
+.topbar__nav a:hover { color: var(--text); }
+
+/* ---------- Hero ---------- */
+
+.hero {
+  position: relative;
+  max-width: var(--content-width);
+  margin: 0 auto;
+  padding: var(--s-16) var(--s-6) var(--s-12);
+  text-align: center;
+}
+
+/* Ambiente: zwei weiche Glow-Blobs, die langsam durchs Hero treiben */
+.hero::before,
+.hero::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  width: 340px;
+  height: 340px;
+  border-radius: 50%;
+  filter: blur(70px);
+  opacity: 0.16;
+  animation: blob-drift 18s ease-in-out infinite alternate;
+}
+.hero::before {
+  background: var(--accent);
+  top: 8%;
+  left: -60px;
+}
+.hero::after {
+  background: oklch(0.55 0.12 150);
+  bottom: 0;
+  right: -80px;
+  animation-delay: -9s;
+}
+
+@keyframes blob-drift {
+  from { transform: translate(0, 0) scale(1); }
+  to   { transform: translate(70px, 40px) scale(1.25); }
+}
+
+.hero__kicker {
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin: 0 0 var(--s-3);
+}
+
+.hero__title {
+  font-size: clamp(2.5rem, 1.5rem + 5vw, 4.5rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin: 0 0 var(--s-3);
+}
+.hero__title em { font-style: normal; color: var(--accent); }
+
+/* Kinetische Typografie: Buchstaben fallen gestaffelt ein, hüpfen bei Hover */
+.hero__title .ltr {
+  display: inline-block;
+  animation: ltr-in 0.6s backwards cubic-bezier(0.2, 1.6, 0.4, 1);
+  animation-delay: calc(var(--i) * 50ms);
+  transition: transform 0.18s, color 0.18s;
+}
+.hero__title .ltr:hover {
+  transform: translateY(-0.14em) rotate(-5deg) scale(1.12);
+  color: var(--accent);
+}
+
+@keyframes ltr-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.6em) rotate(8deg);
+  }
+}
+
+/* Rotierendes Sticker-Badge */
+.badge-spin {
+  position: absolute;
+  top: var(--s-8);
+  right: var(--s-6);
+  width: 116px;
+  height: 116px;
+  animation: logo-spin 20s linear infinite;
+}
+.badge-spin text {
+  fill: var(--accent);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+}
+
+.hero__claim {
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  max-width: 34em;
+  margin: 0 auto var(--s-6);
+}
+
+.hero__facts {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--s-2);
+  margin-bottom: var(--s-8);
+}
+
+.pill {
+  padding: var(--s-2) var(--s-4);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+/* Signature-Element: Logo — Baumscheibe (Wood) trifft Waveform (Beat).
+   Die Ringe drehen langsam wie eine Vinyl, die Waveform pulsiert. */
+.logo {
+  width: clamp(140px, 28vw, 190px);
+  height: auto;
+  margin-bottom: var(--s-4);
+}
+
+.logo circle {
+  fill: none;
+  stroke: var(--accent);
+}
+
+.logo__rings {
+  animation: logo-spin 50s linear infinite;
+  transform-origin: 60px 62px;
+}
+
+.logo__wave {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  animation: logo-pulse 1.2s ease-in-out infinite;
+  transform-origin: 60px 60px;
+}
+
+@keyframes logo-spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes logo-pulse {
+  0%, 100% { transform: scaleY(1); }
+  50%      { transform: scaleY(0.72); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logo__rings, .logo__wave, .badge-spin,
+  .hero::before, .hero::after,
+  .hero__title .ltr, .marquee__track { animation: none; }
+  .marquee { display: none; }
+  html { scroll-behavior: auto; }
+}
+
+/* ---------- Laufband (Marquee) ---------- */
+
+.marquee {
+  overflow: hidden;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  transform: rotate(-1.2deg) scale(1.02);
+  padding: var(--s-3) 0;
+  margin: var(--s-2) 0 var(--s-4);
+}
+
+.marquee__track {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-6);
+  width: max-content;
+  white-space: nowrap;
+  animation: marquee-scroll 26s linear infinite;
+  font-weight: 700;
+  font-size: 0.9rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.marquee__star { color: var(--accent); }
+
+@keyframes marquee-scroll {
+  to { transform: translateX(-50%); }
+}
+
+/* ---------- Buttons ---------- */
+
+.btn {
+  display: inline-block;
+  padding: var(--s-3) var(--s-6);
+  border: none;
+  border-radius: var(--radius);
+  font-size: 1rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+  min-height: 44px;
+}
+.btn:active { transform: scale(0.98); }
+
+.btn--primary {
+  background: var(--accent);
+  color: var(--accent-text);
+}
+.btn--primary:hover { background: var(--accent-hover); }
+
+/* ---------- Sections ---------- */
+
+.section {
+  max-width: var(--content-width);
+  margin: 0 auto;
+  padding: var(--s-12) var(--s-6);
+  border-top: 1px solid var(--border);
+}
+
+.section__intro {
+  color: var(--text-muted);
+  margin-top: calc(-1 * var(--s-2));
+  margin-bottom: var(--s-6);
+}
+
+.muted { color: var(--text-muted); font-size: 0.9rem; }
+
+/* ---------- Chips (Tag-Auswahl) ---------- */
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+  margin-bottom: var(--s-6);
+}
+
+.chip {
+  padding: var(--s-2) var(--s-4);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  min-height: 44px;
+}
+.chip:hover { background: var(--surface-2); color: var(--text); }
+.chip[aria-selected="true"],
+.chip[aria-pressed="true"] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-text);
+}
+
+/* ---------- Timeline ---------- */
+
+.timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-left: 2px solid var(--border);
+}
+
+.timeline li {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-1) var(--s-4);
+  align-items: baseline;
+  padding: var(--s-3) 0 var(--s-3) var(--s-6);
+}
+.timeline li::before {
+  content: "";
+  position: absolute;
+  left: -6px;
+  top: 1.35em;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.timeline .time {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--accent);
+  min-width: 3.5em;
+}
+.timeline .title { font-weight: 600; }
+.timeline .note { color: var(--text-muted); font-size: 0.9rem; }
+
+/* ---------- Cards ---------- */
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--s-6);
+  box-shadow: var(--shadow);
+  margin-bottom: var(--s-6);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px oklch(0 0 0 / 0.35);
+}
+.card--accent { border-color: var(--accent); }
+
+.card__label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin: 0 0 var(--s-1);
+}
+.card__label + ul { margin-top: 0; }
+
+.card__big {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin: 0 0 var(--s-4);
+}
+
+.card .btn { margin-top: var(--s-3); }
+
+/* ---------- Hinweise (Anfahrt) ---------- */
+
+.hints {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--s-3);
+}
+.hints li {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--s-3) var(--s-4);
+}
+
+/* ---------- Checkliste (Mitbringen) ---------- */
+
+.checklist-progress {
+  font-weight: 600;
+  color: var(--accent);
+  margin: 0 0 var(--s-3);
+}
+
+.checklist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--s-2);
+}
+
+.checklist label {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s-3);
+  padding: var(--s-3) var(--s-4);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background 0.15s;
+  min-height: 48px;
+}
+.checklist label:hover { background: var(--surface-2); }
+
+.checklist input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent);
+  flex-shrink: 0;
+  transform: translateY(2px);
+}
+
+.checklist .note { color: var(--text-muted); font-size: 0.9rem; }
+
+.checklist li:has(input:checked) label {
+  border-color: var(--accent);
+}
+.checklist li:has(input:checked) .item {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+
+/* ---------- Abstimmen / Umfragen ---------- */
+
+.poll h3 {
+  font-size: 1.1rem;
+  margin: 0 0 var(--s-1);
+}
+.poll .muted { margin: 0 0 var(--s-3); }
+.poll .chips { margin-bottom: 0; }
+
+#eigene-idee {
+  width: 100%;
+  padding: var(--s-3);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font: inherit;
+  resize: vertical;
+}
+#eigene-idee::placeholder { color: var(--text-muted); }
+
+#share-votes { margin-bottom: var(--s-2); }
+
+/* ---------- FAQ ---------- */
+
+#faq-list details {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: var(--s-2);
+}
+#faq-list summary {
+  padding: var(--s-4);
+  font-weight: 600;
+  cursor: pointer;
+  min-height: 44px;
+}
+#faq-list summary:hover { color: var(--accent); }
+#faq-list details p {
+  margin: 0;
+  padding: 0 var(--s-4) var(--s-4);
+  color: var(--text-muted);
+}
+
+/* ---------- Footer ---------- */
+
+.footer {
+  border-top: 1px solid var(--border);
+  padding: var(--s-8) var(--s-6);
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+/* ---------- Playlist (Spotify-Embed) ---------- */
+
+#spotify-embed iframe {
+  border: 0;
+  border-radius: var(--radius);
+  display: block;
+}
+
+/* ---------- Konfetti & Cursor-Glow ---------- */
+
+.confetti {
+  position: fixed;
+  top: 0;
+  z-index: 50;
+  font-size: 1.4rem;
+  pointer-events: none;
+}
+
+.cursor-glow {
+  position: fixed;
+  top: -200px;
+  left: -200px;
+  width: 400px;
+  height: 400px;
+  z-index: 40;
+  pointer-events: none;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, var(--accent), transparent 70%);
+  opacity: 0.07;
+  mix-blend-mode: screen;
+}
+
+/* ---------- Scroll-Fortschrittsbalken (reines CSS) ---------- */
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: scroll()) {
+    body::after {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 30;
+      width: 100%;
+      height: 3px;
+      background: var(--accent);
+      transform-origin: 0 0;
+      animation: progress-grow linear both;
+      animation-timeline: scroll();
+    }
+    @keyframes progress-grow {
+      from { transform: scaleX(0); }
+      to   { transform: scaleX(1); }
+    }
+  }
+}
+
+/* ---------- Scroll-Reveal (modernes CSS, kein JS; degradiert sauber) ---------- */
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .section {
+      animation: section-rise both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 35%;
+    }
+    @keyframes section-rise {
+      from { opacity: 0; transform: translateY(28px); }
+    }
+  }
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 700px) {
+  .badge-spin { display: none; } /* überlappt sonst den Titel */
+}
+
+@media (max-width: 600px) {
+  .topbar {
+    padding: var(--s-2) var(--s-4);
+    flex-direction: column;
+    align-items: center;
+    gap: var(--s-1);
+  }
+  .topbar__nav { justify-content: center; }
+  .hero { padding: var(--s-12) var(--s-4) var(--s-8); }
+  .section { padding: var(--s-8) var(--s-4); }
+  .timeline .time { min-width: 100%; }
+}
