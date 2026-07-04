@@ -1,6 +1,8 @@
 // WoodBeat 2026 — füllt die Sektionen in index.html mit den Daten aus data.js.
 // Inhalte ändern? → src/data.js. Aussehen ändern? → src/style.css.
 
+import '@fontsource/unbounded/500.css';
+import '@fontsource/unbounded/700.css';
 import './style.css';
 import { FESTIVAL, ANFAHRT, TIMETABLE, WUENSCHE, KOSTEN, FAQ, UMFRAGEN, MARQUEE, SPOTIFY } from './data.js';
 
@@ -85,8 +87,7 @@ function renderDayChips() {
     const chip = document.createElement('button');
     chip.className = 'chip';
     chip.textContent = day.day;
-    chip.setAttribute('role', 'tab');
-    chip.setAttribute('aria-selected', String(i === activeDay));
+    chip.setAttribute('aria-pressed', String(i === activeDay));
     chip.addEventListener('click', () => {
       activeDay = i;
       renderDayChips();
@@ -98,8 +99,9 @@ function renderDayChips() {
 
 function renderSlots() {
   slotList.innerHTML = '';
-  TIMETABLE[activeDay].slots.forEach((slot) => {
+  TIMETABLE[activeDay].slots.forEach((slot, idx) => {
     const li = document.createElement('li');
+    li.style.setProperty('--i', idx); // gestaffeltes Einfliegen beim Tagwechsel
 
     const time = document.createElement('span');
     time.className = 'time';

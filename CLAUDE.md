@@ -51,6 +51,14 @@ echte Live-Ergebnisse gewünscht sind, wäre der Schritt ein kleines Backend
 ### Design-Entscheidungen
 
 - Dunkles Waldgrün + Bernstein (Lagerfeuer/Holz) — kein generisches Blau/Neon.
+- Display-Schrift **Unbounded** (selbst gehostet via `@fontsource/unbounded`,
+  Gewichte 500/700, Import in `main.js`) für Titel/H2/Marquee/Topbar-Logo;
+  Body bleibt Systemschrift. Schriftwechsel = `--font-display` in `style.css`.
+- Link-Vorschau: OG-Tags in `index.html` + `public/og-image.png` (generiert; nach
+  dem Hosting die `og:image`-URL auf die absolute Domain umstellen!).
+- Logo-SVGs (Hero groß, Topbar klein): rotierende Teile brauchen
+  `transform-box: view-box`, sonst liegt die Drehachse außerhalb des Icons.
+  `body { overflow-x: clip }` fängt Überstände des schrägen Marquees ab.
 - Signature-Element: das Logo im Hero — exzentrische Baumringe ("Wood", drehen
   langsam wie eine Vinyl) durchschnitten von einer pulsierenden Waveform ("Beat").
   Inline-SVG in `index.html`, Animationen in `style.css`; statische Kopie als

@@ -5,11 +5,34 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <!-- Link-Vorschau (WhatsApp & Co.). Nach dem Hosting die og:image-URL auf die
+       echte Domain umstellen, z.B. https://woodbeat.netlify.app/og-image.png -->
+  <meta property="og:title" content="WoodBeat 2026 🌲🎶" />
+  <meta property="og:description" content="24.–26. Juli 2026 — unser privates Festival: Freunde, Beats, Wald. Timetable, Anfahrt, Mitbringliste & Abstimmung." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="/og-image.png" />
   <title>WoodBeat 2026 — unser Festival</title>
 </head>
 <body>
   <header class="topbar">
-    <a class="topbar__logo" href="#top">Wood<span>Beat</span></a>
+    <a class="topbar__logo" href="#top">
+      <svg class="logo logo--small" viewBox="0 0 120 120" aria-hidden="true">
+        <defs>
+          <clipPath id="logo-clip-s">
+            <rect x="0" y="0" width="120" height="46" />
+            <rect x="0" y="74" width="120" height="46" />
+          </clipPath>
+        </defs>
+        <g class="logo__rings" clip-path="url(#logo-clip-s)">
+          <circle cx="60" cy="62" r="16" stroke-width="7" opacity="0.9" />
+          <circle cx="58" cy="61" r="32" stroke-width="6" opacity="0.55" />
+          <circle cx="61" cy="63" r="48" stroke-width="7" opacity="0.75" />
+        </g>
+        <path class="logo__wave" style="stroke-width: 9"
+          d="M6 60 H24 L34 42 L46 80 L58 36 L70 82 L82 50 L94 66 H114" />
+      </svg>
+      Wood<span>Beat</span>
+    </a>
     <nav class="topbar__nav" aria-label="Hauptnavigation">
       <a href="#timetable">Timetable</a>
       <a href="#anfahrt">Anfahrt</a>
@@ -72,7 +95,7 @@
     <section id="timetable" class="section">
       <h2>Timetable</h2>
       <p class="section__intro">Was passiert wann? Tag auswählen:</p>
-      <div class="chips" id="day-chips" role="tablist" aria-label="Festivaltag wählen"></div>
+      <div class="chips" id="day-chips" role="group" aria-label="Festivaltag wählen"></div>
       <ol class="timeline" id="slot-list"></ol>
     </section>
 
