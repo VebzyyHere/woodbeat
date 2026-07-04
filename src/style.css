@@ -463,6 +463,105 @@ a { color: var(--accent); }
 
 .card .btn { margin-top: var(--s-3); }
 
+/* ---------- Tickets & Bar ---------- */
+
+.tickets {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--s-4);
+}
+
+.ticket {
+  position: relative;
+  margin-bottom: 0;
+}
+.ticket--featured {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent), var(--shadow);
+}
+
+.ticket__badge {
+  position: absolute;
+  top: calc(-1 * var(--s-3));
+  right: var(--s-4);
+  background: var(--accent);
+  color: var(--accent-text);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: var(--s-1) var(--s-3);
+  border-radius: 999px;
+}
+
+.ticket__name {
+  font-family: var(--font-display);
+  font-weight: 700;
+  margin: 0 0 var(--s-2);
+}
+
+.ticket__preis {
+  font-family: var(--font-display);
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--accent);
+  line-height: 1;
+  margin: 0;
+}
+
+.ticket__einheit {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin: var(--s-1) 0 var(--s-4);
+}
+
+.ticket__includes {
+  margin: 0;
+  padding-left: 0;
+  list-style: none;
+}
+.ticket__includes li {
+  padding: var(--s-1) 0;
+  border-top: 1px solid var(--border);
+}
+
+#tickets-hinweis { margin: var(--s-4) 0 var(--s-8); }
+
+.bar__title {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  margin-bottom: var(--s-2);
+}
+
+.bar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--s-4);
+  align-items: start;
+}
+
+.bar__gruppe { margin-bottom: 0; }
+
+.bar__kategorie {
+  font-family: var(--font-display);
+  font-weight: 700;
+  margin: 0 0 var(--s-3);
+}
+
+.bar__row {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--s-3);
+  padding: var(--s-2) 0;
+  border-top: 1px solid var(--border);
+}
+
+.bar__preis {
+  font-weight: 700;
+  color: var(--accent);
+  white-space: nowrap;
+}
+
 /* ---------- Hinweise (Anfahrt) ---------- */
 
 .hints {

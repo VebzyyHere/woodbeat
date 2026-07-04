@@ -106,16 +106,68 @@ export const UMFRAGEN = [
   },
 ];
 
-export const KOSTEN = {
-  beitrag: 'TBD € pro Person',
-  includes: [
-    'Gelände & Infrastruktur (Strom, Wasser, Klo)',
-    'Grundversorgung Essen (Grill, Frühstück)',
-    'Getränke-Grundstock',
-    'Technik & Licht',
-  ],
-  hinweis: 'Beitrag bitte vorab überweisen — Details kommen in der Gruppe. Wer knapp bei Kasse ist: melden, wir finden eine Lösung.',
-};
+// Zwei Ticket-Optionen. `featured: true` = hervorgehobene Karte mit Badge.
+export const TICKETS = [
+  {
+    emoji: '🎪',
+    name: 'Wochenendticket',
+    preis: '25 €',
+    einheit: 'einmalig · Fr–So',
+    featured: true,
+    badge: 'Empfohlen',
+    includes: [
+      '⛺ Camping direkt auf dem Gelände',
+      '🧊 Nutzung des Kühlanhängers',
+      '🍺 Eigene Getränke erlaubt',
+      '🎶 Alle 3 Tage & 2 Nächte',
+      '🍳 Grundversorgung Essen (Grill, Frühstück)',
+    ],
+  },
+  {
+    emoji: '☀️',
+    name: 'Tagesticket',
+    preis: '10 €',
+    einheit: 'pro Tag',
+    featured: false,
+    includes: [
+      '🎶 Ein Festivaltag deiner Wahl',
+      '🍹 Getränke gibt es an der Bar (siehe unten)',
+      '🚫 Keine eigenen Getränke — dafür Bar-Preise, die keinem wehtun',
+    ],
+  },
+];
+
+export const TICKETS_HINWEIS =
+  'Beitrag bitte vorab überweisen — Details kommen in der Gruppe. Wer knapp bei Kasse ist: melden, wir finden eine Lösung.';
+
+// Bar-Preisliste — Kategorien mit Getränken. Neues Getränk = neue Zeile hier.
+export const BAR = [
+  {
+    kategorie: 'Cocktails',
+    emoji: '🍹',
+    drinks: [
+      { name: 'Cuba Libre', preis: '3 €' },
+      { name: 'Aperol Spritz', preis: '3 €' },
+      { name: 'Skinny Bitch', preis: '3 €' },
+      { name: 'Gin Tonic', preis: '3 €' },
+    ],
+  },
+  {
+    kategorie: 'Bier',
+    emoji: '🍺',
+    drinks: [{ name: 'Bier 0,33 l', preis: '2 €' }],
+  },
+  {
+    kategorie: 'Softdrinks',
+    emoji: '🥤',
+    drinks: [
+      { name: 'Cola', preis: '2 €' },
+      { name: 'Fanta', preis: '2 €' },
+      { name: 'Sprite', preis: '2 €' },
+      { name: 'Wasser', preis: '1 €' },
+    ],
+  },
+];
 
 export const FAQ = [
   {

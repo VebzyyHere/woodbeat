@@ -4,7 +4,7 @@
 import '@fontsource/unbounded/500.css';
 import '@fontsource/unbounded/700.css';
 import './style.css';
-import { FESTIVAL, ANFAHRT, TIMETABLE, WUENSCHE, KOSTEN, FAQ, UMFRAGEN, MARQUEE, SPOTIFY } from './data.js';
+import { FESTIVAL, ANFAHRT, TIMETABLE, WUENSCHE, TICKETS, TICKETS_HINWEIS, BAR, FAQ, UMFRAGEN, MARQUEE, SPOTIFY } from './data.js';
 
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -338,16 +338,69 @@ if (matchMedia('(pointer: fine)').matches && !reducedMotion) {
   );
 }
 
-// ---------- Kosten ----------
+// ---------- Tickets & Bar ----------
 
-document.querySelector('#kosten-beitrag').textContent = KOSTEN.beitrag;
-document.querySelector('#kosten-hinweis').textContent = KOSTEN.hinweis;
+const ticketsWrap = document.querySelector('#tickets');
+TICKETS.forEach((ticket) => {
+  const card = document.createElement('div');
+  card.className = 'card ticket' + (ticket.featured ? ' ticket--featured' : '');
 
-const includesList = document.querySelector('#kosten-includes');
-KOSTEN.includes.forEach((punkt) => {
-  const li = document.createElement('li');
-  li.textContent = punkt;
-  includesList.appendChild(li);
+  if (ticket.badge) {
+    const badge = document.createElement('span');
+    badge.className = 'ticket__badge';
+    badge.textContent = ticket.badge;
+    card.appendChild(badge);
+  }
+
+  const name = document.createElement('p');
+  name.className = 'ticket__name';
+  name.textContent = `${ticket.emoji} ${ticket.name}`;
+
+  const preis = document.createElement('p');
+  preis.className = 'ticket__preis';
+  preis.textContent = ticket.preis;
+
+  const einheit = document.createElement('p');
+  einheit.className = 'ticket__einheit';
+  einheit.textContent = ticket.einheit;
+
+  const ul = document.createElement('ul');
+  ul.className = 'ticket__includes';
+  ticket.includes.forEach((punkt) => {
+    const li = document.createElement('li');
+    li.textContent = punkt;
+    ul.appendChild(li);
+  });
+
+  card.append(name, preis, einheit, ul);
+  ticketsWrap.appendChild(card);
+});
+
+document.querySelector('#tickets-hinweis').textContent = TICKETS_HINWEIS;
+
+const barWrap = document.querySelector('#bar');
+BAR.forEach((gruppe) => {
+  const card = document.createElement('div');
+  card.className = 'card bar__gruppe';
+
+  const titel = document.createElement('p');
+  titel.className = 'bar__kategorie';
+  titel.textContent = `${gruppe.emoji} ${gruppe.kategorie}`;
+  card.appendChild(titel);
+
+  gruppe.drinks.forEach((drink) => {
+    const row = document.createElement('div');
+    row.className = 'bar__row';
+    const name = document.createElement('span');
+    name.textContent = drink.name;
+    const preis = document.createElement('span');
+    preis.className = 'bar__preis';
+    preis.textContent = drink.preis;
+    row.append(name, preis);
+    card.appendChild(row);
+  });
+
+  barWrap.appendChild(card);
 });
 
 // ---------- FAQ ----------
