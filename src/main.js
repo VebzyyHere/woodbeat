@@ -373,8 +373,31 @@ TICKETS.forEach((ticket) => {
   });
 
   card.append(name, preis, einheit, ul);
+
+  if (ticket.ctaText) {
+    const cta = document.createElement('button');
+    cta.type = 'button';
+    cta.className = 'btn btn--primary ticket__cta';
+    cta.textContent = '🎟️ Ticket sichern';
+    cta.addEventListener('click', () => shareText(ticket.ctaText));
+    card.appendChild(cta);
+  }
+
   ticketsWrap.appendChild(card);
 });
+
+// Web-Share-API (Handy) oder WhatsApp-Link (Desktop) — wie beim Umfrage-Teilen
+async function shareText(text) {
+  if (navigator.share) {
+    try {
+      await navigator.share({ text });
+      return;
+    } catch {
+      return; // abgebrochen
+    }
+  }
+  window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank', 'noopener');
+}
 
 document.querySelector('#tickets-hinweis').textContent = TICKETS_HINWEIS;
 
@@ -402,6 +425,38 @@ BAR.forEach((gruppe) => {
 
   barWrap.appendChild(card);
 });
+
+// ---------- Sticky Mini-CTA ----------
+// Erscheint, sobald der Hero aus dem Bild ist; versteckt sich, solange die
+// Ticket-Sektion selbst sichtbar ist (dort wäre der Button doppelt).
+
+const stickybar = document.querySelector('#stickybar');
+document.querySelector('#stickybar-date').textContent = `📅 ${FESTIVAL.date}`;
+
+let heroVisible = true;
+let ticketsVisible = false;
+
+function updateStickybar() {
+  const show = !heroVisible && !ticketsVisible;
+  stickybar.hidden = false; // einmal einblenden, danach nur noch per Klasse
+  stickybar.classList.toggle('stickybar--visible', show);
+}
+
+new IntersectionObserver(
+  ([entry]) => {
+    heroVisible = entry.isIntersecting;
+    updateStickybar();
+  },
+  { threshold: 0.1 },
+).observe(document.querySelector('.hero'));
+
+new IntersectionObserver(
+  ([entry]) => {
+    ticketsVisible = entry.isIntersecting;
+    updateStickybar();
+  },
+  { threshold: 0.1 },
+).observe(document.querySelector('#kosten'));
 
 // ---------- FAQ ----------
 

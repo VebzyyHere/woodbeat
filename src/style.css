@@ -332,6 +332,13 @@ a { color: var(--accent); }
 }
 .btn--primary:hover { background: var(--accent-hover); }
 
+.btn--ghost {
+  background: transparent;
+  color: var(--text);
+  box-shadow: inset 0 0 0 1px var(--border);
+}
+.btn--ghost:hover { box-shadow: inset 0 0 0 1px var(--accent); color: var(--accent); }
+
 /* ---------- Sections ---------- */
 
 .section {
@@ -463,6 +470,54 @@ a { color: var(--accent); }
 
 .card .btn { margin-top: var(--s-3); }
 
+/* ---------- Hero-CTAs ---------- */
+
+.hero__cta {
+  display: flex;
+  gap: var(--s-3);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* ---------- Sticky Mini-CTA ---------- */
+
+.stickybar {
+  position: fixed;
+  left: 50%;
+  bottom: var(--s-4);
+  transform: translate(-50%, calc(100% + var(--s-6)));
+  display: flex;
+  align-items: center;
+  gap: var(--s-4);
+  max-width: calc(100vw - var(--s-8));
+  padding: var(--s-2) var(--s-2) var(--s-2) var(--s-4);
+  background: oklch(0.21 0.02 155 / 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  box-shadow: var(--shadow);
+  z-index: 50;
+  transition: transform 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+}
+.stickybar--visible { transform: translate(-50%, 0); }
+
+.stickybar__info {
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.stickybar__btn {
+  border-radius: 999px;
+  padding: var(--s-2) var(--s-4);
+  min-height: 0;
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stickybar { transition: none; }
+}
+
 /* ---------- Tickets & Bar ---------- */
 
 .tickets {
@@ -524,6 +579,8 @@ a { color: var(--accent); }
   padding: var(--s-1) 0;
   border-top: 1px solid var(--border);
 }
+
+.ticket__cta { width: 100%; text-align: center; }
 
 #tickets-hinweis { margin: var(--s-4) 0 var(--s-8); }
 

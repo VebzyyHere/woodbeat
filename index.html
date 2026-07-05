@@ -82,7 +82,10 @@
         <span class="pill" id="hero-location"></span>
         <span class="pill pill--countdown" id="hero-countdown" hidden></span>
       </div>
-      <a class="btn btn--primary" href="#timetable">Zum Timetable</a>
+      <div class="hero__cta">
+        <a class="btn btn--primary" href="#kosten">🎟️ Tickets sichern</a>
+        <a class="btn btn--ghost" href="#timetable">Zum Timetable</a>
+      </div>
     </section>
 
     <!-- Laufband -->
@@ -171,6 +174,12 @@
       <div id="faq-list"></div>
     </section>
   </main>
+
+  <!-- Sticky Mini-CTA — erscheint beim Scrollen, verschwindet bei der Ticket-Sektion -->
+  <div class="stickybar" id="stickybar" hidden>
+    <span class="stickybar__info"><span id="stickybar-date"></span> · im Wald 🌲</span>
+    <a class="btn btn--primary stickybar__btn" href="#kosten">🎟️ Tickets</a>
+  </div>
 
   <footer class="footer">
     <p>WoodBeat 2026 — privat organisiert, mit Liebe und Lagerfeuer. Fragen? Meld dich in der Gruppe. 🌲🎶</p>

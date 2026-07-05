@@ -115,6 +115,8 @@ export const TICKETS = [
     einheit: 'einmalig · Fr–So',
     featured: true,
     badge: 'Empfohlen',
+    // Vorbefüllte Nachricht für den "Ticket sichern"-Button (WhatsApp/Teilen).
+    ctaText: 'Ich bin dabei! 🎪 1× Wochenendticket (25 €) für WoodBeat 2026 bitte 🙌',
     includes: [
       '⛺ Camping direkt auf dem Gelände',
       '🧊 Nutzung des Kühlanhängers',
@@ -129,6 +131,7 @@ export const TICKETS = [
     preis: '10 €',
     einheit: 'pro Tag',
     featured: false,
+    ctaText: 'Ich bin dabei! ☀️ 1× Tagesticket (10 €) für WoodBeat 2026 bitte 🙌',
     includes: [
       '🎶 Ein Festivaltag deiner Wahl',
       '🍹 Getränke gibt es an der Bar (siehe unten)',
