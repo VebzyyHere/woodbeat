@@ -12,6 +12,6 @@
     "vite": "^6.3.5"
   },
   "dependencies": {
-    "@fontsource/unbounded": "^5.2.8"
+    "@fontsource/rye": "^5.2.7"
   }
 }

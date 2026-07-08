@@ -16,6 +16,7 @@ export const FESTIVAL = {
 export const MARQUEE = [
   'WoodBeat 2026',
   '24.–26. Juli',
+  'Rave Culture · Love · Freedom · Friendship',
   '3 Tage · 2 Nächte · 1 Wald',
   'Freunde · Beats · Lagerfeuer',
   'Bring deine Crew',

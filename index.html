@@ -9,27 +9,14 @@
   <meta property="og:title" content="WoodBeat 2026 🌲🎶" />
   <meta property="og:description" content="24.–26. Juli 2026 — unser privates Festival: Freunde, Beats, Wald. Timetable, Anfahrt, Mitbringliste & Abstimmung." />
   <meta property="og:type" content="website" />
-  <meta property="og:image" content="https://vebzyyhere.github.io/woodbeat/og-image.png" />
+  <meta property="og:image" content="https://vebzyyhere.github.io/woodbeat/banner.jpg" />
   <title>WoodBeat 2026 — unser Festival</title>
 </head>
 <body>
   <header class="topbar">
     <a class="topbar__logo" href="#top">
-      <svg class="logo logo--small" viewBox="0 0 120 120" aria-hidden="true">
-        <defs>
-          <clipPath id="logo-clip-s">
-            <rect x="0" y="0" width="120" height="46" />
-            <rect x="0" y="74" width="120" height="46" />
-          </clipPath>
-        </defs>
-        <g class="logo__rings" clip-path="url(#logo-clip-s)">
-          <circle cx="60" cy="62" r="16" stroke-width="7" opacity="0.9" />
-          <circle cx="58" cy="61" r="32" stroke-width="6" opacity="0.55" />
-          <circle cx="61" cy="63" r="48" stroke-width="7" opacity="0.75" />
-        </g>
-        <path class="logo__wave" style="stroke-width: 9"
-          d="M6 60 H24 L34 42 L46 80 L58 36 L70 82 L82 50 L94 66 H114" />
-      </svg>
+      <!-- Echtes Emblem, ausgeschnitten aus dem Banner (public/logo.png) -->
+      <img class="logo logo--small" src="/logo.png" alt="" />
       Wood<span>Beat</span>
     </a>
     <nav class="topbar__nav" aria-label="Hauptnavigation">
@@ -46,36 +33,13 @@
   <main id="top">
     <!-- Hero -->
     <section class="hero" aria-label="Intro">
-      <!-- Rotierendes Sticker-Badge -->
-      <svg class="badge-spin" viewBox="0 0 100 100" aria-hidden="true">
-        <defs>
-          <path id="badge-circle" d="M50,50 m-38,0 a38,38 0 1,1 76,0 a38,38 0 1,1 -76,0" />
-        </defs>
-        <text>
-          <textPath href="#badge-circle">✦ WOODBEAT ✦ PRIVATE RAVE ✦ IM WALD&#160;</textPath>
-        </text>
-      </svg>
-      <!-- Logo: Baumscheibe (Wood) trifft Waveform (Beat) -->
-      <svg class="logo" viewBox="0 0 120 120" role="img" aria-label="WoodBeat Logo">
-        <defs>
-          <clipPath id="logo-clip">
-            <rect x="0" y="0" width="120" height="46" />
-            <rect x="0" y="74" width="120" height="46" />
-          </clipPath>
-        </defs>
-        <g class="logo__rings" clip-path="url(#logo-clip)">
-          <circle cx="60" cy="62" r="10" stroke-width="3"   opacity="0.9" />
-          <circle cx="59" cy="61" r="18" stroke-width="2"   opacity="0.55" />
-          <circle cx="61" cy="63" r="26" stroke-width="3.5" opacity="0.8" />
-          <circle cx="58" cy="62" r="34" stroke-width="2"   opacity="0.45" />
-          <circle cx="61" cy="61" r="42" stroke-width="3"   opacity="0.7" />
-          <circle cx="60" cy="63" r="50" stroke-width="2"   opacity="0.35" />
-        </g>
-        <path class="logo__wave"
-          d="M6 60 H24 L30 50 L36 74 L42 34 L48 84 L54 48 L60 70 L66 38 L72 80 L78 54 L84 66 L90 58 H114" />
-      </svg>
       <p class="hero__kicker">Privates Festival · Nur mit Einladung</p>
-      <h1 class="hero__title">WoodBeat <em>2026</em></h1>
+      <!-- Offizielles Banner-Artwork (auf den inneren Poster-Streifen zugeschnitten,
+           damit die Ränder weich in die Seite auslaufen können). Trägt den Titel,
+           deshalb ist die h1 nur noch für Screenreader/SEO da (Klasse sr-only). -->
+      <img class="hero__banner" src="/banner-strip.jpg"
+        alt="WoodBeat 2026 — Rave Culture, Love, Freedom, Friendship" />
+      <h1 class="hero__title sr-only">WoodBeat <em>2026</em></h1>
       <p class="hero__claim" id="hero-claim"></p>
       <div class="hero__facts">
         <span class="pill" id="hero-date"></span>

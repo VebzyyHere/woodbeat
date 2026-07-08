@@ -1,34 +1,36 @@
 /* ============================================================
    WoodBeat 2026 — Design-Tokens & Styles
-   Grundton: dunkles Waldgrün (Festivalnacht im Grünen),
-   Akzent: warmes Bernstein (Lagerfeuer, Lichterketten, Holz).
+   Look abgeleitet vom offiziellen Banner (public/banner.jpg):
+   Vintage-Festivalposter — dunkles Waldgrün, Antik-Gold,
+   Creme statt Weiß, Western-Display-Schrift, leichte Körnung.
    Farben/Abstände NUR über die Variablen hier ändern.
    ============================================================ */
 
 :root {
-  /* Akzent — Bernstein/Holz */
-  --accent:        oklch(0.78 0.14 78);
-  --accent-hover:  oklch(0.72 0.14 78);
-  --accent-text:   oklch(0.22 0.03 78);   /* dunkler Text AUF Akzentfläche */
+  /* Akzent — Antik-Gold wie im Banner-Schriftzug */
+  --accent:        oklch(0.72 0.11 84);
+  --accent-hover:  oklch(0.66 0.11 84);
+  --accent-text:   oklch(0.22 0.03 84);   /* dunkler Text AUF Akzentfläche */
 
-  /* Neutrale — Waldgrün-Schwarz, gelayert */
-  --bg:         oklch(0.17 0.02 155);
-  --surface:    oklch(0.21 0.02 155);
-  --surface-2:  oklch(0.25 0.02 155);
-  --border:     oklch(0.32 0.02 155);
-  --text:       oklch(0.95 0.01 100);
-  --text-muted: oklch(0.72 0.02 130);
+  /* Neutrale — Waldgrün wie der Banner-Hintergrund, gelayert */
+  --bg:         oklch(0.20 0.025 145);
+  --surface:    oklch(0.24 0.025 145);
+  --surface-2:  oklch(0.28 0.025 145);
+  --border:     oklch(0.36 0.03 120);
+  --text:       oklch(0.91 0.03 95);      /* Creme wie "WOODBEAT" im Banner */
+  --text-muted: oklch(0.72 0.04 110);
 
   /* Spacing (4px-Raster) */
   --s-1: 4px; --s-2: 8px; --s-3: 12px; --s-4: 16px;
   --s-6: 24px; --s-8: 32px; --s-12: 48px; --s-16: 64px;
 
-  --radius: 12px;
+  --radius: 10px;
   --shadow: 0 4px 16px oklch(0 0 0 / 0.3);
   --content-width: 880px;
 
-  /* Display-Schrift für Titel/Überschriften/Marquee — Body bleibt System-Schrift */
-  --font-display: "Unbounded", system-ui, sans-serif;
+  /* Display-Schrift für Titel/Überschriften/Marquee — Body bleibt System-Schrift.
+     Rye gibt es nur in 400 — font-synthesis (body) verhindert Fake-Fett. */
+  --font-display: "Rye", Georgia, serif;
 }
 
 * { box-sizing: border-box; }
@@ -44,16 +46,58 @@ body {
   font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
   font-size: 16px;
   line-height: 1.6;
+  /* Rye hat nur Gewicht 400 — kein künstliches Fett/Kursiv erzeugen */
+  font-synthesis: none;
+}
+
+/* Feine Körnung über der ganzen Seite — der "bedruckte Papier"-Look
+   des Banners. Rein dekorativ, klickt sich nicht an. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
 h1, h2, h3 { line-height: 1.15; margin: 0 0 var(--s-4); }
+/* Sektions-Titel im Poster-Stil: zentriert, Versalien,
+   flankiert von Gold-Rauten wie auf dem Banner */
 h2 {
   font-family: var(--font-display);
-  font-size: clamp(1.25rem, 1.05rem + 1vw, 1.6rem);
-  font-weight: 700;
+  font-size: clamp(1.15rem, 0.95rem + 1vw, 1.5rem);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-3);
+  text-align: center;
+}
+h2::before,
+h2::after {
+  content: "✦";
+  color: var(--accent);
+  font-size: 0.65em;
+  flex-shrink: 0;
 }
 
 a { color: var(--accent); }
+
+/* Nur für Screenreader — visuell versteckt, aber vorlesbar */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
 
 :focus-visible {
   outline: 2px solid var(--accent);
@@ -72,7 +116,7 @@ a { color: var(--accent); }
   justify-content: space-between;
   gap: var(--s-4);
   padding: var(--s-3) var(--s-6);
-  background: oklch(0.17 0.02 155 / 0.85);
+  background: oklch(0.20 0.025 145 / 0.85);
   backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--border);
 }
@@ -96,6 +140,9 @@ a { color: var(--accent); }
   height: 26px;
   margin: 0;
   flex-shrink: 0;
+  /* das Emblem ist ein quadratischer Banner-Ausschnitt → rund maskieren */
+  border-radius: 50%;
+  object-fit: cover;
 }
 
 .topbar__nav {
@@ -142,7 +189,7 @@ a { color: var(--accent); }
   left: -60px;
 }
 .hero::after {
-  background: oklch(0.55 0.12 150);
+  background: oklch(0.52 0.09 145);
   bottom: 0;
   right: -80px;
   animation-delay: -9s;
@@ -162,47 +209,31 @@ a { color: var(--accent); }
   margin: 0 0 var(--s-3);
 }
 
-.hero__title {
-  font-family: var(--font-display);
-  font-size: clamp(1.9rem, 1.1rem + 4vw, 3.4rem);
-  font-weight: 700;
-  margin: 0 0 var(--s-3);
+/* Offizielles Banner-Artwork — Herzstück des Heros.
+   Läuft in voller Breite aus dem Content-Container heraus; ALLE vier
+   Ränder laufen weich ins Waldgrün aus (zwei Verlaufs-Masken, die per
+   mask-composite geschnitten werden) — Artwork und Seite verschmelzen. */
+.hero__banner {
+  display: block;
+  width: min(100vw, 1600px);
+  height: auto;
+  margin: var(--s-4) 0 var(--s-4) calc(50% - min(50vw, 800px));
+  -webkit-mask-image:
+    linear-gradient(to right, transparent, black 14%, black 86%, transparent),
+    linear-gradient(to bottom, transparent, black 22%, black 78%, transparent);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(to right, transparent, black 14%, black 86%, transparent),
+    linear-gradient(to bottom, transparent, black 22%, black 78%, transparent);
+  mask-composite: intersect;
+  animation: banner-in 0.9s backwards ease-out;
 }
-.hero__title em { font-style: normal; color: var(--accent); }
 
-/* Kinetische Typografie: Buchstaben fallen gestaffelt ein, hüpfen bei Hover */
-.hero__title .ltr {
-  display: inline-block;
-  animation: ltr-in 0.6s backwards cubic-bezier(0.2, 1.6, 0.4, 1);
-  animation-delay: calc(var(--i) * 50ms);
-  transition: transform 0.18s, color 0.18s;
-}
-.hero__title .ltr:hover {
-  transform: translateY(-0.14em) rotate(-5deg) scale(1.12);
-  color: var(--accent);
-}
-
-@keyframes ltr-in {
+@keyframes banner-in {
   from {
     opacity: 0;
-    transform: translateY(0.6em) rotate(8deg);
+    transform: scale(0.97);
   }
-}
-
-/* Rotierendes Sticker-Badge */
-.badge-spin {
-  position: absolute;
-  top: var(--s-8);
-  right: var(--s-6);
-  width: 116px;
-  height: 116px;
-  animation: logo-spin 20s linear infinite;
-}
-.badge-spin text {
-  fill: var(--accent);
-  font-size: 10.5px;
-  font-weight: 600;
-  letter-spacing: 0.22em;
 }
 
 .hero__claim {
@@ -229,50 +260,12 @@ a { color: var(--accent); }
   color: var(--text-muted);
 }
 
-/* Signature-Element: Logo — Baumscheibe (Wood) trifft Waveform (Beat).
-   Die Ringe drehen langsam wie eine Vinyl, die Waveform pulsiert. */
-.logo {
-  width: clamp(140px, 28vw, 190px);
-  height: auto;
-  margin-bottom: var(--s-4);
-}
-
-.logo circle {
-  fill: none;
-  stroke: var(--accent);
-}
-
-.logo__rings {
-  animation: logo-spin 50s linear infinite;
-  /* transform-box nötig, damit die Achse in SVG-Koordinaten liegt —
-     sonst rotieren die Ringe um einen Punkt außerhalb des Icons */
-  transform-box: view-box;
-  transform-origin: 50% 51.7%; /* = 60/62 im 120er-viewBox */
-}
-
-.logo__wave {
-  fill: none;
-  stroke: var(--accent);
-  stroke-width: 4;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  animation: logo-pulse 1.2s ease-in-out infinite;
-  transform-box: view-box;
-  transform-origin: 50% 50%;
-}
-
-@keyframes logo-spin {
-  to { transform: rotate(360deg); }
-}
-@keyframes logo-pulse {
-  0%, 100% { transform: scaleY(1); }
-  50%      { transform: scaleY(0.72); }
-}
+/* (Das frühere SVG-Logo mit rotierenden Ringen ist Geschichte —
+   Topbar & Favicon nutzen jetzt das echte Emblem aus dem Banner.) */
 
 @media (prefers-reduced-motion: reduce) {
-  .logo__rings, .logo__wave, .badge-spin,
-  .hero::before, .hero::after,
-  .hero__title .ltr, .marquee__track { animation: none; }
+  .hero::before, .hero::after, .hero__banner,
+  .marquee__track { animation: none; }
   .marquee { display: none; }
   html { scroll-behavior: auto; }
 }
@@ -341,15 +334,17 @@ a { color: var(--accent); }
 
 /* ---------- Sections ---------- */
 
+/* Sektionen fließen ohne harte Trennlinien ineinander — Struktur kommt
+   aus Abstand + den zentrierten ✦-Überschriften */
 .section {
   max-width: var(--content-width);
   margin: 0 auto;
   padding: var(--s-12) var(--s-6);
-  border-top: 1px solid var(--border);
 }
 
 .section__intro {
   color: var(--text-muted);
+  text-align: center;
   margin-top: calc(-1 * var(--s-2));
   margin-bottom: var(--s-6);
 }
@@ -491,7 +486,7 @@ a { color: var(--accent); }
   gap: var(--s-4);
   max-width: calc(100vw - var(--s-8));
   padding: var(--s-2) var(--s-2) var(--s-2) var(--s-4);
-  background: oklch(0.21 0.02 155 / 0.85);
+  background: oklch(0.24 0.025 145 / 0.85);
   backdrop-filter: blur(12px);
   border: 1px solid var(--border);
   border-radius: 999px;
@@ -587,6 +582,8 @@ a { color: var(--accent); }
 .bar__title {
   font-family: var(--font-display);
   font-size: 1.15rem;
+  font-weight: 400;
+  text-align: center;
   margin-bottom: var(--s-2);
 }
 

@@ -1,43 +1,13 @@
 // WoodBeat 2026 — füllt die Sektionen in index.html mit den Daten aus data.js.
 // Inhalte ändern? → src/data.js. Aussehen ändern? → src/style.css.
 
-import '@fontsource/unbounded/500.css';
-import '@fontsource/unbounded/700.css';
+import '@fontsource/rye/400.css';
 import './style.css';
 import { FESTIVAL, ANFAHRT, TIMETABLE, WUENSCHE, TICKETS, TICKETS_HINWEIS, BAR, FAQ, UMFRAGEN, MARQUEE, SPOTIFY } from './data.js';
 
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 // ---------- Hero ----------
-
-// Kinetische Typografie: Titel in einzelne Buchstaben zerlegen —
-// sie fallen gestaffelt ein und reagieren einzeln auf Hover.
-const heroTitle = document.querySelector('.hero__title');
-heroTitle.setAttribute('aria-label', heroTitle.textContent.trim());
-let letterIndex = 0;
-function wrapLetters(el) {
-  [...el.childNodes].forEach((node) => {
-    if (node.nodeType === Node.TEXT_NODE) {
-      const frag = document.createDocumentFragment();
-      [...node.textContent].forEach((ch) => {
-        if (ch.trim() === '') {
-          frag.append(ch);
-          return;
-        }
-        const span = document.createElement('span');
-        span.className = 'ltr';
-        span.style.setProperty('--i', letterIndex++);
-        span.textContent = ch;
-        span.setAttribute('aria-hidden', 'true');
-        frag.append(span);
-      });
-      node.replaceWith(frag);
-    } else {
-      wrapLetters(node);
-    }
-  });
-}
-wrapLetters(heroTitle);
 
 // Laufband: Einträge doppelt einfüllen → nahtlose Endlosschleife
 const marqueeTrack = document.querySelector('#marquee-track');

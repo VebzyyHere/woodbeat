@@ -42,8 +42,8 @@ Inhalt und Darstellung sind strikt getrennt:
   `SPOTIFY.playlistUrl` (Playlist-ID wird aus dem Link geparst; Playlist muss in
   Spotify öffentlich sein, damit Gäste sie sehen). Marquee-Laufband aus `MARQUEE`.
 - `src/style.css` — Design-Tokens als CSS-Variablen in `:root` (OKLCH, Dark Theme:
-  Waldgrün-Basis + Bernstein-Akzent). Farben/Abstände nur über die Variablen ändern,
-  keine Hardcodes in Komponenten-Regeln.
+  Waldgrün-Basis + Antik-Gold-Akzent, abgeleitet vom Banner-Artwork). Farben/Abstände
+  nur über die Variablen ändern, keine Hardcodes in Komponenten-Regeln.
 - `index.html` — statische Sektions-Gerüste mit IDs, die `main.js` befüllt.
 
 Alles läuft client-seitig, kein Backend. Häkchen, Umfrage-Stimmen und die
@@ -59,29 +59,35 @@ echte Live-Ergebnisse gewünscht sind, wäre der Schritt ein kleines Backend
 
 ### Design-Entscheidungen
 
-- Dunkles Waldgrün + Bernstein (Lagerfeuer/Holz) — kein generisches Blau/Neon.
-- Display-Schrift **Unbounded** (selbst gehostet via `@fontsource/unbounded`,
-  Gewichte 500/700, Import in `main.js`) für Titel/H2/Marquee/Topbar-Logo;
-  Body bleibt Systemschrift. Schriftwechsel = `--font-display` in `style.css`.
-- Link-Vorschau: OG-Tags in `index.html` + `public/og-image.png` (generiert; nach
-  dem Hosting die `og:image`-URL auf die absolute Domain umstellen!).
-- Logo-SVGs (Hero groß, Topbar klein): rotierende Teile brauchen
-  `transform-box: view-box`, sonst liegt die Drehachse außerhalb des Icons.
-  `body { overflow-x: clip }` fängt Überstände des schrägen Marquees ab.
-- Signature-Element: das Logo im Hero — exzentrische Baumringe ("Wood", drehen
-  langsam wie eine Vinyl) durchschnitten von einer pulsierenden Waveform ("Beat").
-  Inline-SVG in `index.html`, Animationen in `style.css`; statische Kopie als
-  `public/favicon.svg` (Farben dort hardcoded). Respektiert `prefers-reduced-motion`.
+- **Look = Vintage-Festivalposter, abgeleitet vom offiziellen Banner-Artwork**
+  (`public/banner.jpg`, Stand 07/2026): dunkles Waldgrün + Antik-Gold + Creme,
+  leichte Körnung über der ganzen Seite (`body::before`, SVG-Turbulence-Tile) —
+  kein generisches Blau/Neon.
+- Display-Schrift **Rye** (Western/Vintage, selbst gehostet via `@fontsource/rye`,
+  nur Gewicht 400 — `font-synthesis: none` auf `body` verhindert Fake-Fett) für
+  H2/H3/Preise/Marquee/Topbar-Logo; Body bleibt Systemschrift.
+  Schriftwechsel = `--font-display` in `style.css`.
+- Sektions-Titel im Poster-Stil: zentriert, Versalien, ✦-Rauten via
+  `h2::before/::after`; Sektionen ohne Trennlinien (Struktur aus Abstand).
+- Link-Vorschau: OG-Tags in `index.html`, `og:image` zeigt absolut auf
+  `banner.jpg` (nach Domain-Wechsel URL anpassen!).
+- Signature-Element: das Banner-Artwork als Hero — auf den inneren Poster-Streifen
+  zugeschnitten (`public/banner-strip.jpg`), volle Breite, alle vier Ränder per
+  Verlaufs-Masken (`mask-composite: intersect`) weich ins Waldgrün ausgeblendet.
+  Die `h1` ist nur noch `sr-only` (der Titel steht im Artwork). Topbar-Logo =
+  Emblem-Ausschnitt aus dem Banner (`public/logo.png`, rund maskiert);
+  `public/favicon.svg` behält das alte Baumring-Motiv in Gold (bei 16 px klarer
+  als das fotografische Emblem). `body { overflow-x: clip }` fängt Überstände
+  des schrägen Marquees ab.
 - Chips statt Dropdowns — Tagesauswahl und Umfrage-Optionen nutzen dasselbe
   `.chip`-Pattern (`aria-selected` bzw. `aria-pressed`).
 - Scroll-Reveal der Sektionen rein per CSS (`animation-timeline: view()` hinter
   `@supports`, degradiert sauber); Scroll-Fortschrittsbalken ebenso
   (`animation-timeline: scroll()`, `body::after`).
-- Verspielte Schicht (bewusst so gewollt, Stand Award-Trends 2025/26): kinetischer
-  Hero-Titel (Buchstaben-Spans `.ltr`, gestaffelter Einfall + Hover pro Buchstabe),
-  Marquee leicht rotiert (Anti-Grid), rotierendes Kreis-Text-Badge, Glow-Blobs im
-  Hero, Cursor-Glow (nur `pointer: fine`), Emoji-Konfetti wenn die Packliste voll
-  ist. **Alle** Animationen respektieren `prefers-reduced-motion` (JS-seitig über
+- Verspielte Schicht (bewusst so gewollt): Marquee leicht rotiert (Anti-Grid),
+  Glow-Blobs im Hero, Cursor-Glow (nur `pointer: fine`), Emoji-Konfetti wenn die
+  Packliste voll ist. (Kinetischer Buchstaben-Titel und rotierendes Kreis-Badge
+  wurden mit dem Banner-Redesign 07/2026 entfernt.) **Alle** Animationen respektieren `prefers-reduced-motion` (JS-seitig über
   `reducedMotion`-Konstante, CSS-seitig über den zentralen reduce-Block).
 - Neue Sektion hinzufügen = Gerüst in `index.html` + Daten in `data.js` +
   Render-Block in `main.js` — dieses Muster beibehalten.
