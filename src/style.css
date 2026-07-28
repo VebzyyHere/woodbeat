@@ -745,6 +745,8 @@ body::after {
   text-decoration: none;
 }
 .index__liste a:hover { color: var(--creme); }
+.index__nr { margin-inline-end: 0.45em; color: var(--creme-3); }
+.index__liste a[aria-current='true'] .index__nr { color: var(--gold); }
 .index__liste a[aria-current='true'] {
   color: var(--gold);
   text-shadow: calc(var(--reg) * -0.4) calc(var(--reg) * 0.2) 0 var(--linie);
@@ -823,6 +825,474 @@ body::after {
 .fuss p { max-inline-size: none; }
 
 /* ============================================================
+   11b  DIE SEKTIONEN DES BOGENS
+
+   Grundgesetz: es gibt keine Karte. Getrennt wird durch Haarlinien,
+   Punktleader, Ränder und Korn — nie durch ein abgerundetes Rechteck
+   mit Schatten. Wer hier eine Box einbaut, bricht die Seite.
+   ============================================================ */
+
+.unter-titel {
+  font-family: var(--f-plakat);
+  font-weight: 400;
+  font-size: var(--t-2);
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  margin-block-start: var(--luft-3);
+}
+
+/* Zwischenzähler (Zusagen, Packstand) — die eine große Zahl je Sektion */
+.zaehler {
+  font-family: var(--f-plakat);
+  font-weight: 400;
+  font-size: var(--t-2);
+  line-height: 1.1;
+  color: var(--gold);
+  margin-block: var(--luft-1) 0.25rem;
+}
+.zaehler[data-voll] { color: var(--glut); }
+
+/* ---------- Die helle Sektion: Tickets & Bar ----------
+   Die einzige Inversion der Seite. Eine Zäsur ist eine Zäsur,
+   zwei wären ein Muster. Gold muss hier dunkler werden — das
+   normale --gold reißt auf Creme den AA-Kontrast. */
+
+.sektion--hell {
+  background: var(--paper);
+  color: var(--ink);
+}
+.sektion--hell .sektion__nr,
+.sektion--hell .zaehler { color: var(--gold-ink); }
+.sektion--hell .sektion__intro,
+.sektion--hell .marginal { color: var(--paper-2); }
+.sektion--hell .sektion__titel {
+  text-shadow: calc(var(--reg) * -0.6) calc(var(--reg) * 0.3) 0 var(--gold-ink);
+}
+.sektion--hell .taste {
+  border-color: var(--gold-ink);
+  color: var(--gold-ink);
+  box-shadow: calc(var(--reg) * -0.5) calc(var(--reg) * 0.3) 0 0 var(--linie-pap);
+}
+.sektion--hell .taste:hover,
+.sektion--hell .taste:active { background: var(--gold-ink); color: var(--paper); }
+.sektion--hell .taste--voll { background: var(--gold-ink); color: var(--paper); }
+.sektion--hell .taste--voll:hover { background: var(--ink); border-color: var(--ink); }
+
+/* ---------- 02 Line-up ---------- */
+
+.lineup { border-block-start: 1px solid var(--linie); }
+
+.act {
+  padding-block: var(--luft-1);
+  border-block-end: 1px solid var(--linie);
+}
+.act__slot { font-size: var(--t-mini); color: var(--gold); }
+.act__name {
+  font-family: var(--f-plakat);
+  font-weight: 400;
+  font-size: var(--t-2);
+  line-height: 1.05;
+  text-transform: uppercase;
+  margin-block-start: 0.2rem;
+}
+.act__name--offen {
+  font-family: var(--f-mono);
+  font-variation-settings: var(--v-eng);
+  font-size: var(--t-label);
+  letter-spacing: 0.16em;
+  color: var(--creme-3);
+}
+.act__genre { margin-block-start: 0.15rem; }
+
+/* ---------- Reiter (Tagesumschalter, Ticketwahl) ----------
+   Sieht ausdrücklich ANDERS aus als eine Umfrage-Zeile: das hier ist
+   Navigation, keine Stimmabgabe. Wortreihe statt Zeilenliste. */
+
+.reiter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 1.5rem;
+  margin-block: var(--luft-1);
+  border-block-end: 1px solid var(--linie);
+}
+
+.reiter__tag {
+  --reg-extra: 0px;
+  min-block-size: 44px;
+  padding: 0 0 0.5rem;
+  border: 0;
+  background: transparent;
+  color: var(--creme-2);
+  font-family: var(--f-mono);
+  font-variation-settings: var(--v-label);
+  font-size: var(--t-label);
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  cursor: pointer;
+}
+.reiter__tag:hover { color: var(--creme); }
+.reiter__tag[aria-selected='true'],
+.reiter__tag[aria-pressed='true'] {
+  color: var(--gold);
+  text-shadow: calc(var(--reg) * -0.4) calc(var(--reg) * 0.2) 0 var(--linie);
+}
+.sektion--hell .reiter { border-block-end-color: var(--linie-pap); }
+.sektion--hell .reiter__tag { color: var(--paper-2); }
+.sektion--hell .reiter__tag[aria-pressed='true'] { color: var(--gold-ink); }
+
+.reiter--wahl { gap: 0 1.25rem; }
+
+/* ---------- 03 Laufplan ---------- */
+
+.lauf { border-block-start: 1px solid var(--linie); }
+
+.lauf__zeile {
+  display: grid;
+  grid-template-columns: 4.5rem 1fr;
+  gap: 0 1rem;
+  padding-block: 0.85rem;
+  border-block-end: 1px solid var(--linie);
+}
+
+.lauf__zeit {
+  font-size: var(--t-label);
+  color: var(--gold);
+  padding-block-start: 0.15em;
+}
+.lauf__titel {
+  font-variation-settings: var(--v-label);
+  font-size: var(--t-3);
+  line-height: 1.25;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.lauf__notiz { margin-block-start: 0.15rem; }
+
+/* Der JETZT-Marker ist eines von genau drei Glut-Vorkommen der Seite. */
+.lauf__jetzt {
+  display: inline-block;
+  margin-block-start: 0.35rem;
+  font-size: var(--t-mini);
+  letter-spacing: 0.2em;
+  color: var(--glut);
+}
+.lauf__zeile[data-jetzt] .lauf__zeit { color: var(--glut); }
+
+/* ---------- 04 Tickets ---------- */
+
+.pressungen {
+  display: grid;
+  gap: var(--luft-2);
+  margin-block-start: var(--luft-2);
+}
+
+/* Die perforierte Oberkante schneidet auch den Rahmen an —
+   genau das macht aus dem Rechteck ein Ticket. */
+.pressung {
+  --loch: 5px;
+  position: relative;
+  padding: var(--luft-2) var(--luft-1) var(--luft-1);
+  border: 1px solid var(--gold-ink);
+  -webkit-mask-image: radial-gradient(circle var(--loch) at 11px 0, transparent 0 var(--loch), black calc(var(--loch) + 0.5px));
+  mask-image: radial-gradient(circle var(--loch) at 11px 0, transparent 0 var(--loch), black calc(var(--loch) + 0.5px));
+  -webkit-mask-size: 22px 100%;
+  mask-size: 22px 100%;
+  -webkit-mask-repeat: repeat-x;
+  mask-repeat: repeat-x;
+}
+.pressung--haupt { border-width: 2px; }
+
+.pressung__marke {
+  font-size: var(--t-mini);
+  color: var(--gold-ink);
+  margin-block-end: 0.5rem;
+}
+.pressung__name {
+  font-size: var(--t-label);
+  letter-spacing: 0.18em;
+}
+.pressung__preis {
+  font-family: var(--f-plakat);
+  font-weight: 400;
+  font-size: clamp(2.75rem, 12vw, 4rem);
+  line-height: 0.9;
+  margin-block-start: 0.35rem;
+}
+.pressung__einheit {
+  font-size: var(--t-mini);
+  color: var(--paper-2);
+  margin-block-end: var(--luft-1);
+}
+
+.pressung__inhalt { border-block-start: 1px dashed var(--linie-pap); }
+.pressung__inhalt li {
+  padding-block: 0.5rem;
+  border-block-end: 1px dashed var(--linie-pap);
+  font-size: var(--t-label);
+  max-inline-size: none;
+}
+.pressung__taste { inline-size: 100%; margin-block-start: var(--luft-1); }
+
+/* ---------- 04b Die Bar: gedruckte Preisliste ---------- */
+
+.bar {
+  display: grid;
+  gap: var(--luft-2);
+  margin-block-start: var(--luft-1);
+  align-items: start;
+}
+.bar__kategorie {
+  font-size: var(--t-label);
+  letter-spacing: 0.18em;
+  padding-block-end: 0.4rem;
+  border-block-end: 1px solid var(--linie-pap);
+}
+.bar__zeile {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding-block: 0.4rem;
+}
+.bar__name { flex: 0 1 auto; }
+/* Punktleader — führt das Auge vom Namen zum Preis, wie im Druck */
+.bar__punkte {
+  flex: 1 1 auto;
+  min-inline-size: 1.5rem;
+  border-block-end: 1px dotted currentColor;
+  opacity: 0.45;
+  translate: 0 -0.28em;
+}
+.bar__preis { flex: 0 0 auto; font-size: var(--t-label); }
+
+/* ---------- 05 Wer kommt ---------- */
+
+.rsvp {
+  display: grid;
+  gap: var(--luft-1);
+  margin-block-start: var(--luft-2);
+  max-inline-size: 34rem;
+}
+
+.feld { display: grid; gap: 0.35rem; margin: 0; padding: 0; border: 0; }
+.feld__label { font-size: var(--t-mini); color: var(--creme-2); }
+
+/* Eingabefelder sind unterstrichene Leerstellen im Satz, keine Kästen. */
+.feld__eingabe {
+  min-block-size: 48px;
+  padding: 0.5rem 0;
+  border: 0;
+  border-block-end: 1px solid var(--gold);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--creme);
+  font-family: var(--f-mono);
+  font-variation-settings: var(--v-body);
+  font-size: var(--t-body);
+}
+.feld__eingabe::placeholder { color: var(--creme-3); }
+.feld__eingabe:focus-visible { outline-offset: 4px; }
+
+.rsvp__aktion {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--luft-1);
+  margin-block-start: 0.5rem;
+}
+
+.taste--voll { background: var(--gold); color: var(--ink); }
+.taste--voll:hover { background: var(--gold-hi); }
+.taste--leise {
+  border-color: var(--linie);
+  color: var(--creme-2);
+  box-shadow: none;
+}
+.taste--leise:hover { background: transparent; border-color: var(--creme-2); color: var(--creme); }
+
+/* ---------- 06 Rückblick ---------- */
+
+.strecke {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--luft-1);
+  margin-block-start: var(--luft-2);
+}
+.strecke__kachel { margin: 0; }
+.strecke__kachel--gross { grid-column: 1 / -1; }
+.strecke img {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  filter: saturate(0.85) contrast(1.05);
+}
+.strecke__kachel--gross img { aspect-ratio: 16 / 9; }
+
+/* ---------- 07 Lageplan ---------- */
+
+.ort {
+  padding-block: var(--luft-1);
+  border-block: 1px solid var(--linie);
+  margin-block-start: var(--luft-1);
+}
+.ort__label { font-size: var(--t-mini); color: var(--gold); }
+.ort__name {
+  font-family: var(--f-plakat);
+  font-weight: 400;
+  font-size: var(--t-2);
+  text-transform: uppercase;
+  line-height: 1.05;
+  margin-block: 0.3rem;
+}
+.ort__adresse { font-size: var(--t-label); color: var(--creme-2); }
+.ort .taste { margin-block-start: var(--luft-1); }
+
+/* Marginalien als Fußnoten — nummeriert wie im Satzspiegel */
+.fussnoten {
+  display: grid;
+  gap: var(--luft-1);
+  margin-block-start: var(--luft-2);
+}
+.fussnote {
+  display: grid;
+  grid-template-columns: 3.5rem 1fr;
+  gap: 0 0.75rem;
+}
+.fussnote__nr { font-size: var(--t-mini); color: var(--gold); padding-block-start: 0.2em; }
+.fussnote__titel { font-size: var(--t-mini); color: var(--creme); }
+.fussnote__text { font-size: var(--t-label); color: var(--creme-2); margin-block-start: 0.15rem; }
+
+/* ---------- 08 Mitbringen: der Packzettel ---------- */
+
+.packzettel {
+  border-block-start: 1px solid var(--linie);
+  margin-block-start: var(--luft-1);
+}
+.pack__zeile { border-block-end: 1px solid var(--linie); }
+
+.pack__wahl {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  min-block-size: 48px;
+  padding-block: 0.7rem;
+  cursor: pointer;
+}
+.pack__wahl input { position: absolute; opacity: 0; pointer-events: none; }
+
+.pack__kasten {
+  position: relative;
+  flex: 0 0 auto;
+  inline-size: 18px;
+  block-size: 18px;
+  margin-block-start: 0.15em;
+  border: 1px solid var(--gold);
+}
+.pack__kasten::before {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  background:
+    linear-gradient(to bottom right, transparent 44%, var(--gold) 44% 56%, transparent 56%),
+    linear-gradient(to bottom left,  transparent 44%, var(--gold) 44% 56%, transparent 56%);
+  opacity: 0;
+}
+.pack__zeile:has(input:checked) .pack__kasten::before { opacity: 1; }
+.pack__zeile:has(input:focus-visible) { outline: 2px solid var(--gold-hi); outline-offset: 2px; }
+
+.pack__text { display: block; }
+.pack__item {
+  display: block;
+  font-variation-settings: var(--v-label);
+  font-size: var(--t-label);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.pack__notiz { display: block; margin-block-start: 0.1rem; }
+.pack__zeile:has(input:checked) .pack__item {
+  color: var(--creme-3);
+  text-decoration: line-through;
+}
+
+/* ---------- 09 Playlist: eingeklebtes Etikett ---------- */
+
+.etikett { margin-block-start: var(--luft-2); }
+.etikett__label { font-size: var(--t-mini); color: var(--gold); margin-block-end: 0.5rem; }
+.etikett__rahmen {
+  border: 1px solid var(--gold);
+  padding: 6px;
+}
+.etikett__rahmen iframe { display: block; border: 0; }
+
+/* ---------- 10 Waldkodex & Crew ---------- */
+
+.kodex {
+  border-block-start: 1px solid var(--linie);
+  margin-block-start: var(--luft-1);
+}
+.regel {
+  display: grid;
+  grid-template-columns: 3rem 1fr;
+  gap: 0 0.75rem;
+  padding-block: var(--luft-1);
+  border-block-end: 1px solid var(--linie);
+}
+.regel__nr {
+  font-family: var(--f-plakat);
+  font-size: var(--t-2);
+  line-height: 1;
+  color: var(--gold);
+  letter-spacing: 0;
+}
+.regel__titel { font-size: var(--t-label); letter-spacing: 0.16em; }
+.regel__text { color: var(--creme-2); margin-block-start: 0.2rem; }
+
+.crew { margin-block-start: var(--luft-1); }
+.crew__zeile {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding-block: 0.5rem;
+  border-block-end: 1px solid var(--linie);
+}
+.crew__rolle { font-size: var(--t-label); flex: 0 1 auto; }
+.crew__name { font-size: var(--t-label); color: var(--gold); flex: 0 0 auto; }
+.crew__name--offen { color: var(--creme-3); }
+
+/* ---------- 11 Kleingedrucktes ---------- */
+
+.faq { border-block-end: 1px solid var(--linie); }
+.faq:first-of-type { border-block-start: 1px solid var(--linie); }
+
+.faq__frage {
+  --reg-extra: 0px;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-block-size: 48px;
+  padding-block: 0.75rem;
+  font-size: var(--t-label);
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  list-style: none;
+}
+.faq__frage::-webkit-details-marker { display: none; }
+.faq__frage::before {
+  content: '+';
+  flex: 0 0 auto;
+  inline-size: 1em;
+  color: var(--gold);
+  font-family: var(--f-mono);
+}
+.faq[open] > .faq__frage::before { content: '–'; }
+.faq__frage:hover { color: var(--gold); }
+
+.faq__text {
+  padding-block-end: var(--luft-1);
+  color: var(--creme-2);
+}
+
+/* ============================================================
    12  GRÖSSERE SCHIRME
    Mobil ist der Entwurfsfall (80 % der Gäste kommen aus einer
    WhatsApp-Gruppe), Desktop die Anpassung — nicht umgekehrt.
@@ -851,6 +1321,13 @@ body::after {
     align-items: center;
   }
   .zettel__zahlen { align-self: center; }
+
+  /* Tickets nebeneinander, Bar dreispaltig, Packzettel zweispaltig */
+  .pressungen { grid-template-columns: repeat(2, 1fr); }
+  .bar { grid-template-columns: repeat(3, 1fr); }
+  .packzettel { columns: 2; column-gap: var(--luft-2); }
+  .pack__zeile { break-inside: avoid; }
+  .strecke { grid-template-columns: repeat(3, 1fr); }
 }
 
 @media (max-width: 420px) {

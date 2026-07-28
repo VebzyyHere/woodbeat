@@ -15,7 +15,7 @@ import { UMFRAGEN, UMFRAGEN_SHARE } from './data.js';
 import {
   castVote, eigeneWahl, fetchResults, flushOutbox,
   liveEnabled, outboxOffen, toPercent,
-} from './live-polls.js';
+} from './live.js';
 import { puls } from './register.js';
 
 const AKTUALISIERUNG = 20_000;

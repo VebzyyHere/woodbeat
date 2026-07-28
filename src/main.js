@@ -11,7 +11,13 @@ import './style.css';
 import { FESTIVAL, INDEX } from './data.js';
 import { initCountdown, phase } from './countdown.js';
 import { auszaehlungAlsText, initPolls } from './polls.js';
+import { initRsvp } from './rsvp.js';
 import { initAudio } from './audio.js';
+import { teilen } from './teilen.js';
+import {
+  renderBar, renderFaq, renderKodex, renderLageplan, renderLaufplan,
+  renderLineup, renderMitbringen, renderPlaylist, renderRueckblick, renderTickets,
+} from './sections.js';
 
 const $ = (wahl) => document.querySelector(wahl);
 
@@ -21,9 +27,10 @@ $('#marke-jahr').textContent = String(FESTIVAL.jahr);
 $('#anschlag-fakten').textContent = `${FESTIVAL.datumKurz} · ab ${FESTIVAL.abPreis}`;
 $('#fuss-jahr').textContent = String(FESTIVAL.jahr);
 document.title = `WoodBeat ${FESTIVAL.jahr}`;
+document.documentElement.dataset.phase = phase();
 
 // ---------- Banderole ----------
-// Das Motto zweimal einfüllen → nahtlose Endlosschleife.
+// Motto zweimal einfüllen → nahtlose Endlosschleife.
 
 const spur = $('#banderole-spur');
 const teile = FESTIVAL.motto.split('·').map((s) => s.trim());
@@ -37,6 +44,48 @@ for (let runde = 0; runde < 2; runde++) {
   }
 }
 
+// ---------- Sektionen ----------
+
+$('#zettel-kopf').textContent = `Stimmzettel · WoodBeat ${FESTIVAL.jahr} · Ausgabe 01`;
+initPolls($('#umfragen'), $('#zettel-modus'));
+$('#zettel-teilen').addEventListener('click', () => teilen(auszaehlungAlsText()));
+
+renderLineup($('#lineup-liste'), $('#lineup-hinweis'));
+renderLaufplan($('#tag-reiter'), $('#lauf-liste'));
+renderTickets($('#tickets-liste'), $('#tickets-hinweis'));
+renderBar($('#bar-liste'));
+
+initRsvp({
+  form: $('#rsvp-form'),
+  zaehler: $('#rsvp-zaehler'),
+  aufteilung: $('#rsvp-aufteilung'),
+  ticketWahl: $('#rsvp-ticket'),
+  name: $('#rsvp-name'),
+  notiz: $('#rsvp-notiz'),
+  senden: $('#rsvp-senden'),
+  loeschen: $('#rsvp-loeschen'),
+  status: $('#rsvp-status'),
+});
+
+renderRueckblick($('#rueckblick-titel'), $('#rueckblick-text'), $('#rueckblick-bilder'));
+renderLageplan($('#lageplan-ort'), $('#lageplan-hinweise'));
+renderMitbringen($('#pack-liste'), $('#pack-stand'));
+renderPlaylist($('#spotify'));
+renderKodex($('#kodex-liste'), $('#crew-liste'));
+renderFaq($('#faq-liste'));
+
+// ---------- Festival-Modus ----------
+// Wer um 23:40 mit einem Balken Empfang am Waldrand steht, sucht die
+// Adresse — nicht den Stimmzettel. Während des Festivals rutschen
+// Lageplan und Laufplan deshalb an den Anfang. Die Index-Leiste bleibt
+// unverändert, sie sortiert nach data-nr statt nach DOM-Reihenfolge.
+
+if (phase() === 'live') {
+  const bogen = $('#bogen');
+  bogen.prepend($('#laufplan'));
+  bogen.prepend($('#lageplan'));
+}
+
 // ---------- Index-Leiste ----------
 
 const liste = $('#index-liste');
@@ -44,7 +93,11 @@ for (const eintrag of INDEX) {
   const li = document.createElement('li');
   const a = document.createElement('a');
   a.href = `#${eintrag.id}`;
-  a.textContent = `${eintrag.nr} ${eintrag.label}`;
+  a.innerHTML = '';
+  const nr = document.createElement('span');
+  nr.className = 'index__nr';
+  nr.textContent = eintrag.nr;
+  a.append(nr, document.createTextNode(eintrag.label));
   li.append(a);
   liste.append(li);
 }
@@ -71,29 +124,7 @@ const beobachter = new IntersectionObserver(
 );
 for (const ziel of marken.keys()) beobachter.observe(ziel);
 
-// ---------- Countdown ----------
+// ---------- Countdown & Ton ----------
 
 initCountdown($('#anschlag-uhr'), $('#index-uhr'));
-document.documentElement.dataset.phase = phase();
-
-// ---------- Stimmzettel ----------
-
-$('#zettel-kopf').textContent = `Stimmzettel · WoodBeat ${FESTIVAL.jahr} · Ausgabe 01`;
-initPolls($('#umfragen'), $('#zettel-modus'));
-
-$('#zettel-teilen').addEventListener('click', async () => {
-  const text = auszaehlungAlsText();
-  if (navigator.share) {
-    try {
-      await navigator.share({ text });
-      return;
-    } catch {
-      return; // abgebrochen
-    }
-  }
-  window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank', 'noopener');
-});
-
-// ---------- Ton ----------
-
 initAudio($('#ton'), $('#ton-label'));

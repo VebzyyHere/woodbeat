@@ -29,8 +29,20 @@ export const FESTIVAL = {
 
 // Die Index-Leiste unten. Reihenfolge = Reihenfolge auf der Seite.
 // Neue Sektion = Eintrag hier + <section> in index.html.
+// Kurve: drei laute Akte (Stimmzettel, Line-up, Laufplan), dann die
+// Zäsur auf Creme (Tickets), danach durchgehendes Decrescendo.
 export const INDEX = [
   { id: 'stimmzettel', nr: '01', label: 'Stimmzettel' },
+  { id: 'lineup', nr: '02', label: 'Line-up' },
+  { id: 'laufplan', nr: '03', label: 'Laufplan' },
+  { id: 'tickets', nr: '04', label: 'Tickets & Bar' },
+  { id: 'wer-kommt', nr: '05', label: 'Wer kommt' },
+  { id: 'rueckblick', nr: '06', label: 'Rückblick' },
+  { id: 'lageplan', nr: '07', label: 'Lageplan' },
+  { id: 'mitbringen', nr: '08', label: 'Mitbringen' },
+  { id: 'playlist', nr: '09', label: 'Playlist' },
+  { id: 'kodex', nr: '10', label: 'Waldkodex' },
+  { id: 'kleingedrucktes', nr: '11', label: 'Kleingedrucktes' },
 ];
 
 export const SPOTIFY = {
@@ -144,6 +156,8 @@ export const TIMETABLE = [
 
 export const TICKETS = [
   {
+    // key ist der Speicherschlüssel für die Zusagen — nie ändern.
+    key: 'weekend',
     name: 'Wochenendticket',
     preis: '25 €',
     einheit: 'einmalig · Fr–So',
@@ -159,6 +173,7 @@ export const TICKETS = [
     ],
   },
   {
+    key: 'day',
     name: 'Tagesticket',
     preis: '10 €',
     einheit: 'pro Tag',

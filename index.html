@@ -82,6 +82,153 @@
         </div>
       </div>
     </section>
+
+    <!-- 02 LINE-UP -->
+    <section class="sektion" id="lineup" data-nr="02">
+      <div class="satzspiegel">
+        <p class="sektion__nr daten">02</p>
+        <h2 class="sektion__titel">Line-up</h2>
+        <p class="sektion__intro">Wer die Nacht übernimmt.</p>
+        <ol class="lineup" id="lineup-liste"></ol>
+        <p class="marginal" id="lineup-hinweis"></p>
+      </div>
+    </section>
+
+    <!-- 03 LAUFPLAN -->
+    <section class="sektion" id="laufplan" data-nr="03">
+      <div class="satzspiegel">
+        <p class="sektion__nr daten">03</p>
+        <h2 class="sektion__titel">Laufplan</h2>
+        <p class="sektion__intro">Drei Tage, zwei Nächte. Tag wählen:</p>
+        <div class="reiter" id="tag-reiter" role="tablist" aria-label="Festivaltag"></div>
+        <ol class="lauf" id="lauf-liste"></ol>
+      </div>
+    </section>
+
+    <!-- 04 TICKETS & BAR — die einzige helle Sektion der Seite -->
+    <section class="sektion sektion--hell" id="tickets" data-nr="04">
+      <div class="satzspiegel">
+        <p class="sektion__nr daten">04</p>
+        <h2 class="sektion__titel">Tickets &amp; Bar</h2>
+        <p class="sektion__intro">Was es kostet, und was an der Bar steht.</p>
+        <div class="pressungen" id="tickets-liste"></div>
+        <p class="marginal" id="tickets-hinweis"></p>
+
+        <h3 class="unter-titel">Die Bar</h3>
+        <p class="sektion__intro">
+          Für alle mit Tagesticket — und alle, die keine Lust aufs Schleppen haben.
+        </p>
+        <div class="bar" id="bar-liste"></div>
+      </div>
+    </section>
+
+    <!-- 05 WER KOMMT -->
+    <section class="sektion sektion--laut" id="wer-kommt" data-nr="05">
+      <div class="satzspiegel">
+        <p class="sektion__nr daten">05</p>
+        <h2 class="sektion__titel">Wer kommt</h2>
+        <p class="sektion__intro">
+          Trag dich ein, damit wir Essen und Platz planen können.
+        </p>
+
+        <p class="zaehler" id="rsvp-zaehler" aria-live="polite"></p>
+        <p class="marginal" id="rsvp-aufteilung"></p>
+
+        <form class="rsvp" id="rsvp-form" novalidate>
+          <div class="feld">
+            <label class="feld__label daten" for="rsvp-name">Dein Name</label>
+            <input class="feld__eingabe" id="rsvp-name" name="name" type="text"
+              autocomplete="given-name" maxlength="40" required placeholder="Vorname reicht" />
+          </div>
+
+          <fieldset class="feld feld--wahl">
+            <legend class="feld__label daten">Was nimmst du?</legend>
+            <div class="reiter reiter--wahl" id="rsvp-ticket"></div>
+          </fieldset>
+
+          <div class="feld">
+            <label class="feld__label daten" for="rsvp-notiz">Anmerkung (optional)</label>
+            <input class="feld__eingabe" id="rsvp-notiz" name="notiz" type="text"
+              maxlength="140" placeholder="Komme später, bringe Grill mit, …" />
+          </div>
+
+          <div class="rsvp__aktion">
+            <button class="taste taste--voll" type="submit" id="rsvp-senden">Ich bin dabei</button>
+            <button class="taste taste--leise" type="button" id="rsvp-loeschen" hidden>Eintrag löschen</button>
+          </div>
+          <p class="marginal" id="rsvp-status" aria-live="polite"></p>
+        </form>
+      </div>
+    </section>
+
+    <!-- 06 RÜCKBLICK -->
+    <section class="sektion" id="rueckblick" data-nr="06">
+      <div class="satzspiegel">
+        <p class="sektion__nr daten">06</p>
+        <h2 class="sektion__titel" id="rueckblick-titel">Rückblick</h2>
+        <p class="sektion__intro" id="rueckblick-text"></p>
+        <div id="rueckblick-bilder"></div>
+      </div>
+    </section>
+
+    <!-- 07 LAGEPLAN -->
+    <section class="sektion" id="lageplan" data-nr="07">
+      <div class="satzspiegel">
+        <p class="sektion__nr daten">07</p>
+        <h2 class="sektion__titel">Lageplan</h2>
+        <div id="lageplan-ort"></div>
+        <ol class="fussnoten" id="lageplan-hinweise"></ol>
+      </div>
+    </section>
+
+    <!-- 08 MITBRINGEN -->
+    <section class="sektion" id="mitbringen" data-nr="08">
+      <div class="satzspiegel">
+        <p class="sektion__nr daten">08</p>
+        <h2 class="sektion__titel">Mitbringen</h2>
+        <p class="sektion__intro">
+          Hak ab, was eingepackt ist. Die Haken bleiben auf deinem Gerät.
+        </p>
+        <p class="zaehler" id="pack-stand" aria-live="polite"></p>
+        <ul class="packzettel" id="pack-liste"></ul>
+      </div>
+    </section>
+
+    <!-- 09 PLAYLIST -->
+    <section class="sektion" id="playlist" data-nr="09">
+      <div class="satzspiegel">
+        <p class="sektion__nr daten">09</p>
+        <h2 class="sektion__titel">Playlist</h2>
+        <p class="sektion__intro">
+          Der Soundtrack. Folgen, reinwerfen, was fehlt.
+        </p>
+        <div class="etikett" id="spotify"></div>
+      </div>
+    </section>
+
+    <!-- 10 WALDKODEX & CREW -->
+    <section class="sektion" id="kodex" data-nr="10">
+      <div class="satzspiegel">
+        <p class="sektion__nr daten">10</p>
+        <h2 class="sektion__titel">Waldkodex</h2>
+        <p class="sektion__intro">
+          Fünf Regeln. Wer sie mitträgt, ist nächstes Jahr wieder eingeladen.
+        </p>
+        <ol class="kodex" id="kodex-liste"></ol>
+
+        <h3 class="unter-titel">Die Crew</h3>
+        <ul class="crew" id="crew-liste"></ul>
+      </div>
+    </section>
+
+    <!-- 11 KLEINGEDRUCKTES -->
+    <section class="sektion" id="kleingedrucktes" data-nr="11">
+      <div class="satzspiegel">
+        <p class="sektion__nr daten">11</p>
+        <h2 class="sektion__titel">Kleingedrucktes</h2>
+        <div id="faq-liste"></div>
+      </div>
+    </section>
   </main>
 
   <footer class="fuss">

@@ -1,5 +1,5 @@
 // ============================================================
-// Datenzugang für die Umfragen.
+// Datenzugang für Umfragen und Zusagen.
 //
 // Grundregel: NICHTS hier wirft je eine Exception. Bei Netzwerk-
 // fehler, pausiertem Projekt oder fehlender Konfiguration kommt
@@ -13,6 +13,7 @@ import { SUPABASE } from './config-live.js';
 const VOTER_KEY = 'woodbeat-voter';
 const WAHL_KEY = 'woodbeat-wahl';
 const OUTBOX_KEY = 'woodbeat-outbox';
+const RSVP_KEY = 'woodbeat-rsvp';
 
 /** Läuft die Auszählung über den Server oder nur lokal? */
 export const liveEnabled = () => Boolean(SUPABASE.url && SUPABASE.key);
@@ -174,4 +175,68 @@ export async function flushOutbox() {
 export function toPercent(anzahl, voters) {
   if (!voters) return 0;
   return Math.round((anzahl / voters) * 100);
+}
+
+// ============================================================
+// ZUSAGEN
+//
+// Öffentlich ist ausschließlich die ZAHL. Namen liegen in der
+// Datenbank und sind nur über das Supabase-Dashboard einsehbar —
+// die Seite fragt sie nie ab. Deshalb gibt es hier bewusst kein
+// `rsvp_list()`, sondern nur `rsvp_count()` und `my_rsvp()`.
+// ============================================================
+
+/** Die eigene Zusage — liegt zusätzlich lokal, damit das Formular gefüllt ist. */
+export const eigeneZusage = () => lies(RSVP_KEY, null);
+
+/**
+ * Zusage speichern.
+ * @returns {Promise<boolean>} true = beim Server angekommen
+ */
+export async function saveRsvp({ name, ticket, notiz }) {
+  schreib(RSVP_KEY, { name, ticket, notiz });
+  if (!liveEnabled()) return false;
+  const ok = await rpc('upsert_rsvp', {
+    p_voter: getVoterId(),
+    p_name: name,
+    p_ticket: ticket,
+    p_note: notiz || null,
+  });
+  return ok !== null;
+}
+
+/** Eigene Zusage zurückziehen. */
+export async function deleteRsvp() {
+  try {
+    localStorage.removeItem(RSVP_KEY);
+  } catch {
+    /* ignorieren */
+  }
+  if (!liveEnabled()) return false;
+  return (await rpc('delete_rsvp', { p_voter: getVoterId() })) !== null;
+}
+
+/**
+ * Wie viele sind dabei — aufgeschlüsselt nach Ticketart.
+ * Ohne Server zählt nur die eigene Zusage.
+ * @returns {Promise<{gesamt: number, nach: object, lokal: boolean}>}
+ */
+export async function fetchRsvpCount() {
+  const zeilen = await rpc('rsvp_count');
+  if (!zeilen || !Array.isArray(zeilen)) {
+    const eigene = eigeneZusage();
+    return {
+      gesamt: eigene ? 1 : 0,
+      nach: eigene ? { [eigene.ticket]: 1 } : {},
+      lokal: true,
+    };
+  }
+  const nach = {};
+  let gesamt = 0;
+  for (const z of zeilen) {
+    const n = Number(z.anzahl) || 0;
+    nach[z.ticket] = n;
+    gesamt += n;
+  }
+  return { gesamt, nach, lokal: false };
 }
