@@ -109,6 +109,22 @@ for (const eintrag of INDEX) {
   if (ziel) marken.set(ziel, liste.querySelector(`a[href="#${eintrag.id}"]`));
 }
 
+/**
+ * Den aktiven Eintrag in der Leiste mittig ziehen.
+ *
+ * Ausdrücklich NICHT über scrollIntoView(): die Index-Leiste steht im
+ * HTML hinter dem Footer und ist position:fixed — ihre Layout-Position
+ * ist also das Dokumentende. scrollIntoView() springt dorthin und reißt
+ * die ganze Seite nach unten. Hier wird nur der waagerechte Container
+ * bewegt, das Dokument bleibt unberührt.
+ */
+function zieheInDieMitte(eintrag) {
+  const spur = eintrag.closest('.index__liste');
+  if (!spur) return;
+  const mitte = eintrag.offsetLeft - (spur.clientWidth - eintrag.offsetWidth) / 2;
+  spur.scrollTo({ left: Math.max(0, mitte), behavior: 'auto' });
+}
+
 const beobachter = new IntersectionObserver(
   (eintraege) => {
     for (const e of eintraege) {
@@ -117,7 +133,7 @@ const beobachter = new IntersectionObserver(
       if (!aktiv) continue;
       for (const a of marken.values()) a.removeAttribute('aria-current');
       aktiv.setAttribute('aria-current', 'true');
-      aktiv.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'auto' });
+      zieheInDieMitte(aktiv);
     }
   },
   { rootMargin: '-40% 0px -50% 0px' },
