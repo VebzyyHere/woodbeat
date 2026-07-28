@@ -2,152 +2,163 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="robots" content="noindex, nofollow" />
+  <meta name="theme-color" content="#0d150f" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <!-- Link-Vorschau (WhatsApp & Co.) — og:image braucht eine absolute URL -->
-  <meta property="og:title" content="WoodBeat 2026 🌲🎶" />
-  <meta property="og:description" content="24.–26. Juli 2026 — unser privates Festival: Freunde, Beats, Wald. Timetable, Anfahrt, Mitbringliste & Abstimmung." />
+
+  <!-- Link-Vorschau (WhatsApp & Co.).
+       og:image MUSS ~1,91:1 sein — banner.jpg (3:1) wurde von WhatsApp so
+       beschnitten, dass genau die Wortmarke wegfiel. -->
+  <meta property="og:title" content="WoodBeat 2027 🌲" />
+  <meta property="og:description" content="23.–25. Juli 2027. Drei Tage, zwei Nächte, ein Wald. Stimm ab, was wir bauen." />
   <meta property="og:type" content="website" />
-  <meta property="og:image" content="https://vebzyyhere.github.io/woodbeat/banner.jpg" />
-  <title>WoodBeat 2026 — unser Festival</title>
+  <meta property="og:image" content="https://vebzyyhere.github.io/woodbeat/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <title>WoodBeat 2027</title>
 </head>
 <body>
-  <header class="topbar">
-    <a class="topbar__logo" href="#top">
-      <!-- Echtes Emblem, ausgeschnitten aus dem Banner (public/logo.png) -->
-      <img class="logo logo--small" src="/logo.png" alt="" />
-      Wood<span>Beat</span>
-    </a>
-    <nav class="topbar__nav" aria-label="Hauptnavigation">
-      <a href="#timetable">Timetable</a>
-      <a href="#anfahrt">Anfahrt</a>
-      <a href="#wuensche">Mitbringen</a>
-      <a href="#abstimmen">Abstimmen</a>
-      <a href="#playlist">Playlist</a>
-      <a href="#kosten">Tickets &amp; Bar</a>
-      <a href="#faq">FAQ</a>
-    </nav>
-  </header>
+  <a class="sprung" href="#stimmzettel">Zum Inhalt springen</a>
 
-  <main id="top">
-    <!-- Hero -->
-    <section class="hero" aria-label="Intro">
-      <p class="hero__kicker">Privates Festival · Nur mit Einladung</p>
-      <!-- Offizielles Banner-Artwork (auf den inneren Poster-Streifen zugeschnitten,
-           damit die Ränder weich in die Seite auslaufen können). Trägt den Titel,
-           deshalb ist die h1 nur noch für Screenreader/SEO da (Klasse sr-only). -->
-      <img class="hero__banner" src="/banner-strip.jpg"
-        alt="WoodBeat 2026 — Rave Culture, Love, Freedom, Friendship" />
-      <h1 class="hero__title sr-only">WoodBeat <em>2026</em></h1>
-      <p class="hero__claim" id="hero-claim"></p>
-      <div class="hero__facts">
-        <span class="pill" id="hero-date"></span>
-        <span class="pill" id="hero-location"></span>
-        <span class="pill pill--countdown" id="hero-countdown" hidden></span>
-      </div>
-      <div class="hero__cta">
-        <a class="btn btn--primary" href="#kosten">🎟️ Tickets sichern</a>
-        <a class="btn btn--ghost" href="#timetable">Zum Timetable</a>
-      </div>
-    </section>
+  <!-- =====================================================================
+       DER ANSCHLAG — der Kopf des Plakats.
+       Hartkodiert, weil die Wortmarke das LCP-Element ist: sie darf nicht
+       auf JavaScript warten. Drei Druckplatten pro Zeile (zwei davon
+       aria-hidden), die per --reg gegeneinander versetzt sind.
+       ===================================================================== -->
+  <header class="anschlag bleed" id="top">
+    <svg class="anschlag__stempel" viewBox="0 0 88 88" aria-hidden="true" focusable="false">
+      <use href="#emblem" />
+    </svg>
 
-    <!-- Laufband -->
-    <div class="marquee" aria-hidden="true">
-      <div class="marquee__track" id="marquee-track"></div>
+    <div class="anschlag__inhalt">
+      <p class="anschlag__kicker daten">Privat · Nur wer den Link hat</p>
+
+      <h1 class="marke">
+        <span class="marke__zeile">
+          <span class="marke__geist marke__geist--gold" aria-hidden="true">WOOD</span>
+          <span class="marke__geist marke__geist--creme" aria-hidden="true">WOOD</span>
+          <span class="marke__ist">WOOD</span>
+        </span>
+        <span class="marke__zeile">
+          <span class="marke__geist marke__geist--gold" aria-hidden="true">BEAT</span>
+          <span class="marke__geist marke__geist--creme" aria-hidden="true">BEAT</span>
+          <span class="marke__ist">BEAT</span>
+        </span>
+      </h1>
+
+      <p class="marke__jahr daten" id="marke-jahr"></p>
+      <p class="anschlag__fakten daten" id="anschlag-fakten"></p>
+      <p class="anschlag__uhr" id="anschlag-uhr"></p>
     </div>
 
-    <!-- Timetable -->
-    <section id="timetable" class="section">
-      <h2>Timetable</h2>
-      <p class="section__intro">Was passiert wann? Tag auswählen:</p>
-      <div class="chips" id="day-chips" role="group" aria-label="Festivaltag wählen"></div>
-      <ol class="timeline" id="slot-list"></ol>
-    </section>
+    <div class="ornament" aria-hidden="true"></div>
+  </header>
 
-    <!-- Anfahrt -->
-    <section id="anfahrt" class="section">
-      <h2>Anfahrt</h2>
-      <div class="card">
-        <p class="card__label">Ort</p>
-        <p class="card__big" id="anfahrt-name"></p>
-        <p id="anfahrt-address"></p>
-        <a class="btn btn--primary" id="anfahrt-maps" href="#" target="_blank" rel="noopener">Route planen</a>
+  <!-- Das Motto — im alten Stand lag es unlesbar im Banner-JPEG begraben.
+       Einziges rotiertes Element der ganzen Seite. -->
+  <div class="banderole" aria-hidden="true">
+    <div class="banderole__blatt">
+      <div class="banderole__spur" id="banderole-spur"></div>
+    </div>
+  </div>
+
+  <main id="bogen">
+    <!-- 01 STIMMZETTEL -->
+    <section class="sektion sektion--laut" id="stimmzettel" data-nr="01">
+      <div class="satzspiegel">
+        <p class="sektion__nr daten">01</p>
+        <h2 class="sektion__titel">Stimmzettel</h2>
+        <p class="sektion__kopf daten" id="zettel-kopf"></p>
+        <p class="sektion__intro">
+          Ihr entscheidet, was 2027 gebaut wird. Antippen zählt sofort —
+          und du siehst direkt, wie die Gruppe steht.
+        </p>
+        <div id="umfragen"></div>
+        <div class="zettel__aktion">
+          <button class="taste" type="button" id="zettel-teilen">Auszählung in die Gruppe</button>
+          <p class="marginal" id="zettel-modus"></p>
+        </div>
       </div>
-      <ul class="hints" id="anfahrt-hints"></ul>
-    </section>
-
-    <!-- Wünsche & Mitbringliste -->
-    <section id="wuensche" class="section">
-      <h2>Wünsche &amp; Mitbringliste</h2>
-      <p class="section__intro">
-        Hak ab, was du eingepackt hast — die Häkchen bleiben auf deinem Gerät gespeichert.
-      </p>
-      <p class="checklist-progress" id="checklist-progress" aria-live="polite"></p>
-      <ul class="checklist" id="checklist"></ul>
-    </section>
-
-    <!-- Abstimmen / Umfragen -->
-    <section id="abstimmen" class="section">
-      <h2>Abstimmen</h2>
-      <p class="section__intro">
-        Ihr entscheidet mit, wie WoodBeat 2026 wird. Antippen, fertig — deine Auswahl
-        bleibt auf deinem Gerät gespeichert.
-      </p>
-      <div id="umfragen-list"></div>
-      <div class="card">
-        <label class="card__label" for="eigene-idee">💡 Eigene Idee</label>
-        <textarea id="eigene-idee" rows="2"
-          placeholder="Was fehlt noch? Schreib's rein …"></textarea>
-      </div>
-      <button class="btn btn--primary" id="share-votes" type="button">
-        📲 Stimmen in die Gruppe schicken
-      </button>
-      <p class="muted">
-        Der Button öffnet WhatsApp (oder das Teilen-Menü) mit deinen Stimmen als
-        fertiger Nachricht — abgestimmt wird in der Gruppe.
-      </p>
-    </section>
-
-    <!-- Playlist -->
-    <section id="playlist" class="section">
-      <h2>Playlist</h2>
-      <p class="section__intro">
-        Der offizielle WoodBeat-Soundtrack — folge der Playlist und wirf deine Wünsche rein. 🎧
-      </p>
-      <div id="spotify-embed"></div>
-    </section>
-
-    <!-- Tickets & Bar -->
-    <section id="kosten" class="section">
-      <h2>Tickets &amp; Bar</h2>
-      <div class="tickets" id="tickets"></div>
-      <p class="muted" id="tickets-hinweis"></p>
-
-      <h3 class="bar__title">🍹 Die Bar</h3>
-      <p class="section__intro">
-        Für alle mit Tagesticket (und alle, die keine Lust auf Schleppen haben) —
-        faire Preise, kalte Drinks. 🧊
-      </p>
-      <div class="bar" id="bar"></div>
-    </section>
-
-    <!-- FAQ -->
-    <section id="faq" class="section">
-      <h2>FAQ</h2>
-      <div id="faq-list"></div>
     </section>
   </main>
 
-  <!-- Sticky Mini-CTA — erscheint beim Scrollen, verschwindet bei der Ticket-Sektion -->
-  <div class="stickybar" id="stickybar" hidden>
-    <span class="stickybar__info"><span id="stickybar-date"></span> · im Wald 🌲</span>
-    <a class="btn btn--primary stickybar__btn" href="#kosten">🎟️ Tickets</a>
-  </div>
-
-  <footer class="footer">
-    <p>WoodBeat 2026 — privat organisiert, mit Liebe und Lagerfeuer. Fragen? Meld dich in der Gruppe. 🌲🎶</p>
+  <footer class="fuss">
+    <svg class="fuss__siegel" viewBox="0 0 88 88" aria-hidden="true" focusable="false">
+      <use href="#emblem" />
+    </svg>
+    <p class="daten">WoodBeat · privat organisiert · <span id="fuss-jahr"></span></p>
+    <p class="marginal">Gesetzt am Küchentisch. 128 BPM.</p>
   </footer>
+
+  <!-- =====================================================================
+       DIE INDEX-LEISTE — das einzige fixierte Element der Seite.
+       Ersetzt Topbar UND Stickybar aus dem alten Stand (die zusammen
+       ~100 px von 844 px Bildschirmhöhe gefressen haben).
+       ===================================================================== -->
+  <nav class="index" id="index" aria-label="Seitenindex">
+    <a class="index__stempel" href="#top" aria-label="Zum Anfang">
+      <svg viewBox="0 0 88 88" aria-hidden="true" focusable="false"><use href="#emblem-klein" /></svg>
+    </a>
+    <ul class="index__liste" id="index-liste"></ul>
+    <button class="index__ton" type="button" id="ton" aria-pressed="false">
+      <span class="index__ton-balken" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+      <span id="ton-label">Ton</span>
+    </button>
+    <p class="index__uhr daten" id="index-uhr"></p>
+  </nav>
+
+  <!-- =====================================================================
+       EMBLEM — aus dem Banner-Artwork als Vektor nachgezogen.
+       Ersetzt public/logo.png (399 KB für eine 26-px-Anzeige).
+       Zwei Fassungen: detailliert für Kopf/Fuß, reduziert für 24 px.
+       ===================================================================== -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <symbol id="emblem" viewBox="0 0 88 88">
+      <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+        <!-- Der Ring, in dem alles sitzt -->
+        <circle cx="44" cy="44" r="42.2" stroke-width="1.1" opacity=".45" />
+        <circle cx="44" cy="44" r="38.6" stroke-width="2.6" />
+        <!-- Jahresring-Fächer: die Sonne über dem Wald ist ein Baumquerschnitt -->
+        <g stroke-width="1.5" opacity=".9">
+          <path d="M37.4 45.6A7 7 0 0 1 50.6 45.6" />
+          <path d="M32.7 43.9A12 12 0 0 1 55.3 43.9" />
+          <path d="M28 42.2A17 17 0 0 1 60 42.2" />
+          <path d="M23.3 40.5A22 22 0 0 1 64.7 40.5" />
+          <path d="M18.6 38.8A27 27 0 0 1 69.4 38.8" />
+          <path d="M13.9 37.1A32 32 0 0 1 74.1 37.1" />
+        </g>
+        <!-- Der Baum: Stamm, Äste, Wurzelwerk -->
+        <g stroke-width="2">
+          <path d="M44 21v45" />
+          <path d="M44 28.5l-5.5-4.5M44 28.5l5.5-4.5" />
+          <path d="M44 36l-7.5-5.5M44 36l7.5-5.5" />
+          <path d="M44 60l-9.5 8.5M44 60l9.5 8.5" />
+          <path d="M44 64.5l-14.5 6M44 64.5l14.5 6" />
+          <path d="M34.5 68.5l-3.5 4.5M53.5 68.5l3.5 4.5" />
+        </g>
+        <!-- Die Waveform läuft quer durch den Stamm. Wald und Rave
+             stehen im selben Zeichen — das ist der Kern der Marke.
+             Die Zacken sitzen am Stamm, die Ausläufer enden am Ring. -->
+        <g stroke-width="1.9">
+          <path d="M7 50h16l2-7 2 13 2-18 2 22 2-12 2 8 2-10 2 4h3" />
+          <path d="M46 50h3l2-5 2 11 2-16 2 20 2-11 2 7 2-9 2 3h16" />
+        </g>
+      </g>
+    </symbol>
+
+    <symbol id="emblem-klein" viewBox="0 0 88 88">
+      <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="44" cy="44" r="38" stroke-width="5" />
+        <path d="M22 38a22 22 0 0 1 44 0" stroke-width="4" opacity=".7" />
+        <path d="M44 22v44" stroke-width="5" />
+        <path d="M44 60l-11 10M44 60l11 10" stroke-width="4.5" />
+        <path d="M12 47h9l3-9 3 18 3-13 3 4h6" stroke-width="4.5" />
+        <path d="M46 47h6l3-4 3 13 3-18 3 9h9" stroke-width="4.5" />
+      </g>
+    </symbol>
+  </svg>
 
   <script type="module" src="/src/main.js"></script>
 </body>

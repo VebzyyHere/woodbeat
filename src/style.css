@@ -1,835 +1,878 @@
 /* ============================================================
-   WoodBeat 2026 — Design-Tokens & Styles
-   Look abgeleitet vom offiziellen Banner (public/banner.jpg):
-   Vintage-Festivalposter — dunkles Waldgrün, Antik-Gold,
-   Creme statt Weiß, Western-Display-Schrift, leichte Körnung.
-   Farben/Abstände NUR über die Variablen hier ändern.
+   WOODBEAT · „DER ANSCHLAG"
+   Die Seite ist ein an den Baum genageltes Festivalplakat.
+   Kein Interface, keine Karten, keine runden Ecken, kein Glas.
+   Struktur kommt aus Linien, Rändern, Korn und Wiederholung.
+
+   Alles Tunbare steht in Abschnitt 1. Kein Hex-Wert, keine
+   Sekundenzahl, kein Pixelmaß darf irgendwo sonst auftauchen.
+
+   1  Tokens
+   2  Reset & Basis-Setzung
+   3  Korn
+   4  Ornament & Hilfsklassen
+   5  Der Anschlag (Kopf)
+   6  Die Banderole
+   7  Sektionen & Satzspiegel
+   8  Die Taste (Button)
+   9  Der Stimmzettel
+   10 Die Index-Leiste
+   11 Der Fuß
+   12 Bewegung: reduzierte Bewegung
    ============================================================ */
 
+/* ============================================================
+   1  TOKENS
+   ============================================================ */
+
+/* Registrierte Properties — müssen VOR :root stehen, sonst sind
+   sie nicht animierbar. --reg trägt den Registerversatz (das
+   Signature-Primitiv), --pct die Länge der Ergebnisbalken. */
+@property --reg-basis { syntax: '<length>';     inherits: true;  initial-value: 3px; }
+@property --reg-extra { syntax: '<length>';     inherits: true;  initial-value: 0px; }
+@property --pct       { syntax: '<percentage>'; inherits: false; initial-value: 0%;  }
+
 :root {
-  /* Akzent — Antik-Gold wie im Banner-Schriftzug */
-  --accent:        oklch(0.72 0.11 84);
-  --accent-hover:  oklch(0.66 0.11 84);
-  --accent-text:   oklch(0.22 0.03 84);   /* dunkler Text AUF Akzentfläche */
+  /* ── FARBE · DER BOGEN ──────────────────────────────────────
+     Drei Grünstufen auf einer Hue-Achse, damit die Seite als EIN
+     Bogen liest und nicht als Kartenstapel. Nie als Textfarbe. */
+  --ink:        oklch(0.183 0.018 152);   /* Grund der Seite */
+  --ink-2:      oklch(0.243 0.022 152);   /* abgesetztes Band */
+  --ink-3:      oklch(0.310 0.024 150);   /* gedrückte Zustände */
 
-  /* Neutrale — Waldgrün wie der Banner-Hintergrund, gelayert */
-  --bg:         oklch(0.20 0.025 145);
-  --surface:    oklch(0.24 0.025 145);
-  --surface-2:  oklch(0.28 0.025 145);
-  --border:     oklch(0.36 0.03 120);
-  --text:       oklch(0.91 0.03 95);      /* Creme wie "WOODBEAT" im Banner */
-  --text-muted: oklch(0.72 0.04 110);
+  /* ── FARBE · DIE DRUCKFARBEN ────────────────────────────── */
+  --creme:      oklch(0.923 0.022 92);    /* Fließtext & Wortmarke */
+  --creme-2:    oklch(0.720 0.024 94);    /* Sekundärtext, Notizen */
+  --creme-3:    oklch(0.560 0.020 100);   /* NIEMALS Text — nur Linien */
+  --gold:       oklch(0.702 0.115 80);    /* Linien, Ornament, Primäraktion */
+  --gold-hi:    oklch(0.785 0.105 84);    /* Lichtkante & Fokusring */
+  --paper:      oklch(0.923 0.022 92);    /* Creme-Sektion (Tickets) */
+  --paper-2:    oklch(0.400 0.020 152);   /* Sekundärtext auf Creme */
+  --gold-ink:   oklch(0.510 0.120 68);    /* Gold AUF Creme — --gold reißt dort AA */
 
-  /* Spacing (4px-Raster) */
-  --s-1: 4px; --s-2: 8px; --s-3: 12px; --s-4: 16px;
-  --s-6: 24px; --s-8: 32px; --s-12: 48px; --s-16: 64px;
+  /* ── FARBE · DAS SIGNAL ─────────────────────────────────────
+     Genau DREI Vorkommen auf der ganzen Seite erlaubt:
+     eigene Stimme · JETZT-Marker · Countdown < 24 h.
+     Bedeutung: DU / JETZT. Nichts anderes darf glühen. */
+  --glut:       oklch(0.645 0.165 45);
 
-  --radius: 10px;
-  --shadow: 0 4px 16px oklch(0 0 0 / 0.3);
-  --content-width: 880px;
+  /* ── FARBE · ABGELEITET (kein neuer Grundwert) ─────────────── */
+  --linie:      color-mix(in oklab, var(--gold) 34%, transparent);
+  --linie-pap:  color-mix(in oklab, var(--gold-ink) 34%, transparent);
+  --geist:      color-mix(in oklab, var(--creme) 40%, transparent);
+  --balken:     color-mix(in oklab, var(--gold) 46%, var(--ink-2));
+  --balken-ich: color-mix(in oklab, var(--glut) 62%, var(--ink-2));
 
-  /* Display-Schrift für Titel/Überschriften/Marquee — Body bleibt System-Schrift.
-     Rye gibt es nur in 400 — font-synthesis (body) verhindert Fake-Fett. */
-  --font-display: "Rye", Georgia, serif;
+  /* ── TYPOGRAFIE · FAMILIEN ──────────────────────────────────
+     Zwei Familien. Bevan NUR in Versalien und NUR >= 1.35rem —
+     darunter wird der Holzschnitt zu Matsch. */
+  --f-plakat: 'Bevan', 'Bevan Fallback', Georgia, 'Times New Roman', serif;
+  --f-mono:   'Martian Mono Variable', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+
+  /* ── TYPOGRAFIE · SKALA (Sprung Body → Wortmarke bis 9,8×) ── */
+  --t-marke: clamp(3.75rem, 20vw, 11rem);                   /* WOOD / BEAT */
+  --t-1:     clamp(2rem, 9vw, 4.5rem);                      /* Sektionstitel */
+  --t-2:     clamp(1.375rem, 1.1rem + 1.4vw, 2.25rem);      /* Preis, großer Countdown */
+  --t-3:     clamp(1.0625rem, 0.98rem + 0.9vw, 1.375rem);   /* Frage, Option, Slot */
+  --t-body:  clamp(1rem, 0.96rem + 0.5vw, 1.125rem);        /* Fließtext */
+  --t-label: clamp(0.8125rem, 0.79rem + 0.2vw, 0.875rem);   /* Mono-Versalien */
+  --t-mini:  clamp(0.75rem, 0.73rem + 0.1vw, 0.8125rem);    /* HARTE UNTERGRENZE */
+
+  /* ── TYPOGRAFIE · VARIATIONSACHSEN (Martian Mono) ─────────── */
+  --v-body:  'wght' 400;               /* Prosa: gemein, kein Tracking */
+  --v-label: 'wght' 550, 'wdth' 100;   /* Versal-Beschriftung */
+  --v-daten: 'wght' 500, 'wdth' 87.5;  /* Zahlen, Zeiten, Preise */
+  --v-eng:   'wght' 400, 'wdth' 75;    /* Marginalie + Balken-Textur */
+
+  /* ── RASTER & LUFT ────────────────────────────────────────── */
+  --rand:  clamp(1rem, 4.5vw, 3.5rem);      /* Blattrand */
+  --satz:  42rem;                            /* max. Textbreite */
+  --luft-1: clamp(1.25rem, 4vw, 2rem);
+  --luft-2: clamp(2rem, 6vw, 3.5rem);
+  --luft-3: clamp(3.5rem, 10vw, 6.5rem);
+  --index-h: 46px;
+
+  /* ── RADIEN & SCHATTEN ────────────────────────────────────────
+     Papier schwebt nicht und hat keine runden Ecken. Diese zwei
+     Tokens existieren nur, damit niemand andere erfindet. */
+  --radius: 0;
+  --schatten: none;
+
+  /* ── TAKT ─────────────────────────────────────────────────────
+     EIN Taktgeber. Jede Dauer ist ein Vielfaches oder Teiler
+     davon. 128 BPM = 468,75 ms. Derselbe Wert steuert später
+     den synthetisierten Ton. */
+  --bpm:  128;
+  --beat: calc(60000ms / var(--bpm));
+
+  --d-tap:   70ms;
+  --d-press: 110ms;
+  --d-bar:   calc(var(--beat) * 2);    /* ≈938 ms — Ergebnisbalken */
+  --d-reg:   calc(var(--beat) * 8);    /* 3750 ms — Registerpuls */
+  --d-band:  calc(var(--beat) * 64);   /* 30 s — Banderole */
+
+  /* ── EASINGS ──────────────────────────────────────────────────
+     Was loopt, läuft linear (maschinell, ohne Auflösung).
+     Was auf eine Geste antwortet, schnappt in steps().
+     Es gibt KEIN cubic-bezier mit Overshoot auf dieser Seite. */
+  --e-loop:  linear;
+  --e-halt:  steps(1, end);     /* Registerpuls: hält jeden Wert */
+  --e-zaehl: steps(24, end);    /* Balken: Zählwerk, keine Animation */
+
+  /* ── REGISTER (das Signature-Primitiv) ───────────────────── */
+  --reg: calc(var(--reg-basis) + var(--reg-extra));
+
+  /* ── KORN & ORNAMENT (Data-URIs, null Requests) ──────────── */
+  --korn: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");
+  --korn-deckung: 0.085;
+  --raute: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='8'%3E%3Cpath d='M11 0.6 14 4 11 7.4 8 4Z' fill='%23c9963c'/%3E%3C/svg%3E");
 }
 
-* { box-sizing: border-box; }
+/* Der Puls des Bogens. Liegt auf html, weil die Stimmabgabe (JS)
+   dieselbe Variable global anhebt — ein Mechanismus, zwei Auslöser. */
+@keyframes reg-schlag {
+  0%, 100% { --reg-basis: 3px; }
+  1.5%     { --reg-basis: 8px; }
+  4%       { --reg-basis: 3px; }
+}
+html { animation: reg-schlag var(--d-reg) var(--e-halt) infinite; }
 
-html { scroll-behavior: smooth; }
+/* Fallback-Metrik: verhindert den Umbruchsprung beim Font-Swap. */
+@font-face {
+  font-family: 'Bevan Fallback';
+  src: local('Georgia'), local('Times New Roman');
+  size-adjust: 108%;
+  ascent-override: 88%;
+  descent-override: 22%;
+  line-gap-override: 0%;
+}
+
+/* ============================================================
+   2  RESET & BASIS-SETZUNG
+   ============================================================ */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  -webkit-text-size-adjust: 100%;
+  /* Wortmarke und Banderole laufen absichtlich über den Rand */
+  overflow-x: clip;
+  scroll-padding-block: 1rem calc(var(--index-h) + 1rem);
+}
 
 body {
   margin: 0;
-  /* schräges Marquee & rotierende Deko dürfen nicht seitlich rausscrollen */
-  overflow-x: clip;
-  background: var(--bg);
-  color: var(--text);
-  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-  font-size: 16px;
-  line-height: 1.6;
-  /* Rye hat nur Gewicht 400 — kein künstliches Fett/Kursiv erzeugen */
+  background: var(--ink);
+  color: var(--creme);
+  font-family: var(--f-mono);
+  font-variation-settings: var(--v-body);
+  font-size: var(--t-body);
+  line-height: 1.62;
+  /* Bevan hat nur 400 — kein künstliches Fett erzeugen */
   font-synthesis: none;
+  text-wrap: pretty;
+  hyphens: auto;
+  /* Platz für die fixierte Index-Leiste am unteren Rand */
+  padding-block-end: calc(var(--index-h) + env(safe-area-inset-bottom));
 }
 
-/* Feine Körnung über der ganzen Seite — der "bedruckte Papier"-Look
-   des Banners. Rein dekorativ, klickt sich nicht an. */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: 40;
-  pointer-events: none;
-  opacity: 0.05;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+h1, h2, h3 { margin: 0; }
+p { margin: 0; }
+ul, ol { margin: 0; padding: 0; list-style: none; }
+
+p, li { max-inline-size: 62ch; }
+
+:focus-visible {
+  outline: 2px solid var(--gold-hi);
+  outline-offset: 2px;
 }
 
-h1, h2, h3 { line-height: 1.15; margin: 0 0 var(--s-4); }
-/* Sektions-Titel im Poster-Stil: zentriert, Versalien,
-   flankiert von Gold-Rauten wie auf dem Banner */
-h2 {
-  font-family: var(--font-display);
-  font-size: clamp(1.15rem, 0.95rem + 1vw, 1.5rem);
-  font-weight: 400;
+/* Mono-Beschriftung: Zahlen, Zeiten, Preise, Labels */
+.daten {
+  font-family: var(--f-mono);
+  font-variation-settings: var(--v-daten);
+  font-variant-numeric: tabular-nums slashed-zero;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--s-3);
-  text-align: center;
-}
-h2::before,
-h2::after {
-  content: "✦";
-  color: var(--accent);
-  font-size: 0.65em;
-  flex-shrink: 0;
+  letter-spacing: 0.14em;
+  line-height: 1.25;
 }
 
-a { color: var(--accent); }
+.marginal {
+  font-variation-settings: var(--v-eng);
+  font-size: var(--t-mini);
+  line-height: 1.45;
+  color: var(--creme-2);
+}
 
-/* Nur für Screenreader — visuell versteckt, aber vorlesbar */
 .sr-only {
   position: absolute;
-  width: 1px;
-  height: 1px;
-  margin: -1px;
-  padding: 0;
+  inline-size: 1px; block-size: 1px;
+  margin: -1px; padding: 0;
   overflow: hidden;
   clip-path: inset(50%);
   white-space: nowrap;
 }
 
-:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-  border-radius: 4px;
-}
-
-/* ---------- Topbar ---------- */
-
-.topbar {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--s-4);
-  padding: var(--s-3) var(--s-6);
-  background: oklch(0.20 0.025 145 / 0.85);
-  backdrop-filter: blur(8px);
-  border-bottom: 1px solid var(--border);
-}
-
-.topbar__logo {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--s-2);
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 1rem;
-  letter-spacing: 0.02em;
-  color: var(--text);
-  text-decoration: none;
-}
-.topbar__logo span { color: var(--accent); }
-
-/* doppelte Klasse nötig: gewinnt gegen die später definierte .logo-Basisregel */
-.logo.logo--small {
-  width: 26px;
-  height: 26px;
-  margin: 0;
-  flex-shrink: 0;
-  /* das Emblem ist ein quadratischer Banner-Ausschnitt → rund maskieren */
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-.topbar__nav {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--s-2) var(--s-4);
-}
-.topbar__nav a {
-  color: var(--text-muted);
-  text-decoration: none;
-  font-size: 0.95rem;
-  padding: var(--s-1) var(--s-2);
-  border-radius: 6px;
-  transition: color 0.15s;
-}
-.topbar__nav a:hover { color: var(--text); }
-
-/* ---------- Hero ---------- */
-
-.hero {
-  position: relative;
-  max-width: var(--content-width);
-  margin: 0 auto;
-  padding: var(--s-16) var(--s-6) var(--s-12);
-  text-align: center;
-}
-
-/* Ambiente: zwei weiche Glow-Blobs, die langsam durchs Hero treiben */
-.hero::before,
-.hero::after {
-  content: "";
+/* Sprungmarke — sichtbar nur bei Tastaturfokus */
+.sprung {
   position: absolute;
-  z-index: -1;
-  width: 340px;
-  height: 340px;
-  border-radius: 50%;
-  filter: blur(70px);
-  opacity: 0.16;
-  animation: blob-drift 18s ease-in-out infinite alternate;
-}
-.hero::before {
-  background: var(--accent);
-  top: 8%;
-  left: -60px;
-}
-.hero::after {
-  background: oklch(0.52 0.09 145);
-  bottom: 0;
-  right: -80px;
-  animation-delay: -9s;
-}
-
-@keyframes blob-drift {
-  from { transform: translate(0, 0) scale(1); }
-  to   { transform: translate(70px, 40px) scale(1.25); }
-}
-
-.hero__kicker {
-  font-size: 0.8rem;
-  font-weight: 500;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  margin: 0 0 var(--s-3);
-}
-
-/* Offizielles Banner-Artwork — Herzstück des Heros.
-   Läuft in voller Breite aus dem Content-Container heraus; ALLE vier
-   Ränder laufen weich ins Waldgrün aus (zwei Verlaufs-Masken, die per
-   mask-composite geschnitten werden) — Artwork und Seite verschmelzen. */
-.hero__banner {
-  display: block;
-  width: min(100vw, 1600px);
-  height: auto;
-  margin: var(--s-4) 0 var(--s-4) calc(50% - min(50vw, 800px));
-  -webkit-mask-image:
-    linear-gradient(to right, transparent, black 14%, black 86%, transparent),
-    linear-gradient(to bottom, transparent, black 22%, black 78%, transparent);
-  -webkit-mask-composite: source-in;
-  mask-image:
-    linear-gradient(to right, transparent, black 14%, black 86%, transparent),
-    linear-gradient(to bottom, transparent, black 22%, black 78%, transparent);
-  mask-composite: intersect;
-  animation: banner-in 0.9s backwards ease-out;
-}
-
-@keyframes banner-in {
-  from {
-    opacity: 0;
-    transform: scale(0.97);
-  }
-}
-
-.hero__claim {
-  color: var(--text-muted);
-  font-size: 1.1rem;
-  max-width: 34em;
-  margin: 0 auto var(--s-6);
-}
-
-.hero__facts {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: var(--s-2);
-  margin-bottom: var(--s-8);
-}
-
-.pill {
-  padding: var(--s-2) var(--s-4);
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  background: var(--surface);
-  font-size: 0.9rem;
-  color: var(--text-muted);
-}
-
-/* (Das frühere SVG-Logo mit rotierenden Ringen ist Geschichte —
-   Topbar & Favicon nutzen jetzt das echte Emblem aus dem Banner.) */
-
-@media (prefers-reduced-motion: reduce) {
-  .hero::before, .hero::after, .hero__banner,
-  .marquee__track { animation: none; }
-  .marquee { display: none; }
-  html { scroll-behavior: auto; }
-}
-
-/* ---------- Laufband (Marquee) ---------- */
-
-.marquee {
-  overflow: hidden;
-  background: var(--surface);
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
-  transform: rotate(-1.2deg) scale(1.02);
-  padding: var(--s-3) 0;
-  margin: var(--s-2) 0 var(--s-4);
-}
-
-.marquee__track {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--s-6);
-  width: max-content;
-  white-space: nowrap;
-  animation: marquee-scroll 26s linear infinite;
-  font-family: var(--font-display);
-  font-weight: 500;
-  font-size: 0.8rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-}
-
-.marquee__star { color: var(--accent); }
-
-@keyframes marquee-scroll {
-  to { transform: translateX(-50%); }
-}
-
-/* ---------- Buttons ---------- */
-
-.btn {
-  display: inline-block;
-  padding: var(--s-3) var(--s-6);
-  border: none;
-  border-radius: var(--radius);
-  font-size: 1rem;
-  font-weight: 600;
+  inset-block-start: -100%;
+  inset-inline-start: var(--rand);
+  z-index: 100;
+  padding: 0.75rem 1.25rem;
+  background: var(--gold);
+  color: var(--ink);
+  font-size: var(--t-label);
   text-decoration: none;
-  cursor: pointer;
-  transition: background 0.15s, transform 0.1s;
-  min-height: 44px;
 }
-.btn:active { transform: scale(0.98); }
+.sprung:focus-visible { inset-block-start: 0.5rem; }
 
-.btn--primary {
-  background: var(--accent);
-  color: var(--accent-text);
-}
-.btn--primary:hover { background: var(--accent-hover); }
+/* ============================================================
+   3  KORN
+   Der „bedrucktes Papier"-Layer über der ganzen Seite. Bewusst
+   OHNE mix-blend-mode: ein bildschirmfüllender fixierter
+   Blend-Layer zwingt den Compositor, den Hintergrund neu zu
+   lesen — optisch identisch, ein Vielfaches der Kosten.
+   ============================================================ */
 
-.btn--ghost {
-  background: transparent;
-  color: var(--text);
-  box-shadow: inset 0 0 0 1px var(--border);
-}
-.btn--ghost:hover { box-shadow: inset 0 0 0 1px var(--accent); color: var(--accent); }
-
-/* ---------- Sections ---------- */
-
-/* Sektionen fließen ohne harte Trennlinien ineinander — Struktur kommt
-   aus Abstand + den zentrierten ✦-Überschriften */
-.section {
-  max-width: var(--content-width);
-  margin: 0 auto;
-  padding: var(--s-12) var(--s-6);
-}
-
-.section__intro {
-  color: var(--text-muted);
-  text-align: center;
-  margin-top: calc(-1 * var(--s-2));
-  margin-bottom: var(--s-6);
-}
-
-.muted { color: var(--text-muted); font-size: 0.9rem; }
-
-/* ---------- Chips (Tag-Auswahl) ---------- */
-
-.chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--s-2);
-  margin-bottom: var(--s-6);
-}
-
-.chip {
-  padding: var(--s-2) var(--s-4);
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  background: var(--surface);
-  color: var(--text-muted);
-  font-size: 0.95rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.15s, color 0.15s, border-color 0.15s;
-  min-height: 44px;
-}
-.chip:hover { background: var(--surface-2); color: var(--text); }
-.chip[aria-pressed="true"] {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: var(--accent-text);
-}
-
-/* ---------- Timeline ---------- */
-
-.timeline {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  border-left: 2px solid var(--border);
-}
-
-/* Slots fliegen beim Tagwechsel gestaffelt ein */
-@media (prefers-reduced-motion: no-preference) {
-  .timeline li {
-    animation: slot-in 0.35s backwards;
-    animation-delay: calc(var(--i) * 50ms);
-  }
-  @keyframes slot-in {
-    from {
-      opacity: 0;
-      transform: translateX(-12px);
-    }
-  }
-}
-
-.timeline li {
-  position: relative;
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--s-1) var(--s-4);
-  align-items: baseline;
-  padding: var(--s-3) 0 var(--s-3) var(--s-6);
-}
-.timeline li::before {
-  content: "";
-  position: absolute;
-  left: -6px;
-  top: 1.35em;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--accent);
-}
-
-.timeline .time {
-  font-variant-numeric: tabular-nums;
-  font-weight: 600;
-  color: var(--accent);
-  min-width: 3.5em;
-}
-.timeline .title { font-weight: 600; }
-.timeline .note { color: var(--text-muted); font-size: 0.9rem; }
-
-/* ---------- Cards ---------- */
-
-.card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: var(--s-6);
-  box-shadow: var(--shadow);
-  margin-bottom: var(--s-6);
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-.card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 24px oklch(0 0 0 / 0.35);
-}
-.card--accent { border-color: var(--accent); }
-
-.card__label {
-  font-size: 0.75rem;
-  font-weight: 500;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  margin: 0 0 var(--s-1);
-}
-.card__label + ul { margin-top: 0; }
-
-.card__big {
-  font-size: 1.6rem;
-  font-weight: 700;
-  margin: 0 0 var(--s-4);
-}
-
-.card .btn { margin-top: var(--s-3); }
-
-/* ---------- Hero-CTAs ---------- */
-
-.hero__cta {
-  display: flex;
-  gap: var(--s-3);
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-/* ---------- Sticky Mini-CTA ---------- */
-
-.stickybar {
+body::after {
+  content: '';
   position: fixed;
-  left: 50%;
-  bottom: var(--s-4);
-  transform: translate(-50%, calc(100% + var(--s-6)));
-  display: flex;
-  align-items: center;
-  gap: var(--s-4);
-  max-width: calc(100vw - var(--s-8));
-  padding: var(--s-2) var(--s-2) var(--s-2) var(--s-4);
-  background: oklch(0.24 0.025 145 / 0.85);
-  backdrop-filter: blur(12px);
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  box-shadow: var(--shadow);
-  z-index: 50;
-  transition: transform 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.2);
-}
-.stickybar--visible { transform: translate(-50%, 0); }
-
-.stickybar__info {
-  font-size: 0.85rem;
-  font-weight: 600;
-  white-space: nowrap;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  opacity: var(--korn-deckung);
+  background-image: var(--korn);
 }
 
-.stickybar__btn {
-  border-radius: 999px;
-  padding: var(--s-2) var(--s-4);
-  min-height: 0;
-  white-space: nowrap;
+/* ============================================================
+   4  ORNAMENT & HILFSKLASSEN
+   ============================================================ */
+
+/* Doppelte Goldlinie mit Rautenreihe — direkt aus dem Banner. */
+.ornament {
+  block-size: 10px;
+  border-block: 1px solid var(--gold);
+  background-image: var(--raute);
+  background-repeat: repeat-x;
+  background-position: center;
+  opacity: 0.85;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .stickybar { transition: none; }
+.bleed {
+  inline-size: 100%;
+  margin-inline: 0;
 }
 
-/* ---------- Tickets & Bar ---------- */
-
-.tickets {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: var(--s-4);
-}
-
-.ticket {
-  position: relative;
-  margin-bottom: 0;
-}
-.ticket--featured {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 1px var(--accent), var(--shadow);
-}
-
-.ticket__badge {
-  position: absolute;
-  top: calc(-1 * var(--s-3));
-  right: var(--s-4);
-  background: var(--accent);
-  color: var(--accent-text);
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  padding: var(--s-1) var(--s-3);
-  border-radius: 999px;
-}
-
-.ticket__name {
-  font-family: var(--font-display);
-  font-weight: 700;
-  margin: 0 0 var(--s-2);
-}
-
-.ticket__preis {
-  font-family: var(--font-display);
-  font-size: 2.2rem;
-  font-weight: 700;
-  color: var(--accent);
-  line-height: 1;
-  margin: 0;
-}
-
-.ticket__einheit {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  margin: var(--s-1) 0 var(--s-4);
-}
-
-.ticket__includes {
-  margin: 0;
-  padding-left: 0;
-  list-style: none;
-}
-.ticket__includes li {
-  padding: var(--s-1) 0;
-  border-top: 1px solid var(--border);
-}
-
-.ticket__cta { width: 100%; text-align: center; }
-
-#tickets-hinweis { margin: var(--s-4) 0 var(--s-8); }
-
-.bar__title {
-  font-family: var(--font-display);
-  font-size: 1.15rem;
-  font-weight: 400;
-  text-align: center;
-  margin-bottom: var(--s-2);
-}
-
-.bar {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: var(--s-4);
-  align-items: start;
-}
-
-.bar__gruppe { margin-bottom: 0; }
-
-.bar__kategorie {
-  font-family: var(--font-display);
-  font-weight: 700;
-  margin: 0 0 var(--s-3);
-}
-
-.bar__row {
-  display: flex;
-  justify-content: space-between;
-  gap: var(--s-3);
-  padding: var(--s-2) 0;
-  border-top: 1px solid var(--border);
-}
-
-.bar__preis {
-  font-weight: 700;
-  color: var(--accent);
-  white-space: nowrap;
-}
-
-/* ---------- Hinweise (Anfahrt) ---------- */
-
-.hints {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: var(--s-3);
-}
-.hints li {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: var(--s-3) var(--s-4);
-}
-
-/* ---------- Checkliste (Mitbringen) ---------- */
-
-.checklist-progress {
-  font-weight: 600;
-  color: var(--accent);
-  margin: 0 0 var(--s-3);
-}
-
-.checklist {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: var(--s-2);
-}
-
-.checklist label {
-  display: flex;
-  align-items: baseline;
-  gap: var(--s-3);
-  padding: var(--s-3) var(--s-4);
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  cursor: pointer;
-  transition: background 0.15s;
-  min-height: 48px;
-}
-.checklist label:hover { background: var(--surface-2); }
-
-.checklist input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
-  accent-color: var(--accent);
-  flex-shrink: 0;
-  transform: translateY(2px);
-}
-
-.checklist .note { color: var(--text-muted); font-size: 0.9rem; }
-
-.checklist li:has(input:checked) label {
-  border-color: var(--accent);
-}
-.checklist li:has(input:checked) .item {
-  text-decoration: line-through;
-  color: var(--text-muted);
-}
-
-/* ---------- Abstimmen / Umfragen ---------- */
-
-.poll h3 {
-  font-size: 1.1rem;
-  margin: 0 0 var(--s-1);
-}
-.poll .muted { margin: 0 0 var(--s-3); }
-.poll .chips { margin-bottom: 0; }
-
-#eigene-idee {
-  width: 100%;
-  padding: var(--s-3);
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  color: var(--text);
-  font: inherit;
-  resize: vertical;
-}
-#eigene-idee::placeholder { color: var(--text-muted); }
-
-#share-votes { margin-bottom: var(--s-2); }
-
-/* ---------- FAQ ---------- */
-
-#faq-list details {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  margin-bottom: var(--s-2);
-}
-#faq-list summary {
-  padding: var(--s-4);
-  font-weight: 600;
-  cursor: pointer;
-  min-height: 44px;
-}
-#faq-list summary:hover { color: var(--accent); }
-#faq-list details p {
-  margin: 0;
-  padding: 0 var(--s-4) var(--s-4);
-  color: var(--text-muted);
-}
-
-/* ---------- Footer ---------- */
-
-.footer {
-  border-top: 1px solid var(--border);
-  padding: var(--s-8) var(--s-6);
-  text-align: center;
-  color: var(--text-muted);
-  font-size: 0.9rem;
-}
-
-/* ---------- Playlist (Spotify-Embed) ---------- */
-
-#spotify-embed iframe {
+/* Haarlinie über die volle Blattbreite, auch im Satzspiegel */
+.linie {
+  block-size: 1px;
+  background: var(--linie);
   border: 0;
-  border-radius: var(--radius);
+  margin: 0;
+}
+
+/* Gestempelte Fläche — der Leerzustand der Seite.
+   Kein Spinner, kein Skeleton, kein trauriges „TBD". */
+.stempel {
+  --reg-extra: 0px;
+  padding: var(--luft-1);
+  border: 2px solid var(--linie);
+  color: var(--creme-2);
+  font-variation-settings: var(--v-label);
+  font-size: var(--t-label);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  text-align: center;
+  text-shadow: calc(var(--reg) * -0.5) calc(var(--reg) * 0.25) 0 var(--linie);
+}
+
+/* ============================================================
+   5  DER ANSCHLAG (Kopf)
+   ============================================================ */
+
+.anschlag {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  /* svh, nicht vh — sonst schneidet die iOS-Adressleiste an.
+     78 statt 100: darunter muss noch etwas hervorlugen, das
+     ersetzt jeden Scroll-Pfeil. */
+  min-block-size: 78svh;
+  padding-block-start: var(--luft-2);
+  background: var(--ink-2);
+}
+
+/* Das Banner-JPEG lebt nur noch als Textur weiter (12 %). */
+.anschlag::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: url('/banner-textur.webp') center / cover no-repeat;
+  opacity: 0.12;
+  pointer-events: none;
+}
+
+/* Stempel oben, Satz unten am Ornament — dazwischen atmet der Bogen. */
+.anschlag__inhalt {
+  margin-block-start: auto;
+  padding-inline: var(--rand);
+  padding-block-end: var(--luft-1);
+}
+
+/* Sitzt oben links im Kopf — der Bogen ist oben gestempelt und
+   unten gesetzt. Ohne ihn stünde dort nur leere Fläche. */
+.anschlag__stempel {
   display: block;
+  inline-size: clamp(64px, 17vw, 88px);
+  block-size: auto;
+  margin-inline-start: var(--rand);
+  color: var(--gold);
 }
 
-/* ---------- Konfetti & Cursor-Glow ---------- */
+.anschlag__kicker {
+  font-size: var(--t-mini);
+  color: var(--creme-2);
+  margin-block-end: 0.75rem;
+}
 
-.confetti {
+/* ── Die Wortmarke: drei Druckplatten, die nicht im Register sitzen ── */
+.marke {
+  font-family: var(--f-plakat);
+  font-weight: 400;
+  font-size: var(--t-marke);
+  line-height: 0.78;
+  letter-spacing: -0.045em;
+  text-transform: uppercase;
+  color: var(--creme);
+  /* die Marke darf über den Blattrand laufen — das ist Absicht */
+  margin-inline-start: -0.06em;
+}
+
+.marke__zeile { position: relative; display: block; }
+.marke__ist   { position: relative; display: block; }
+
+.marke__geist {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  user-select: none;
+}
+.marke__geist--gold {
+  color: var(--gold);
+  translate: calc(var(--reg) * -1) calc(var(--reg) * 0.42);
+}
+.marke__geist--creme {
+  color: var(--geist);
+  translate: calc(var(--reg) * 0.7) calc(var(--reg) * -0.3);
+}
+
+.marke__jahr {
+  font-size: var(--t-label);
+  letter-spacing: 0.3em;
+  color: var(--gold);
+  margin-block-start: 0.9rem;
+}
+
+.anschlag__fakten {
+  font-size: var(--t-label);
+  color: var(--creme);
+  margin-block-start: 0.5rem;
+}
+
+.anschlag__uhr {
+  font-family: var(--f-mono);
+  font-variation-settings: var(--v-daten);
+  font-variant-numeric: tabular-nums slashed-zero;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: var(--t-mini);
+  color: var(--creme-2);
+  margin-block-start: 0.35rem;
+}
+/* Ab 30 Tagen vor dem Festival wird der Countdown groß und gold,
+   ab 24 h glüht er. Vorher wäre er elf Monate lang die Aussage
+   „hier passiert nichts". */
+.anschlag__uhr[data-nah] {
+  font-family: var(--f-plakat);
+  font-size: var(--t-2);
+  letter-spacing: 0.02em;
+  color: var(--gold);
+}
+.anschlag__uhr[data-glut] { color: var(--glut); }
+
+/* ============================================================
+   6  DIE BANDEROLE
+   Das einzige rotierte Element der Seite. Befreit das Motto aus
+   dem Banner-JPEG, in dem es bisher unlesbar begraben lag.
+   ============================================================ */
+
+/* Der Rahmen klippt, das INNERE Blatt dreht sich. Andersherum würde
+   sich der Clipping-Container selbst aus dem Viewport drehen — und
+   `overflow-x: clip` auf <html> fängt das in Chrome nicht ab.
+   Das Polster ist tan(1.2°) ≈ 0.021 der Breite, damit die gedrehten
+   Ecken oben und unten nicht abgeschnitten werden. */
+.banderole {
+  overflow: hidden;
+  padding-block: 1.15vw;
+  margin-block-start: var(--luft-1);
+}
+
+.banderole__blatt {
+  padding-block: 0.5rem;
+  border-block: 1px solid var(--gold);
+  background: var(--ink);
+  rotate: -1.2deg;
+  scale: 1.03;
+}
+
+.banderole__spur {
+  display: flex;
+  gap: 2.5rem;
+  inline-size: max-content;
+  white-space: nowrap;
+  font-variation-settings: var(--v-label);
+  font-size: var(--t-mini);
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  color: var(--creme-2);
+  animation: banderole-lauf var(--d-band) var(--e-loop) infinite;
+}
+.banderole__spur b { color: var(--gold); font-weight: inherit; }
+
+@keyframes banderole-lauf { to { translate: -50% 0; } }
+
+/* ============================================================
+   7  SEKTIONEN & SATZSPIEGEL
+   ============================================================ */
+
+.sektion {
+  padding-block: var(--luft-3);
+  padding-inline: var(--rand);
+}
+.sektion--laut { background: var(--ink-2); }
+
+.satzspiegel {
+  max-inline-size: 62rem;
+  margin-inline: auto;
+}
+
+.sektion__nr {
+  font-size: var(--t-mini);
+  color: var(--gold);
+  margin-block-end: 0.35rem;
+}
+
+.sektion__titel {
+  --reg-extra: 0px;
+  font-family: var(--f-plakat);
+  font-weight: 400;
+  font-size: var(--t-1);
+  line-height: 0.86;
+  letter-spacing: -0.025em;
+  text-transform: uppercase;
+  text-wrap: balance;
+  /* dasselbe Register-Primitiv wie die Wortmarke, nur statisch */
+  text-shadow: calc(var(--reg) * -0.6) calc(var(--reg) * 0.3) 0 var(--gold);
+}
+
+.sektion__kopf {
+  font-size: var(--t-mini);
+  color: var(--creme-2);
+  margin-block-start: var(--luft-1);
+  padding-block-end: 0.5rem;
+  border-block-end: 1px solid var(--linie);
+}
+
+.sektion__intro {
+  color: var(--creme-2);
+  margin-block-start: var(--luft-1);
+}
+
+/* ============================================================
+   8  DIE TASTE (Button)
+   Ein Druckvorgang, keine Schaltfläche: beim Drücken schnappt
+   das Register auf null — dieselbe Mechanik wie die Wortmarke.
+   ============================================================ */
+
+.taste {
+  --reg-extra: 0px;
+  display: inline-block;
+  min-block-size: 48px;
+  padding: 0.75rem 1.5rem;
+  border: 1px solid var(--gold);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--gold);
+  font-family: var(--f-mono);
+  font-variation-settings: var(--v-label);
+  font-size: var(--t-label);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: calc(var(--reg) * -0.5) calc(var(--reg) * 0.3) 0 0 var(--linie);
+  transition: background var(--d-tap) var(--e-halt),
+              color var(--d-tap) var(--e-halt),
+              box-shadow var(--d-press) var(--e-halt);
+}
+.taste:hover { background: var(--gold); color: var(--ink); }
+.taste:active {
+  --reg-extra: calc(-1 * var(--reg-basis));
+  background: var(--gold);
+  color: var(--ink);
+}
+.taste[disabled] { opacity: 0.45; cursor: default; }
+.taste[disabled]:hover { background: transparent; color: var(--gold); }
+
+/* ============================================================
+   9  DER STIMMZETTEL
+   Volle Zeilenbreite statt Chips: eine Stimme ist eine
+   Festlegung, keine Navigation — sie darf nicht aussehen wie
+   der Tagesumschalter im Laufplan.
+   ============================================================ */
+
+.zettel {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  margin-block-start: var(--luft-2);
+}
+
+.zettel__frage {
+  padding: 0;
+  font-family: var(--f-mono);
+  font-variation-settings: var(--v-label);
+  font-size: var(--t-3);
+  line-height: 1.3;
+  text-wrap: balance;
+}
+
+.zettel__modus {
+  font-size: var(--t-mini);
+  color: var(--creme-2);
+  margin-block: 0.4rem var(--luft-1);
+}
+
+.zettel__liste { border-block-start: 1px solid var(--linie); }
+
+.zettel__zeile {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas:
+    'wahl zahl'
+    'balken balken'
+    'mein mein';
+  align-items: center;
+  column-gap: 1rem;
+  padding-block: 0.7rem;
+  border-block-end: 1px solid var(--linie);
+}
+
+.zettel__wahl {
+  grid-area: wahl;
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  min-block-size: 44px;
+  cursor: pointer;
+}
+.zettel__wahl input { position: absolute; opacity: 0; pointer-events: none; }
+
+/* Das Kästchen — ein leeres Quadrat, kein Häkchen-Widget */
+.zettel__kasten {
+  position: relative;
+  flex: 0 0 auto;
+  inline-size: 18px;
+  block-size: 18px;
+  border: 1px solid var(--gold);
+}
+.zettel__kasten::before {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  background:
+    linear-gradient(to bottom right, transparent 44%, var(--gold) 44% 56%, transparent 56%),
+    linear-gradient(to bottom left,  transparent 44%, var(--gold) 44% 56%, transparent 56%);
+  opacity: 0;
+}
+/* Ein Stempel hat keine Animation — er ist da oder nicht. */
+.zettel__zeile:has(input:checked) .zettel__kasten::before { opacity: 1; }
+
+.zettel__label {
+  font-variation-settings: var(--v-label);
+  font-size: var(--t-3);
+  line-height: 1.25;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: color-mix(in oklab, var(--creme) 78%, transparent);
+  max-inline-size: none;
+}
+.zettel__wahl:hover .zettel__label,
+.zettel__zeile:has(input:checked) .zettel__label { color: var(--creme); }
+
+.zettel__zeile:has(input:focus-visible) {
+  outline: 2px solid var(--gold-hi);
+  outline-offset: 2px;
+}
+.zettel__zeile:active { --reg-extra: calc(-1 * var(--reg-basis)); }
+
+.zettel__zahlen {
+  grid-area: zahl;
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  font-size: var(--t-label);
+  white-space: nowrap;
+}
+.zettel__zahl    { color: var(--creme); }
+.zettel__stimmen { color: var(--creme-2); font-size: var(--t-mini); }
+.zettel__zeile[data-leer] .zettel__zahlen { color: var(--creme-3); }
+
+/* ── Der Ergebnisbalken ─────────────────────────────────────
+   Kein <div> mit width. Die Balkenlänge IST das wiederholte
+   erste Wort der Antwort, abgeschnitten bei --pct, mit einer
+   Goldkante als Setzkasten-Anschlag. Er wächst in 24 Schritten:
+   ein Zählwerk, keine Animation.
+   Der Balken ist Dekoration — die Prozentzahl daneben ist die
+   Information und steht als echter Text im DOM.            */
+.zettel__balken {
+  grid-area: balken;
+  display: block;
+  inline-size: var(--pct);
+  block-size: 1.35em;
+  margin-block-start: 0.35rem;
+  overflow: hidden;
+  white-space: nowrap;
+  font-variation-settings: var(--v-eng);
+  font-size: var(--t-mini);
+  line-height: 1.35em;
+  color: var(--balken);
+  border-inline-end: 2px solid var(--gold);
+  user-select: none;
+  transition: --pct var(--d-bar) var(--e-zaehl);
+}
+.zettel__zeile[data-mine] .zettel__balken {
+  color: var(--balken-ich);
+  border-inline-end-color: var(--glut);
+}
+/* Vor der eigenen Stimme bleiben die Ergebnisse verdeckt —
+   das verhindert den Ankereffekt und macht das Abstimmen zum
+   belohnten Moment. */
+.zettel[data-verdeckt] .zettel__balken { visibility: hidden; }
+
+.zettel__mein {
+  grid-area: mein;
+  display: none;
+  font-size: var(--t-mini);
+  color: var(--glut);
+  letter-spacing: 0.14em;
+  margin-block-start: 0.2rem;
+}
+.zettel__zeile[data-mine] .zettel__mein { display: block; }
+
+.zettel__fuss {
+  font-size: var(--t-mini);
+  color: var(--creme-2);
+  margin-block-start: 0.8rem;
+}
+
+.zettel__aktion {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--luft-1);
+  margin-block-start: var(--luft-2);
+}
+
+/* ============================================================
+   10  DIE INDEX-LEISTE
+   Das einzige fixierte Element. Ersetzt Topbar UND Stickybar
+   des alten Stands, die zusammen ~100 px von 844 px gefressen
+   haben. Opak statt backdrop-filter.
+   ============================================================ */
+
+.index {
   position: fixed;
-  top: 0;
+  inset: auto 0 0 0;
   z-index: 50;
-  font-size: 1.4rem;
-  pointer-events: none;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  block-size: calc(var(--index-h) + env(safe-area-inset-bottom));
+  padding-inline: 0.5rem;
+  padding-block-end: env(safe-area-inset-bottom);
+  background: var(--ink);
+  border-block-start: 1px solid var(--gold);
 }
 
-.cursor-glow {
-  position: fixed;
-  top: -200px;
-  left: -200px;
-  width: 400px;
-  height: 400px;
-  z-index: 40;
-  pointer-events: none;
-  border-radius: 50%;
-  background: radial-gradient(closest-side, var(--accent), transparent 70%);
-  opacity: 0.07;
-  mix-blend-mode: screen;
+.index__stempel {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  inline-size: 44px;
+  block-size: 44px;
+  color: var(--gold);
 }
+.index__stempel svg { inline-size: 24px; block-size: 24px; }
 
-/* ---------- Scroll-Fortschrittsbalken (reines CSS) ---------- */
+.index__liste {
+  flex: 1 1 auto;
+  display: flex;
+  gap: 1.25rem;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+  min-inline-size: 0;
+}
+.index__liste::-webkit-scrollbar { display: none; }
+.index__liste li { scroll-snap-align: center; }
 
-@media (prefers-reduced-motion: no-preference) {
-  @supports (animation-timeline: scroll()) {
-    body::after {
-      content: "";
-      position: fixed;
-      top: 0;
-      left: 0;
-      z-index: 30;
-      width: 100%;
-      height: 3px;
-      background: var(--accent);
-      transform-origin: 0 0;
-      animation: progress-grow linear both;
-      animation-timeline: scroll();
-    }
-    @keyframes progress-grow {
-      from { transform: scaleX(0); }
-      to   { transform: scaleX(1); }
-    }
+.index__liste a {
+  --reg-extra: 0px;
+  /* füllt die Leistenhöhe — sonst wäre das Ziel nur ~37 px hoch */
+  display: flex;
+  align-items: center;
+  block-size: var(--index-h);
+  font-variation-settings: var(--v-label);
+  font-size: var(--t-mini);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  white-space: nowrap;
+  color: var(--creme-2);
+  text-decoration: none;
+}
+.index__liste a:hover { color: var(--creme); }
+.index__liste a[aria-current='true'] {
+  color: var(--gold);
+  text-shadow: calc(var(--reg) * -0.4) calc(var(--reg) * 0.2) 0 var(--linie);
+}
+.index__liste a:focus-visible { outline-offset: -2px; }
+
+/* Ton-Schalter — der Ton wird im Browser synthetisiert (128 BPM,
+   derselbe Takt wie --beat), es wird keine Audiodatei geladen. */
+.index__ton {
+  --reg-extra: 0px;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-block-size: 44px;
+  padding-inline: 0.5rem;
+  border: 0;
+  background: transparent;
+  color: var(--creme-2);
+  font-family: var(--f-mono);
+  font-variation-settings: var(--v-label);
+  font-size: var(--t-mini);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  cursor: pointer;
+}
+.index__ton[aria-pressed='true'] { color: var(--gold); }
+
+.index__ton-balken {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  block-size: 12px;
+}
+.index__ton-balken i {
+  inline-size: 2px;
+  block-size: 3px;
+  background: currentColor;
+}
+.index__ton[aria-pressed='true'] .index__ton-balken i {
+  animation: ton-pegel var(--beat) var(--e-loop) infinite alternate;
+}
+.index__ton-balken i:nth-child(2) { animation-delay: calc(var(--beat) * -0.25); }
+.index__ton-balken i:nth-child(3) { animation-delay: calc(var(--beat) * -0.5); }
+.index__ton-balken i:nth-child(4) { animation-delay: calc(var(--beat) * -0.75); }
+@keyframes ton-pegel { to { block-size: 12px; } }
+
+.index__uhr {
+  flex: 0 0 auto;
+  font-size: var(--t-mini);
+  color: var(--creme-2);
+}
+.index__uhr[data-glut] { color: var(--glut); }
+
+/* ============================================================
+   11  DER FUSS
+   ============================================================ */
+
+.fuss {
+  padding: var(--luft-3) var(--rand) var(--luft-2);
+  border-block-start: 1px solid var(--linie);
+  text-align: center;
+}
+.fuss__siegel {
+  inline-size: 40px;
+  block-size: 40px;
+  color: var(--gold);
+  opacity: 0.8;
+  margin-block-end: var(--luft-1);
+}
+.fuss .daten {
+  font-size: var(--t-mini);
+  color: var(--creme-2);
+}
+.fuss .marginal { margin-block-start: 0.4rem; }
+.fuss p { max-inline-size: none; }
+
+/* ============================================================
+   12  GRÖSSERE SCHIRME
+   Mobil ist der Entwurfsfall (80 % der Gäste kommen aus einer
+   WhatsApp-Gruppe), Desktop die Anpassung — nicht umgekehrt.
+   ============================================================ */
+
+@media (min-width: 780px) {
+  /* Auf Desktop klebt die Leiste oben — dort erwartet man sie,
+     und der Daumen spielt keine Rolle mehr. */
+  .index {
+    position: sticky;
+    inset: 0 0 auto 0;
+    padding-inline: var(--rand);
+    border-block-start: 0;
+    border-block-end: 1px solid var(--gold);
   }
+  body { padding-block-end: 0; }
+  html { scroll-padding-block-start: calc(var(--index-h) + 1rem); }
+
+  /* Ergebnisbalken laufen hinter dem Label statt darunter */
+  .zettel__zeile {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      'wahl   zahl'
+      'balken zahl'
+      'mein   zahl';
+    align-items: center;
+  }
+  .zettel__zahlen { align-self: center; }
 }
 
-/* ---------- Scroll-Reveal (modernes CSS, kein JS; degradiert sauber) ---------- */
-
-@media (prefers-reduced-motion: no-preference) {
-  @supports (animation-timeline: view()) {
-    .section {
-      animation: section-rise both;
-      animation-timeline: view();
-      animation-range: entry 0% entry 35%;
-    }
-    @keyframes section-rise {
-      from { opacity: 0; transform: translateY(28px); }
-    }
-  }
+@media (max-width: 420px) {
+  :root { --korn-deckung: 0.07; }
 }
 
-/* ---------- Responsive ---------- */
+/* ============================================================
+   13  REDUZIERTE BEWEGUNG
+   Vollständig: nichts pulsiert, nichts läuft, nichts zählt.
+   Die Seite bleibt in jeder Hinsicht bedienbar — der Ton
+   startet in diesem Modus gar nicht erst.
+   ============================================================ */
 
-@media (max-width: 700px) {
-  .badge-spin { display: none; } /* überlappt sonst den Titel */
-}
-
-@media (max-width: 600px) {
-  /* Kompakte 2-Zeilen-Topbar: Logo + eine wischbare Nav-Zeile */
-  .topbar {
-    padding: var(--s-2) var(--s-4);
-    flex-direction: column;
-    align-items: stretch;
-    gap: var(--s-1);
+@media (prefers-reduced-motion: reduce) {
+  :root { --reg-basis: 4px; }
+  html { animation: none; }
+  .banderole__spur { animation: none; }
+  .index__ton-balken i { animation: none; block-size: 7px; }
+  .zettel__balken { transition: none; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
-  .topbar__logo { justify-content: center; }
-  .topbar__nav {
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    justify-content: flex-start;
-    scrollbar-width: none;
-    -webkit-overflow-scrolling: touch;
-  }
-  .topbar__nav::-webkit-scrollbar { display: none; }
-  .topbar__nav a { white-space: nowrap; }
-  .hero { padding: var(--s-12) var(--s-4) var(--s-8); }
-  .section { padding: var(--s-8) var(--s-4); }
-  .timeline .time { min-width: 100%; }
 }

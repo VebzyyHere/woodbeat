@@ -2,6 +2,24 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+> ## ⚠️ ACHTUNG: Relaunch läuft (Stand 28.07.2026)
+>
+> Die Seite wird gerade komplett neu gebaut — Art Direction **„DER ANSCHLAG"**,
+> Zielfestival ist **WoodBeat 2027**. Der Abschnitt „Architektur" unten beschreibt
+> teilweise noch den **alten** Stand und wird erst aktualisiert, wenn der Umbau
+> durch ist. Was bereits gilt:
+>
+> - **Fertig:** Design-Tokens, Fonts (Bevan + Martian Mono statt Rye), Kopf
+>   („Der Anschlag" mit lebender Wortmarke), Banderole, Index-Leiste, Stimmzettel
+>   mit Live-Ergebnissen, Ton-Synthese, Emblem als Inline-SVG.
+> - **Es gibt keine `.card` mehr**, keinen Border-Radius, keinen Schatten, kein
+>   `backdrop-filter` und **keine Emoji in der UI** (Ausnahme: Share-Texte, `og:title`).
+> - **Noch nicht gebaut:** Line-up, Laufplan, Tickets & Bar, Wer kommt, Rückblick,
+>   Lageplan, Mitbringen, Playlist, Wald-Kodex, Kleingedrucktes. Die Daten dafür
+>   liegen bereits in `src/data.js`.
+> - Die verbindliche Spezifikation liegt im Plan
+>   `~/.claude/plans/jolly-discovering-avalanche.md`.
+
 ## Projekt
 
 WoodBeat 2026 — Homepage für ein privates Festival (Freundeskreis, keine öffentliche
