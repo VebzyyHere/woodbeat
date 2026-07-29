@@ -4,90 +4,144 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Projekt
 
-WoodBeat 2026 — Homepage für ein privates Festival (Freundeskreis, keine öffentliche
-Seite). Zeigt Timetable, Anfahrt, Wünsche/Mitbringliste, Kosten und FAQ. Statische
-Vite-Site ohne Framework — bewusst einfach gehalten. UI-Text ist **Deutsch**,
-Code-Bezeichner Englisch.
+WoodBeat — Homepage für ein privates Techno-Festival im Freundeskreis (keine
+öffentliche Seite, ~30–80 Gäste). Zielfestival ist **WoodBeat 2027**; das Jahr
+steht als **eine Zeile** in `FESTIVAL.jahr` und wird überall daraus gerendert.
+Statische Vite-Site ohne Framework. UI-Text ist **Deutsch**, Code-Bezeichner
+Englisch — Ausnahme: Bezeichner der Gestaltung sind ebenfalls deutsch
+(`.anschlag`, `.zettel`, `.pressung`), weil sie Begriffe aus der Drucksprache
+sind und keine englischen Entsprechungen haben, die dasselbe meinen.
 
 ## Commands
 
-- `npm install` — Dependencies (nur vite)
+- `npm install` — Dependencies (vite + zwei Schriften)
 - `npm run dev` — Dev-Server auf http://localhost:5181
 - `npm run build` — Produktions-Build nach `dist/`
 - `npm run preview` — gebautes `dist/` lokal testen
 
-Kein Test-Runner, kein Linter.
+Kein Test-Runner, kein Linter. Verifikation ist manuell: `npm run dev`, Seite
+bei **390 px und 1280 px** durchgehen, Konsole und Netzwerk-Tab prüfen.
 
 ## Deployment
 
 Live: **https://vebzyyhere.github.io/woodbeat/** (GitHub Pages, Repo
-`VebzyyHere/woodbeat`, öffentlich). Deploy = einfach auf `master` pushen —
+`VebzyyHere/woodbeat`, öffentlich). Deploy = auf `master` pushen —
 `.github/workflows/deploy.yml` baut und veröffentlicht automatisch.
 `vite.config.js` setzt `base: '/woodbeat/'` nur im CI (`GITHUB_ACTIONS`),
 lokal bleibt alles unter `/`. Die `og:image`-URL in `index.html` ist absolut
-auf die Pages-Domain eingetragen.
+auf die Pages-Domain eingetragen und **muss 1200×630 bleiben** — WhatsApp
+beschneidet auf ~1,91:1 und schnitt beim alten 3:1-Banner den Titel weg.
 
 ## Architektur
 
-Inhalt und Darstellung sind strikt getrennt:
+Inhalt, Darstellung und Datenzugang sind strikt getrennt.
 
-- `src/data.js` — **alle Inhalte** (Datum, Ort, Timetable, Mitbringliste, Kosten, FAQ)
-  als einfache Datenstrukturen. Text-/Termin-Änderungen passieren ausschließlich hier,
-  nie im HTML. Platzhalter sind mit "TBD" markiert.
-- `src/main.js` — rendert `data.js` in die Sektions-Gerüste von `index.html`:
-  Tag-Chips + Timeline für den Timetable, Checkliste mit localStorage-Persistenz
-  (Key `woodbeat-checked`), Umfragen (Key `woodbeat-votes`, Freitext-Idee
-  `woodbeat-idea`), FAQ als `<details>`-Accordions. Countdown im Hero erscheint
-  automatisch, sobald `FESTIVAL.dateISO` gesetzt ist. Spotify-Embed baut sich aus
-  `SPOTIFY.playlistUrl` (Playlist-ID wird aus dem Link geparst; Playlist muss in
-  Spotify öffentlich sein, damit Gäste sie sehen). Marquee-Laufband aus `MARQUEE`.
-- `src/style.css` — Design-Tokens als CSS-Variablen in `:root` (OKLCH, Dark Theme:
-  Waldgrün-Basis + Antik-Gold-Akzent, abgeleitet vom Banner-Artwork). Farben/Abstände
-  nur über die Variablen ändern, keine Hardcodes in Komponenten-Regeln.
-- `index.html` — statische Sektions-Gerüste mit IDs, die `main.js` befüllt.
+- `index.html` — Skelett: Meta/OG, der Kopf („Der Anschlag") mit **hartkodierter**
+  Wortmarke (sie ist das LCP-Element und darf nicht auf JS warten), leere
+  `<section>`s mit `id` + `data-nr`, Index-Leiste, Fuß, und die beiden
+  Emblem-`<symbol>`s.
+- `src/data.js` — **alle Inhalte**. Text-/Termin-Änderungen passieren
+  ausschließlich hier, nie im HTML.
+- `src/main.js` — Orchestrierung: Fonts, Kopfdaten, Banderole, Render-Aufrufe,
+  Festival-Modus, Index-Leiste. Kein Rendering von Inhalten.
+- `src/sections.js` — je eine reine `render*(…)`-Funktion pro Sektion, kein
+  gemeinsamer Zustand.
+- `src/polls.js` / `src/rsvp.js` — die beiden Sektionen mit eigenem Zustand.
+- `src/live.js` — Datenzugang (Supabase per `fetch`, kein SDK) **plus** lokaler
+  Ersatz. Wirft nie, gibt im Fehlerfall `null`.
+- `src/config-live.js` — die zwei Supabase-Werte. Wird committet.
+- `src/countdown.js` — `phase()` (`vor`/`live`/`nach`) und der Zähler.
+- `src/register.js` — das Register-Primitiv (siehe unten).
+- `src/audio.js` — der synthetisierte Ton.
+- `src/teilen.js` — Web-Share mit `wa.me`-Fallback.
+- `src/style.css` — Tokens und alle Komponenten, in nummerierte Abschnitte
+  gegliedert. Farben/Abstände **nur** über die Variablen in Abschnitt 1.
 
-Alles läuft client-seitig, kein Backend. Häkchen, Umfrage-Stimmen und die
-Freitext-Idee leben nur im localStorage des jeweiligen Geräts.
+## Live-Daten (Supabase)
 
-**Umfragen-Konzept:** bewusst ohne Server — jede:r wählt lokal per Chips, der
-Teilen-Button baut daraus eine fertige Nachricht (Web-Share-API, Fallback
-`wa.me`-Link) für die WhatsApp-Gruppe, wo die Entscheidung sowieso fällt.
-Umfrage hinzufügen = Eintrag in `UMFRAGEN` in `data.js`. Achtung: Stimmen hängen
-am Options-Text — Text ändern setzt die lokale Auswahl dafür zurück. Wenn später
-echte Live-Ergebnisse gewünscht sind, wäre der Schritt ein kleines Backend
-(z.B. Supabase) hinter derselben `UMFRAGEN`-Datenstruktur.
+Umfrage-Ergebnisse und Zusagen laufen über Supabase Free (Region Frankfurt).
+Das komplette Schema liegt in **`supabase/setup.sql`** — einmal in den SQL
+Editor einfügen, fertig. Danach die zwei Werte in `src/config-live.js`.
 
-### Design-Entscheidungen
+Sicherheitsmodell: Der publishable Key steht öffentlich im Repo (so vorgesehen).
+Sicher ist das nur, weil die Tabellen **RLS ohne jede Policy** haben und alle
+Rechte für `anon` entzogen sind. Zugriff läuft ausschließlich über fünf
+`SECURITY DEFINER`-Funktionen mit leerem `search_path`. Es gibt bewusst **keine**
+Funktion, die Namen ausliest — die Gästeliste ist nur im Dashboard sichtbar,
+öffentlich ist ausschließlich die Zahl.
 
-- **Look = Vintage-Festivalposter, abgeleitet vom offiziellen Banner-Artwork**
-  (`public/banner.jpg`, Stand 07/2026): dunkles Waldgrün + Antik-Gold + Creme,
-  leichte Körnung über der ganzen Seite (`body::before`, SVG-Turbulence-Tile) —
-  kein generisches Blau/Neon.
-- Display-Schrift **Rye** (Western/Vintage, selbst gehostet via `@fontsource/rye`,
-  nur Gewicht 400 — `font-synthesis: none` auf `body` verhindert Fake-Fett) für
-  H2/H3/Preise/Marquee/Topbar-Logo; Body bleibt Systemschrift.
-  Schriftwechsel = `--font-display` in `style.css`.
-- Sektions-Titel im Poster-Stil: zentriert, Versalien, ✦-Rauten via
-  `h2::before/::after`; Sektionen ohne Trennlinien (Struktur aus Abstand).
-- Link-Vorschau: OG-Tags in `index.html`, `og:image` zeigt absolut auf
-  `banner.jpg` (nach Domain-Wechsel URL anpassen!).
-- Signature-Element: das Banner-Artwork als Hero — auf den inneren Poster-Streifen
-  zugeschnitten (`public/banner-strip.jpg`), volle Breite, alle vier Ränder per
-  Verlaufs-Masken (`mask-composite: intersect`) weich ins Waldgrün ausgeblendet.
-  Die `h1` ist nur noch `sr-only` (der Titel steht im Artwork). Topbar-Logo =
-  Emblem-Ausschnitt aus dem Banner (`public/logo.png`, rund maskiert);
-  `public/favicon.svg` behält das alte Baumring-Motiv in Gold (bei 16 px klarer
-  als das fotografische Emblem). `body { overflow-x: clip }` fängt Überstände
-  des schrägen Marquees ab.
-- Chips statt Dropdowns — Tagesauswahl und Umfrage-Optionen nutzen dasselbe
-  `.chip`-Pattern (`aria-selected` bzw. `aria-pressed`).
-- Scroll-Reveal der Sektionen rein per CSS (`animation-timeline: view()` hinter
-  `@supports`, degradiert sauber); Scroll-Fortschrittsbalken ebenso
-  (`animation-timeline: scroll()`, `body::after`).
-- Verspielte Schicht (bewusst so gewollt): Marquee leicht rotiert (Anti-Grid),
-  Glow-Blobs im Hero, Cursor-Glow (nur `pointer: fine`), Emoji-Konfetti wenn die
-  Packliste voll ist. (Kinetischer Buchstaben-Titel und rotierendes Kreis-Badge
-  wurden mit dem Banner-Redesign 07/2026 entfernt.) **Alle** Animationen respektieren `prefers-reduced-motion` (JS-seitig über
-  `reducedMotion`-Konstante, CSS-seitig über den zentralen reduce-Block).
-- Neue Sektion hinzufügen = Gerüst in `index.html` + Daten in `data.js` +
-  Render-Block in `main.js` — dieses Muster beibehalten.
+Drei Dinge, die man wissen muss:
+
+1. **`config-live.js` leer = alles läuft lokal weiter.** Gleiche Oberfläche,
+   Zahlen aus `localStorage`, ehrlicher Hinweis darunter. Es gibt keinen
+   Zustand, in dem die Seite leer oder kaputt ist.
+2. **Supabase pausiert nach 7 Tagen ohne DB-Aktivität.** Dagegen läuft
+   `.github/workflows/keepalive.yml` alle drei Tage. Der Workflow liest seine
+   Zugangsdaten aus `config-live.js` — es gibt nur diese eine Stelle.
+3. **Option-Keys sind Speicherschlüssel.** `UMFRAGEN[].options[].key` und
+   `TICKETS[].key` dürfen **nie** geändert werden, `label` jederzeit. Vor dem
+   Relaunch hing die Stimme am Options-*Text*; ein Tippfehler-Fix löschte sie.
+
+localStorage-Schlüssel: `woodbeat-voter` (anonyme Geräte-ID), `woodbeat-wahl`,
+`woodbeat-outbox` (ungesendete Stimmen), `woodbeat-rsvp`, `woodbeat-checked`.
+
+## Gestaltung: „DER ANSCHLAG"
+
+Die Seite ist kein Interface, sondern ein an den Baum genageltes Festivalplakat.
+
+- **Das Register-Primitiv ist der Signature-Moment.** `--reg` steuert, wie weit
+  die Druckplatten auseinanderliegen; alle 8 Beats bei 128 BPM springt der Druck
+  kurz aus dem Register (`@keyframes reg-schlag` auf `html`). Dieselben drei
+  Zeilen tragen Wortmarke, Sektionstitel, aktiven Index-Eintrag und jedes
+  `:active`. `puls()` aus `register.js` hebt es kurz global an — deshalb zuckt
+  bei einer Stimmabgabe der ganze Bogen.
+- **Es gibt keine Karte.** Kein `border-radius`, kein `box-shadow`, kein
+  `backdrop-filter`. Getrennt wird durch Haarlinien, Punktleader, Ränder und
+  Korn. `--radius: 0` und `--schatten: none` existieren nur, damit niemand
+  andere Werte erfindet.
+- **Keine Emoji in der UI.** Ausnahme: genau eines in `og:title` und in den
+  Share-Texten — die landen in einem Chat, nicht auf dem Plakat.
+- **Zwei Schriften.** Bevan (Holzschnitt-Slab) nur für Wortmarke, Sektionstitel
+  und Ticketpreis, immer Versalien, immer ≥ 1.35rem. Martian Mono Variable für
+  alles andere inklusive Fließtext. Zusammen 59,5 KB.
+- **Gold ist knapp, Glut ist knapper.** `--glut` darf auf der ganzen Seite genau
+  **dreimal** vorkommen: eigene Stimme, JETZT-Marker im Laufplan, Countdown
+  unter 24 h. Alle Kontraste sind gemessen und in Abschnitt 1 dokumentiert.
+- **Genau ein rotiertes Element** (die Banderole), **genau eine helle Sektion**
+  (Tickets & Bar), **genau ein fixiertes UI-Element** (die Index-Leiste, sie
+  ersetzt Topbar *und* Stickybar).
+- **Der Ergebnisbalken ist kein Balken**, sondern das erste Wort der Antwort,
+  endlos wiederholt und bei `--pct` abgeschnitten. Er ist `aria-hidden` — die
+  Prozentzahl daneben ist die Information.
+- **Der Ton wird synthetisiert**, nicht geladen (Web Audio, 128 BPM). Läuft er,
+  gibt der Audio-Takt den Registerschlag vor statt der CSS-Uhr. Nie Autoplay,
+  keine Wiederaufnahme beim nächsten Besuch.
+- **Leerzustände sind entworfen.** Fehlende Daten erzeugen eine gestempelte
+  Fläche (`.stempel`), nie ein „TBD" und nie einen toten Knopf.
+- **Mobil ist der Entwurfsfall**, Desktop die Anpassung. 80 % der Gäste öffnen
+  den Link auf dem Handy aus einer WhatsApp-Gruppe.
+- Alle Animationen respektieren `prefers-reduced-motion` (CSS-Block am Ende von
+  `style.css`, JS über `reducedMotion` in `register.js`). **Ausnahme mit
+  Absicht:** der Ton bleibt verfügbar — eine Bewegungspräferenz ist kein Grund,
+  jemandem den Ton zu verweigern; nur der optische Puls entfällt.
+
+### Gotchas
+
+- **Kein `scrollIntoView()` auf die Index-Leiste.** Sie steht im HTML hinter dem
+  Footer und ist `position: fixed` — ihre Layout-Position ist das Dokumentende,
+  und `scrollIntoView()` reißt die Seite dorthin (auch mit `block: 'nearest'`).
+  Stattdessen direkt `scrollLeft` des Containers setzen.
+- **Die Banderole dreht ein inneres Blatt, nicht sich selbst.** Ein rotierter
+  Clipping-Container dreht sich aus dem Viewport heraus, und `overflow-x: clip`
+  auf `<html>` fängt das in Chrome nicht ab.
+- **Reiter einmal bauen, danach nur den Zustand ändern.** Wer die Knöpfe bei
+  jedem Klick neu erzeugt, reißt der Tastatur den Fokus weg.
+- **`geladen` ist nicht `voters === 0`.** „Noch keine Daten" und „null Stimmen"
+  müssen getrennt bleiben, sonst zeigt eine abgegebene Stimme nach dem Neuladen
+  kurz „0 %".
+
+### Neue Sektion hinzufügen
+
+Vier Stellen, immer in dieser Reihenfolge: Daten in `data.js` → Eintrag in
+`INDEX` (`data.js`) → `<section id data-nr>` in `index.html` → `render*()` in
+`sections.js` + Aufruf in `main.js`.

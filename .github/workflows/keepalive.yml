@@ -1,0 +1,51 @@
+# Hält das Supabase-Projekt wach.
+#
+# Supabase pausiert Projekte im kostenlosen Tarif nach 7 Tagen ohne
+# Datenbank-Aktivität. Zwischen zwei Umfrage-Wellen sind das schnell
+# mehr als 7 Tage — die Umfragen wären dann tot, ohne dass es jemand
+# merkt. Dieser Lauf ruft alle drei Tage `poll_results()` auf, das
+# reicht als Lebenszeichen.
+#
+# Die Zugangsdaten kommen aus src/config-live.js, damit es genau EINE
+# Stelle gibt, die gepflegt werden muss. Solange dort nichts eingetragen
+# ist, beendet sich der Lauf still und erfolgreich.
+
+name: Supabase wach halten
+
+on:
+  schedule:
+    # 06:17 UTC, alle drei Tage. Krumme Minute mit Absicht: zur vollen
+    # Stunde sind die GitHub-Runner am stärksten überbucht.
+    - cron: '17 6 */3 * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Datenbank anpingen
+        run: |
+          URL=$(node -e "import('./src/config-live.js').then(m => process.stdout.write(m.SUPABASE.url || ''))")
+          KEY=$(node -e "import('./src/config-live.js').then(m => process.stdout.write(m.SUPABASE.key || ''))")
+
+          if [ -z "$URL" ] || [ -z "$KEY" ]; then
+            echo "src/config-live.js ist noch leer — nichts zu tun."
+            exit 0
+          fi
+
+          echo "Rufe poll_results() auf ..."
+          curl -sS --fail-with-body -X POST "$URL/rest/v1/rpc/poll_results" \
+            -H "apikey: $KEY" \
+            -H "Authorization: Bearer $KEY" \
+            -H "Content-Type: application/json" \
+            -d '{}' \
+            -o /dev/null -w 'HTTP %{http_code} in %{time_total}s\n'
