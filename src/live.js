@@ -67,6 +67,11 @@ function merkeWahl(pollId, keys) {
   schreib(WAHL_KEY, alle);
 }
 
+// Ohne Zeitlimit hängt ein pausiertes Projekt oder eine tote Adresse
+// minutenlang, und die Seite stünde die ganze Zeit auf "wird geholt".
+// Lieber schnell aufgeben und den lokalen Stand zeigen.
+const ZEITLIMIT = 6000;
+
 async function rpc(fn, body) {
   if (!liveEnabled()) return null;
   try {
@@ -78,6 +83,7 @@ async function rpc(fn, body) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(body ?? {}),
+      signal: AbortSignal.timeout(ZEITLIMIT),
     });
     if (!res.ok) return null;
     const text = await res.text();
@@ -110,11 +116,12 @@ export async function fetchResults() {
   const zeilen = await rpc('poll_results');
   if (!zeilen || !Array.isArray(zeilen)) return { ...lokaleAuszaehlung(), _lokal: true };
 
+  // Spaltennamen müssen exakt zu supabase/setup.sql passen.
   const ergebnis = {};
   for (const z of zeilen) {
     const topf = (ergebnis[z.poll_id] ??= { counts: {}, voters: 0 });
-    topf.counts[z.option_key] = Number(z.votes) || 0;
-    topf.voters = Number(z.voters) || 0;
+    topf.counts[z.option_key] = Number(z.anzahl) || 0;
+    topf.voters = Number(z.waehler) || 0;
   }
   return ergebnis;
 }
