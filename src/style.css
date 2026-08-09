@@ -300,10 +300,11 @@ body::after {
   isolation: isolate;
   display: flex;
   flex-direction: column;
-  /* svh, nicht vh — sonst schneidet die iOS-Adressleiste an.
-     78 statt 100: darunter muss noch etwas hervorlugen, das
-     ersetzt jeden Scroll-Pfeil. */
-  min-block-size: 78svh;
+  /* KEINE feste Mindesthöhe mehr. Mit 78svh klaffte zwischen Emblem
+     und Wortmarke eine Lücke von 300 px — auf dem Handy 36 % des
+     Bildschirms ohne Inhalt, und die Aushänge lagen darunter außer
+     Sicht. Der Kopf ist jetzt so hoch wie sein Satz und lässt drei
+     Einstiege in den ersten Bildschirm. */
   padding-block-start: var(--luft-2);
   background: var(--ink-2);
 }
@@ -319,11 +320,12 @@ body::after {
   pointer-events: none;
 }
 
-/* Stempel oben, Satz unten am Ornament — dazwischen atmet der Bogen. */
+/* Stempel, dann der Satz — ein zusammenhängender Block, kein
+   Emblem oben und Text ganz unten mit Nichts dazwischen. */
 .anschlag__inhalt {
-  margin-block-start: auto;
+  margin-block-start: var(--luft-2);
   padding-inline: var(--rand);
-  padding-block-end: var(--luft-1);
+  padding-block-end: var(--luft-2);
 }
 
 /* Sitzt oben links im Kopf — der Bogen ist oben gestempelt und
@@ -903,9 +905,15 @@ body::after {
    nummerierte Zeilen, jede mit einer echten Zahl rechts. Ganze
    Zeile anklickbar, mindestens 88 px hoch. */
 
+/* Weniger Vorlauf als andere Sektionen: die Aushänge sind faktisch
+   die Navigation. Mit dem vollen --luft-3 davor rutschten sie auf
+   dem Laptop unter die Bildkante. */
+#aushaenge { padding-block-start: var(--luft-2); }
+
+/* Kein eigener Abstand oben — das Polster der Sektion reicht.
+   Beides zusammen schob die erste Zeile unter die Bildkante. */
 .aushaenge {
   border-block-start: 1px solid var(--linie);
-  margin-block-start: var(--luft-1);
 }
 
 .aushang { border-block-end: 1px solid var(--linie); }
@@ -1448,6 +1456,26 @@ body::after {
     align-items: center;
   }
   .zettel__zahlen { align-self: center; }
+
+  /* Auf breiten Schirmen stehen die Daten NEBEN der Wortmarke, nicht
+     darunter. Einzeilig ("WOODBEAT" am Stück) ginge erst ab 1440 px —
+     gemessen: 1183 px Satzbreite. So bleibt der Kopf auch auf dem
+     Laptop unter der halben Bildschirmhöhe und die Aushänge kommen
+     ins erste Bild. */
+  .anschlag__inhalt {
+    display: grid;
+    grid-template-columns: auto minmax(14rem, 1fr);
+    column-gap: var(--luft-3);
+  }
+  .anschlag__kicker { grid-column: 1 / -1; }
+  .marke { grid-column: 1; }
+  .anschlag__daten {
+    grid-column: 2;
+    /* sitzt auf der Grundlinie der Wortmarke auf */
+    align-self: end;
+    padding-block-end: 0.5em;
+  }
+  .marke__jahr { margin-block-start: 0; }
 
   /* Tickets nebeneinander, Bar dreispaltig, Packzettel zweispaltig */
   .pressungen { grid-template-columns: repeat(2, 1fr); }
