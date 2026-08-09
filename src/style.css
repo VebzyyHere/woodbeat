@@ -160,6 +160,13 @@ html {
   scroll-padding-block: 1rem calc(var(--index-h) + 1rem);
 }
 
+/* Seitenwechsel überblenden statt weiß aufblitzen zu lassen. Reine
+   Zugabe: Browser ohne Unterstützung ignorieren die Regel und
+   navigieren ganz normal. Die Index-Leiste bleibt dabei stehen —
+   sie ist auf jeder Seite dasselbe Element. */
+@view-transition { navigation: auto; }
+.index { view-transition-name: index-leiste; }
+
 body {
   margin: 0;
   background: var(--ink);
@@ -402,6 +409,73 @@ body::after {
   color: var(--gold);
 }
 .anschlag__uhr[data-glut] { color: var(--glut); }
+
+/* ============================================================
+   5b  DER BLATTKOPF (Unterseiten)
+
+   Der Kopf einer Unterseite ist kein zweites Plakat — er ist der
+   Kopf eines Blattes im selben Anschlag: Rückweg, Nummer, Titel,
+   Unterzeile, Schlussstrich. Kurz, damit der Inhalt sofort kommt.
+   ============================================================ */
+
+.blattkopf {
+  position: relative;
+  isolation: isolate;
+  padding: var(--luft-2) 0 0;
+  background: var(--ink-2);
+}
+.blattkopf::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: url('/banner-textur.webp') center / cover no-repeat;
+  opacity: 0.1;
+  pointer-events: none;
+}
+
+.blattkopf > *:not(.ornament) {
+  padding-inline: var(--rand);
+  max-inline-size: 62rem;
+  margin-inline: auto;
+}
+
+.blattkopf__zurueck {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-block-size: 44px;
+  font-size: var(--t-mini);
+  color: var(--creme-2);
+  text-decoration: none;
+  inline-size: fit-content;
+}
+.blattkopf__zurueck svg { inline-size: 22px; block-size: 22px; color: var(--gold); flex: 0 0 auto; }
+.blattkopf__zurueck:hover { color: var(--creme); }
+
+.blattkopf__nr {
+  font-size: var(--t-mini);
+  color: var(--gold);
+  margin-block-start: var(--luft-2);
+}
+
+.blattkopf__titel {
+  --reg-extra: 0px;
+  font-family: var(--f-plakat);
+  font-weight: 400;
+  font-size: var(--t-1);
+  line-height: 0.86;
+  letter-spacing: -0.025em;
+  text-transform: uppercase;
+  text-wrap: balance;
+  margin-block-start: 0.3rem;
+  text-shadow: calc(var(--reg) * -0.6) calc(var(--reg) * 0.3) 0 var(--gold);
+}
+
+.blattkopf__unter {
+  color: var(--creme-2);
+  margin-block: 0.75rem var(--luft-2);
+}
 
 /* ============================================================
    6  DIE BANDEROLE
@@ -717,6 +791,7 @@ body::after {
   color: var(--gold);
 }
 .index__stempel svg { inline-size: 24px; block-size: 24px; }
+.index__stempel[aria-current='page'] { color: var(--gold-hi); }
 
 .index__liste {
   flex: 1 1 auto;
@@ -746,8 +821,8 @@ body::after {
 }
 .index__liste a:hover { color: var(--creme); }
 .index__nr { margin-inline-end: 0.45em; color: var(--creme-3); }
-.index__liste a[aria-current='true'] .index__nr { color: var(--gold); }
-.index__liste a[aria-current='true'] {
+.index__liste a[aria-current='page'] .index__nr { color: var(--gold); }
+.index__liste a[aria-current='page'] {
   color: var(--gold);
   text-shadow: calc(var(--reg) * -0.4) calc(var(--reg) * 0.2) 0 var(--linie);
 }
@@ -831,6 +906,64 @@ body::after {
    Punktleader, Ränder und Korn — nie durch ein abgerundetes Rechteck
    mit Schatten. Wer hier eine Box einbaut, bricht die Seite.
    ============================================================ */
+
+/* ---------- Die Aushänge (Startseite) ----------
+   Kein Menü, sondern das Inhaltsverzeichnis des Plakats: vier
+   nummerierte Zeilen, jede mit einer echten Zahl rechts. Ganze
+   Zeile anklickbar, mindestens 88 px hoch. */
+
+.aushaenge {
+  border-block-start: 1px solid var(--linie);
+  margin-block-start: var(--luft-1);
+}
+
+.aushang { border-block-end: 1px solid var(--linie); }
+
+.aushang__blatt {
+  --reg-extra: 0px;
+  display: grid;
+  grid-template-columns: 2.75rem 1fr auto;
+  align-items: baseline;
+  column-gap: 1rem;
+  min-block-size: 88px;
+  padding-block: var(--luft-1);
+  color: inherit;
+  text-decoration: none;
+}
+.aushang__blatt:active { --reg-extra: calc(-1 * var(--reg-basis)); }
+
+.aushang__nr {
+  font-family: var(--f-plakat);
+  font-size: var(--t-2);
+  line-height: 1;
+  letter-spacing: 0;
+  color: var(--gold);
+}
+
+.aushang__text { min-inline-size: 0; }
+
+.aushang__titel {
+  display: block;
+  font-family: var(--f-plakat);
+  font-weight: 400;
+  font-size: var(--t-2);
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: -0.015em;
+}
+.aushang__blatt:hover .aushang__titel,
+.aushang__blatt:focus-visible .aushang__titel {
+  text-shadow: calc(var(--reg) * -0.5) calc(var(--reg) * 0.25) 0 var(--gold);
+}
+
+.aushang__unter { display: block; margin-block-start: 0.35rem; }
+
+.aushang__zahl {
+  font-size: var(--t-mini);
+  color: var(--creme-2);
+  text-align: end;
+  white-space: nowrap;
+}
 
 .unter-titel {
   font-family: var(--f-plakat);

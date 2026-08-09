@@ -32,3 +32,23 @@ export function cssPulsAktiv(an) {
   document.documentElement.style.animationPlayState = an ? 'running' : 'paused';
   if (!an) document.documentElement.style.setProperty('--reg-extra', '0px');
 }
+
+/**
+ * Zustandswechsel überblenden, wenn der Browser es kann.
+ *
+ * Die drei Promises MÜSSEN behandelt werden: bricht der Übergang ab
+ * — weil jemand weiterklickt, den Tab wechselt oder die Seite
+ * verlässt — lehnen sie ab, und eine unbehandelte Ablehnung landet
+ * als Fehler in der Konsole. Ein abgebrochener Übergang ist aber
+ * kein Fehler, sondern der Normalfall.
+ */
+export function uebergang(male) {
+  if (reducedMotion || !document.startViewTransition) {
+    male();
+    return;
+  }
+  const wechsel = document.startViewTransition(male);
+  wechsel.ready.catch(() => {});
+  wechsel.finished.catch(() => {});
+  wechsel.updateCallbackDone.catch(() => {});
+}

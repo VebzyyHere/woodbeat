@@ -32,18 +32,53 @@ lokal bleibt alles unter `/`. Die `og:image`-URL in `index.html` ist absolut
 auf die Pages-Domain eingetragen und **muss 1200×630 bleiben** — WhatsApp
 beschneidet auf ~1,91:1 und schnitt beim alten 3:1-Banner den Titel weg.
 
+## Seitenschnitt
+
+**Fünf echte Seiten, geschnitten nach Absicht** — nicht nach Thema. Vorher war
+alles eine Endlosseite: 14 Bildschirme auf dem Handy, und wer den Preis suchte,
+scrollte an fünf Sektionen vorbei.
+
+| Seite | Absicht | Inhalt |
+|---|---|---|
+| `/` | entscheiden | Anschlag, Banderole, **die vier Aushänge**, Rückblick |
+| `/programm/` | nachschauen | Line-up, Laufplan, Playlist |
+| `/tickets/` | zusagen | Preise & Bar, Wer kommt |
+| `/abstimmen/` | mitreden | Stimmzettel |
+| `/praktisches/` | vorbereiten | Lageplan, Mitbringen, Waldkodex & Crew, Kleingedrucktes |
+
+Deshalb liegen Tickets und „Wer kommt" zusammen (beides ist die Zusage-Handlung)
+und der Laufplan beim Line-up (beides ist „was passiert"), obwohl das eine Zeiten
+und das andere Namen sind.
+
+Die **Aushänge** auf der Startseite sind kein Menü, sondern das
+Inhaltsverzeichnis des Plakats: vier nummerierte Zeilen, jede mit einer echten
+Zahl rechts (`13 Punkte · 3 Tage`, `23 sind dabei`, …). Sonst wäre die
+Startseite eine Weiche, durch die man nur hindurchklickt.
+
+Technisch ein echtes MPA: fünf HTML-Dateien, ein gemeinsames JS/CSS-Bündel (nach
+dem ersten Aufruf im Cache). Kein Router — jede Seite hat eine eigene URL, einen
+eigenen Titel und eine eigene Link-Vorschau, und man kann „guck mal das
+Programm" verschicken statt „scroll mal weit runter". `@view-transition` blendet
+Seitenwechsel über, wo der Browser es kann.
+
+**Neue Seite anlegen:** Eintrag in `src/seiten.js` → Ordner mit `index.html` →
+Zeile in `vite.config.js` (`rollupOptions.input`) → Render-Zweig in `main.js`.
+
 ## Architektur
 
 Inhalt, Darstellung und Datenzugang sind strikt getrennt.
 
-- `index.html` — Skelett: Meta/OG, der Kopf („Der Anschlag") mit **hartkodierter**
-  Wortmarke (sie ist das LCP-Element und darf nicht auf JS warten), leere
-  `<section>`s mit `id` + `data-nr`, Index-Leiste, Fuß, und die beiden
-  Emblem-`<symbol>`s.
+- `*/index.html` — Skelett je Seite: Meta/OG, Kopf (Anschlag bzw. Blattkopf),
+  leere `<section>`s. Die Wortmarke auf der Startseite ist **hartkodiert**, weil
+  sie das LCP-Element ist und nicht auf JS warten darf. `<body data-seite="…">`
+  steuert, was `main.js` rendert.
+- `src/seiten.js` — der Seitenschnitt. Struktur-, keine Inhaltsentscheidung.
 - `src/data.js` — **alle Inhalte**. Text-/Termin-Änderungen passieren
   ausschließlich hier, nie im HTML.
-- `src/main.js` — Orchestrierung: Fonts, Kopfdaten, Banderole, Render-Aufrufe,
-  Festival-Modus, Index-Leiste. Kein Rendering von Inhalten.
+- `src/main.js` — Orchestrierung: Fonts, Kopfdaten, gemeinsame Bauteile
+  (Emblem-Sprite, Fuß, Index-Leiste) und die Render-Aufrufe der aktiven Seite.
+- `src/aushaenge.js` — die vier Zeilen der Startseite samt Live-Zahlen.
+- `src/glyphen.js` — das Emblem als SVG-Sprite (liegt hier statt fünfmal im HTML).
 - `src/sections.js` — je eine reine `render*(…)`-Funktion pro Sektion, kein
   gemeinsamer Zustand.
 - `src/polls.js` / `src/rsvp.js` — die beiden Sektionen mit eigenem Zustand.
@@ -139,6 +174,12 @@ Die Seite ist kein Interface, sondern ein an den Baum genageltes Festivalplakat.
 - **`geladen` ist nicht `voters === 0`.** „Noch keine Daten" und „null Stimmen"
   müssen getrennt bleiben, sonst zeigt eine abgegebene Stimme nach dem Neuladen
   kurz „0 %".
+- **View Transitions über `uebergang()` aus `register.js` starten**, nie direkt.
+  Bricht ein Übergang ab (Weiterklicken, Tabwechsel, Navigation), lehnen
+  `ready`/`finished`/`updateCallbackDone` ab — unbehandelt landet das als
+  `InvalidStateError` in der Konsole. Ein Abbruch ist der Normalfall, kein Fehler.
+- **Seitenübergreifende Links über `urlVon()` / `BASIS`** (`seiten.js`), nie als
+  `/programm/` hartkodiert: auf GitHub Pages liegt alles unter `/woodbeat/`.
 
 ### Neue Sektion hinzufügen
 

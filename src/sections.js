@@ -15,6 +15,7 @@ import {
 } from './data.js';
 import { phase } from './countdown.js';
 import { teilen } from './teilen.js';
+import { uebergang } from './register.js';
 
 const el = (tag, klasse, text) => {
   const k = document.createElement(tag);
@@ -80,9 +81,7 @@ export function renderLaufplan(reiterWurzel, listeWurzel) {
     knopf.addEventListener('click', () => {
       if (aktiv === i) return;
       aktiv = i;
-      const male = () => { markiereReiter(); zeichneSlots(); };
-      if (document.startViewTransition) document.startViewTransition(male);
-      else male();
+      uebergang(() => { markiereReiter(); zeichneSlots(); });
     });
     reiterWurzel.append(knopf);
     return knopf;

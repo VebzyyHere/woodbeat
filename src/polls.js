@@ -16,7 +16,7 @@ import {
   castVote, eigeneWahl, fetchResults, flushOutbox,
   liveEnabled, outboxOffen, toPercent,
 } from './live.js';
-import { puls } from './register.js';
+import { puls, uebergang } from './register.js';
 
 const AKTUALISIERUNG = 20_000;
 
@@ -195,9 +195,7 @@ async function stimmeAb(poll, key, wurzel) {
 
   optimistisch(poll.id, neue, alte);
   geladen = true;   // ab jetzt gibt es Zahlen zu zeigen
-  const male = () => zeichne(wurzel);
-  if (document.startViewTransition) document.startViewTransition(male);
-  else male();
+  uebergang(() => zeichne(wurzel));
 
   const angekommen = await castVote(poll.id, neue);
   fehler = liveEnabled() && !angekommen;
