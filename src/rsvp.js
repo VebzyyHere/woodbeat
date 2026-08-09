@@ -112,10 +112,17 @@ export function initRsvp({ form, zaehler, aufteilung, ticketWahl, name, notiz, s
 
     const gewaehlt = name.value.trim();
     if (gewaehlt.length < 2) {
+      // Die Meldung muss AM FELD hängen, nicht nur am Formularende:
+      // sonst springt der Fokus nach oben und die Erklärung bleibt
+      // auf einem 390-px-Schirm außerhalb des Bildes.
       status.textContent = 'Bitte trag einen Namen ein — Vorname reicht.';
+      name.setAttribute('aria-invalid', 'true');
+      name.setAttribute('aria-describedby', status.id);
       name.focus();
       return;
     }
+    name.removeAttribute('aria-invalid');
+    name.removeAttribute('aria-describedby');
     const ticket = gewaehltesTicket(ticketWahl);
     if (!ticket) {
       status.textContent = 'Bitte wähl aus, was du nimmst.';

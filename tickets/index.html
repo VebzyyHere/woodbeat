@@ -24,6 +24,7 @@
     </a>
     <p class="blattkopf__nr daten">02</p>
     <h1 class="blattkopf__titel">Tickets</h1>
+    <!-- Gegenstueck in src/seiten.js (unterzeile) — beide pflegen. -->
     <p class="blattkopf__unter">Was es kostet — und wer schon dabei ist.</p>
     <div class="ornament" aria-hidden="true"></div>
   </header>
@@ -75,11 +76,13 @@
               maxlength="140" placeholder="Komme später, bringe Grill mit, …" />
           </div>
 
+          <!-- Die Meldung steht ÜBER den Knöpfen: darunter läge sie auf
+               dem Handy unterhalb der Falz, wenn der Fokus nach oben springt. -->
+          <p class="marginal" id="rsvp-status" aria-live="polite"></p>
           <div class="rsvp__aktion">
             <button class="taste taste--voll" type="submit" id="rsvp-senden">Ich bin dabei</button>
             <button class="taste taste--leise" type="button" id="rsvp-loeschen" hidden>Eintrag löschen</button>
           </div>
-          <p class="marginal" id="rsvp-status" aria-live="polite"></p>
         </form>
       </div>
     </section>

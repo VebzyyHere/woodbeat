@@ -24,6 +24,7 @@
     </a>
     <p class="blattkopf__nr daten">01</p>
     <h1 class="blattkopf__titel">Programm</h1>
+    <!-- Gegenstueck in src/seiten.js (unterzeile) — beide pflegen. -->
     <p class="blattkopf__unter">Wer spielt, wann läuft was.</p>
     <div class="ornament" aria-hidden="true"></div>
   </header>
@@ -43,7 +44,9 @@
         <h2 class="sektion__titel">Laufplan</h2>
         <p class="sektion__intro">Drei Tage, zwei Nächte. Tag wählen:</p>
         <div class="reiter" id="tag-reiter" role="tablist" aria-label="Festivaltag"></div>
-        <ol class="lauf" id="lauf-liste"></ol>
+        <!-- Die Reiter zeigen per aria-controls hierher — ohne die
+             Panel-Rolle bleibt die Verbindung für Screenreader leer. -->
+        <ol class="lauf" id="lauf-liste" role="tabpanel" tabindex="0"></ol>
       </div>
     </section>
 

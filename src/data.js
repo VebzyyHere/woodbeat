@@ -283,7 +283,7 @@ export const FAQ = [
   },
   {
     q: 'Gibt es Strom und Duschen?',
-    a: 'Strom fürs Nötigste ja. Duschen: sobald die Location fix ist, steht es hier.',
+    a: 'Strom fürs Nötigste ja. Duschen: sobald der Ort fix ist, steht es hier.',
   },
   {
     q: 'Was passiert bei Regen?',

@@ -16,6 +16,11 @@
 //
 // Neue Seite = Eintrag hier + Ordner mit index.html + Zeile in
 // vite.config.js + Render-Zweig in main.js.
+//
+// ACHTUNG: `unterzeile` steht zweimal — hier (für die Aushänge auf
+// der Startseite) und als `.blattkopf__unter` im HTML der jeweiligen
+// Seite. Das ist Absicht: der Blattkopf soll ohne JavaScript stehen.
+// Wer eine Unterzeile ändert, muss BEIDE Stellen anfassen.
 // ============================================================
 
 /** Basis-Pfad: '/' lokal, '/woodbeat/' auf GitHub Pages. */

@@ -15,7 +15,7 @@ import './style.css';
 import { FESTIVAL } from './data.js';
 import { AUSHAENGE, BASIS, urlVon } from './seiten.js';
 import { emblemeEinsetzen } from './glyphen.js';
-import { initCountdown, phase } from './countdown.js';
+import { initCountdown } from './countdown.js';
 import { renderAushaenge } from './aushaenge.js';
 import { auszaehlungAlsText, initPolls } from './polls.js';
 import { initRsvp } from './rsvp.js';
@@ -29,7 +29,6 @@ import {
 const $ = (wahl) => document.querySelector(wahl);
 const seite = document.body.dataset.seite;
 
-document.documentElement.dataset.phase = phase();
 emblemeEinsetzen();
 
 // ---------- Gemeinsames auf jeder Seite ----------

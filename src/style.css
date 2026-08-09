@@ -7,18 +7,23 @@
    Alles Tunbare steht in Abschnitt 1. Kein Hex-Wert, keine
    Sekundenzahl, kein Pixelmaß darf irgendwo sonst auftauchen.
 
-   1  Tokens
-   2  Reset & Basis-Setzung
-   3  Korn
-   4  Ornament & Hilfsklassen
-   5  Der Anschlag (Kopf)
-   6  Die Banderole
-   7  Sektionen & Satzspiegel
-   8  Die Taste (Button)
-   9  Der Stimmzettel
-   10 Die Index-Leiste
-   11 Der Fuß
-   12 Bewegung: reduzierte Bewegung
+   1   Tokens
+   2   Reset & Basis-Setzung
+   3   Korn
+   4   Ornament & Hilfsklassen
+   5   Der Anschlag (Kopf der Startseite)
+   5b  Der Blattkopf (Kopf der Unterseiten)
+   6   Die Banderole
+   7   Sektionen & Satzspiegel
+   8   Die Taste (Button)
+   9   Der Stimmzettel
+   10  Die Index-Leiste
+   11  Der Fuß
+   11b Die Sektionen des Bogens (Aushänge, Line-up, Laufplan,
+       Tickets, Bar, RSVP, Rückblick, Lageplan, Packzettel,
+       Playlist, Kodex, Kleingedrucktes)
+   12  Größere Schirme
+   13  Reduzierte Bewegung
    ============================================================ */
 
 /* ============================================================
@@ -38,7 +43,6 @@
      Bogen liest und nicht als Kartenstapel. Nie als Textfarbe. */
   --ink:        oklch(0.183 0.018 152);   /* Grund der Seite */
   --ink-2:      oklch(0.243 0.022 152);   /* abgesetztes Band */
-  --ink-3:      oklch(0.310 0.024 150);   /* gedrückte Zustände */
 
   /* ── FARBE · DIE DRUCKFARBEN ────────────────────────────── */
   --creme:      oklch(0.923 0.022 92);    /* Fließtext & Wortmarke */
@@ -67,7 +71,7 @@
      Zwei Familien. Bevan NUR in Versalien und NUR >= 1.35rem —
      darunter wird der Holzschnitt zu Matsch. */
   --f-plakat: 'Bevan', 'Bevan Fallback', Georgia, 'Times New Roman', serif;
-  --f-mono:   'Martian Mono Variable', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  --f-mono:   'Martian Mono Variable', 'Mono Fallback', ui-monospace, Menlo, Consolas, monospace;
 
   /* ── TYPOGRAFIE · SKALA (Sprung Body → Wortmarke bis 9,8×) ── */
   --t-marke: clamp(3.75rem, 20vw, 11rem);                   /* WOOD / BEAT */
@@ -137,7 +141,11 @@
 }
 html { animation: reg-schlag var(--d-reg) var(--e-halt) infinite; }
 
-/* Fallback-Metrik: verhindert den Umbruchsprung beim Font-Swap. */
+/* Fallback-Metriken: verhindern den Umbruchsprung beim Font-Swap.
+   Beide Schriften laden mit font-display: swap — ohne Angleichung
+   springt beim Eintreffen der echten Schrift das ganze Layout.
+   Gemessen auf der laufenden Seite: Martian Mono setzt 27,3 % breiter
+   als die Standard-Monospace, Bevan 8 % breiter als Georgia. */
 @font-face {
   font-family: 'Bevan Fallback';
   src: local('Georgia'), local('Times New Roman');
@@ -145,6 +153,12 @@ html { animation: reg-schlag var(--d-reg) var(--e-halt) infinite; }
   ascent-override: 88%;
   descent-override: 22%;
   line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: 'Mono Fallback';
+  src: local('Consolas'), local('DejaVu Sans Mono'), local('Menlo'), local('monospace');
+  size-adjust: 127.3%;
 }
 
 /* ============================================================
@@ -211,15 +225,6 @@ p, li { max-inline-size: 62ch; }
   color: var(--creme-2);
 }
 
-.sr-only {
-  position: absolute;
-  inline-size: 1px; block-size: 1px;
-  margin: -1px; padding: 0;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-}
-
 /* Sprungmarke — sichtbar nur bei Tastaturfokus */
 .sprung {
   position: absolute;
@@ -269,14 +274,6 @@ body::after {
 .bleed {
   inline-size: 100%;
   margin-inline: 0;
-}
-
-/* Haarlinie über die volle Blattbreite, auch im Satzspiegel */
-.linie {
-  block-size: 1px;
-  background: var(--linie);
-  border: 0;
-  margin: 0;
 }
 
 /* Gestempelte Fläche — der Leerzustand der Seite.
@@ -531,12 +528,6 @@ body::after {
 .satzspiegel {
   max-inline-size: 62rem;
   margin-inline: auto;
-}
-
-.sektion__nr {
-  font-size: var(--t-mini);
-  color: var(--gold);
-  margin-block-end: 0.35rem;
 }
 
 .sektion__titel {
@@ -983,7 +974,10 @@ body::after {
   color: var(--gold);
   margin-block: var(--luft-1) 0.25rem;
 }
-.zaehler[data-voll] { color: var(--glut); }
+/* Bewusst Gold, nicht Glut: Glut bedeutet DU oder JETZT und hat
+   genau drei Stellen (eigene Stimme, JETZT-Marker, Countdown < 24 h).
+   „Alles gepackt" ist keine davon. */
+.zaehler[data-voll] { color: var(--gold-hi); }
 
 /* ---------- Die helle Sektion: Tickets & Bar ----------
    Die einzige Inversion der Seite. Eine Zäsur ist eine Zäsur,
@@ -1470,8 +1464,10 @@ body::after {
 /* ============================================================
    13  REDUZIERTE BEWEGUNG
    Vollständig: nichts pulsiert, nichts läuft, nichts zählt.
-   Die Seite bleibt in jeder Hinsicht bedienbar — der Ton
-   startet in diesem Modus gar nicht erst.
+   Die Seite bleibt in jeder Hinsicht bedienbar.
+   Der TON bleibt ausdrücklich verfügbar — eine Bewegungs-
+   präferenz ist kein Grund, jemandem den Ton zu verweigern.
+   Es entfällt nur der optische Puls (siehe audio.js).
    ============================================================ */
 
 @media (prefers-reduced-motion: reduce) {

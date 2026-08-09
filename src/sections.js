@@ -122,7 +122,9 @@ export function renderTickets(wurzel, hinweis) {
     const karte = el('article', 'pressung' + (ticket.featured ? ' pressung--haupt' : ''));
 
     if (ticket.badge) karte.append(el('p', 'pressung__marke daten', ticket.badge));
-    karte.append(el('h4', 'pressung__name daten', ticket.name));
+    // h3, nicht h4: darüber steht die h2 "Preise". Ein Sprung h2 -> h4
+    // lässt Screenreader eine Ebene vermissen.
+    karte.append(el('h3', 'pressung__name daten', ticket.name));
     karte.append(el('p', 'pressung__preis', ticket.preis));
     karte.append(el('p', 'pressung__einheit daten', ticket.einheit));
 
