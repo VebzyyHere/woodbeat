@@ -14,6 +14,6 @@
 // ============================================================
 
 export const SUPABASE = {
-  url: '',
-  key: '',
+  url: 'https://fvuseciopsycvdvabxbp.supabase.co',
+  key: 'sb_publishable_hDRoNhbchhzuyA5QylcZow_pliTUl66',
 };
