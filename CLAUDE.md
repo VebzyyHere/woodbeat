@@ -52,7 +52,7 @@ Freitag-Datum `2027-07-23`), läuft also über dieselbe Supabase-Auszählung.
 
 **Eine Seite** (seit Sept. 2026, vorher fünf Unterseiten). Reihenfolge:
 Hero → Motto-Band → 01 Datum (Countdown + Tipp) → „Drei Tage / Zwei Nächte /
-Ein Wald" → 02 Abstimmen → 03 Programm (Line-up, Laufplan, Playlist) →
+Ein Wald" → Der Sound (`SOUND` in data.js: 150+ BPM, Genres) → 02 Abstimmen → 03 Programm (Line-up, Laufplan, Playlist) →
 04 Tickets & Bar → 05 Rückblick → 06 Praktisch (Anfahrt, Mitbringen, Waldkodex,
 Crew) → 07 Fragen → Dabei (Zusage-Formular) + Fuß.
 
