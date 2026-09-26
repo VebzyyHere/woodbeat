@@ -155,30 +155,116 @@ function aus() {
   cssPulsAktiv(true);
 }
 
-export function initAudio(knopf, label) {
+// ============================================================
+// HINTERGRUND-SONG (SoundCloud)
+//
+// Steht in data.js ein SoundCloud-Link, spielt der Ton-Knopf diesen
+// Song statt des Synth-Loops. Der Player ist ein unsichtbares
+// SoundCloud-iframe, gesteuert über deren Widget-API. Er wird erst
+// beim ersten Klick geladen — vorher kostet er 0 Byte.
+// Kommt er nicht in Gang (blockiert, offline, iOS-Eigenheiten),
+// springt der Synth-Loop ein, damit der Knopf nie tot ist.
+// ============================================================
+
+let widget = null;
+let widgetLaden = null;
+let songLaeuft = false;
+
+function ladeWidget(url) {
+  widgetLaden ??= new Promise((fertig, fehler) => {
+    const zeitlimit = setTimeout(() => fehler(new Error('SoundCloud antwortet nicht')), 10_000);
+    const skript = document.createElement('script');
+    skript.src = 'https://w.soundcloud.com/player/api.js';
+    skript.onerror = () => fehler(new Error('SoundCloud nicht erreichbar'));
+    skript.onload = () => {
+      const rahmen = document.createElement('iframe');
+      rahmen.className = 'hintergrund-player';
+      rahmen.title = 'Hintergrund-Song';
+      rahmen.allow = 'autoplay';
+      rahmen.tabIndex = -1;
+      rahmen.setAttribute('aria-hidden', 'true');
+      rahmen.src = 'https://w.soundcloud.com/player/?url=' + encodeURIComponent(url)
+        + '&auto_play=false&visual=false&show_artwork=false&buying=false&sharing=false';
+      document.body.append(rahmen);
+      const w = window.SC.Widget(rahmen);
+      w.bind(window.SC.Widget.Events.READY, () => {
+        clearTimeout(zeitlimit);
+        // Endlosschleife: am Ende zurück an den Anfang
+        w.bind(window.SC.Widget.Events.FINISH, () => { w.seekTo(0); w.play(); });
+        fertig(w);
+      });
+    };
+    document.head.append(skript);
+  });
+  return widgetLaden;
+}
+
+/** Song starten; true, sobald SoundCloud wirklich spielt. */
+async function songAn(url) {
+  widget ??= await ladeWidget(url);
+  widget.setVolume(70);
+  return new Promise((ergebnis) => {
+    const warte = setTimeout(() => ergebnis(false), 4000);
+    widget.bind(window.SC.Widget.Events.PLAY, () => { clearTimeout(warte); ergebnis(true); });
+    widget.play();
+  });
+}
+
+export function initAudio(knopf, label, songUrl) {
   if (!knopf) return;
+  let modus = null; // 'song' | 'synth' | null
+
+  const zeige = (an) => {
+    knopf.setAttribute('aria-pressed', String(an));
+    if (label) label.textContent = an ? 'Ton aus' : 'Ton';
+  };
 
   knopf.addEventListener('click', async () => {
-    if (laeuft) {
-      aus();
-      knopf.setAttribute('aria-pressed', 'false');
-      if (label) label.textContent = 'Ton';
+    if (modus === 'song') {
+      widget.pause();
+      songLaeuft = false;
+      modus = null;
+      zeige(false);
       return;
+    }
+    if (modus === 'synth') {
+      aus();
+      modus = null;
+      zeige(false);
+      return;
+    }
+
+    zeige(true);
+    if (songUrl) {
+      try {
+        if (await songAn(songUrl)) {
+          songLaeuft = true;
+          modus = 'song';
+          return;
+        }
+        widget?.pause();
+      } catch {
+        /* weiter mit dem Synth-Loop */
+      }
     }
     try {
       await an();
-      knopf.setAttribute('aria-pressed', 'true');
-      if (label) label.textContent = 'Ton aus';
+      modus = 'synth';
     } catch {
-      // Kein Audio möglich (alte Browser, blockierter Context) —
-      // der Knopf verschwindet lieber, als kaputt dazustehen.
+      // Kein Audio möglich — der Knopf verschwindet lieber, als kaputt dazustehen.
       knopf.hidden = true;
     }
   });
 
   // Im Hintergrund-Tab läuft nichts weiter.
   document.addEventListener('visibilitychange', () => {
-    if (document.hidden && laeuft) ctx?.suspend();
-    else if (!document.hidden && laeuft) ctx?.resume();
+    if (modus === 'synth') {
+      if (document.hidden) ctx?.suspend();
+      else ctx?.resume();
+    }
+    if (modus === 'song' && widget) {
+      if (document.hidden) widget.pause();
+      else if (songLaeuft) widget.play();
+    }
   });
 }

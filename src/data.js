@@ -37,6 +37,13 @@ export const FESTIVAL = {
   motto: 'Rave Culture · Love · Freedom · Friendship',
 };
 
+// Der Song hinter dem Ton-Knopf. Leer lassen = synthetischer Beat.
+// Muss ein SoundCloud-Link sein, dessen Uploader Einbetten erlaubt.
+export const HINTERGRUND = {
+  soundcloud: 'https://soundcloud.com/sys-systolic/inf3ris-now-that-youre-not-around-4',
+  titel: 'Inf3ris – Now That You’re Not Around (Systolic)',
+};
+
 export const SPOTIFY = {
   // Playlist muss in Spotify auf "öffentlich" stehen, damit Gäste sie sehen.
   playlistUrl: 'https://open.spotify.com/playlist/3hbyWrakdcD9R2bQnFN1JI',

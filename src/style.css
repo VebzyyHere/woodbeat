@@ -679,6 +679,9 @@ html:not(.ton-an) .hero__ringe { animation: schlag var(--schlag) infinite; }
 }
 .fuss__marke { font-size: clamp(32px, 10vw, 120px); font-stretch: 150%; }
 .fuss__text { text-align: right; }
+.fuss__song { order: 3; flex-basis: 100%; text-align: left; text-decoration: none; opacity: .8; }
+.fuss__song:hover { opacity: 1; text-decoration: underline; }
+.hintergrund-player { position: fixed; width: 1px; height: 1px; left: -10px; bottom: 0; opacity: 0; border: 0; pointer-events: none; }
 
 /* ---------- 12  BEWEGUNG ----------
    Scroll-getrieben, wo der Browser animation-timeline kann

@@ -12,7 +12,7 @@ import '@fontsource-variable/familjen-grotesk/wght.css';
 import '@fontsource-variable/martian-mono/standard.css';
 import './style.css';
 
-import { FESTIVAL, RSVP } from './data.js';
+import { FESTIVAL, HINTERGRUND, RSVP } from './data.js';
 import { initCountdown, phase } from './countdown.js';
 import { auszaehlungAlsText, initPolls } from './polls.js';
 import { initRsvp } from './rsvp.js';
@@ -92,7 +92,13 @@ const waehleTicket = initRsvp({
 });
 ticketKnoepfeVerbinden(waehleTicket);
 
-initAudio($('#ton'), $('#ton-label'));
+initAudio($('#ton'), $('#ton-label'), HINTERGRUND.soundcloud);
+if (HINTERGRUND.soundcloud) {
+  const link = $('#song-link');
+  link.href = HINTERGRUND.soundcloud;
+  link.textContent = `Hintergrund-Song: ${HINTERGRUND.titel} ↗`;
+  link.hidden = false;
+}
 initMenue();
 initNavZustand();
 initRevealErsatz();

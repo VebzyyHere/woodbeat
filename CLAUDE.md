@@ -80,7 +80,7 @@ Inhalt, Darstellung und Datenzugang sind strikt getrennt.
 - `src/config-live.js` — die zwei Supabase-Werte. Wird committet.
 - `src/countdown.js` — `phase()` (`offen`/`verkuendet`/`vor`/`live`/`nach`) und der Zähler.
 - `src/register.js` — der Herzschlag `--kick`, `puls()`, `uebergang()`.
-- `src/audio.js` — der synthetisierte Ton.
+- `src/audio.js` — der Ton-Knopf: spielt den SoundCloud-Song aus `HINTERGRUND` (data.js) über ein unsichtbares Widget-iframe, erst beim ersten Klick geladen, in Schleife. Kommt SoundCloud nicht in 4 s in Gang, springt der synthetisierte 150-BPM-Loop ein. `HINTERGRUND.soundcloud` leer = nur Synth.
 - `src/teilen.js` — Web-Share mit `wa.me`-Fallback.
 - `src/style.css` — Tokens und alle Komponenten, 12 nummerierte Abschnitte.
   Farben **nur** über die Variablen in Abschnitt 1.
