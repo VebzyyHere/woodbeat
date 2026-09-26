@@ -83,7 +83,7 @@ function zeichne() {
 
       const anzahl = topf?.counts?.[option.key] ?? 0;
       const prozent = toPercent(anzahl, voters);
-      zeile.style.setProperty('--pct', zeigeZahlen ? `${prozent}%` : '0%');
+      zeile.style.setProperty('--anteil', zeigeZahlen ? String(prozent / 100) : '0');
       // Im Tipp-Raster nur Wochenenden mit Stimmen beziffern — 13× „0 %“ ist Rauschen.
       const zeigen = zeigeZahlen && (!feld.classList.contains('umfrage--chips') || anzahl > 0);
       zeile.querySelector('.opt__zahl').textContent = zeigen ? `${prozent} %` : '';
