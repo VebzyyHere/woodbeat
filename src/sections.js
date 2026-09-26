@@ -1,12 +1,12 @@
 // ============================================================
-// Die Sektionen des Bogens.
+// Die Sektionen der Seite.
 //
 // Je eine reine render*(…)-Funktion, kein gemeinsamer Zustand.
 // Inhalte kommen ausschließlich aus data.js.
 //
 // Grundsatz überall: leere Daten erzeugen einen ENTWORFENEN
-// Leerzustand (gestempelte Fläche), nie ein trauriges "TBD" und
-// nie einen toten Knopf.
+// Leerzustand ("Slot frei", gestrichelter Rahmen), nie ein
+// trauriges "TBD" und nie einen toten Knopf.
 // ============================================================
 
 import {
@@ -14,7 +14,6 @@ import {
   RUECKBLICK, SPOTIFY, TICKETS, TICKETS_HINWEIS, TIMETABLE, WUENSCHE,
 } from './data.js';
 import { phase } from './countdown.js';
-import { teilen } from './teilen.js';
 import { uebergang } from './register.js';
 
 const el = (tag, klasse, text) => {
@@ -24,43 +23,44 @@ const el = (tag, klasse, text) => {
   return k;
 };
 
-/** Gestempelte Fläche — der Leerzustand der Seite. */
-const stempel = (text) => el('p', 'stempel', text);
+/** Leerzustand: gestrichelte Fläche mit Hinweis. */
+const leer = (text) => el('p', 'leer mono', text);
 
-// ---------- 02 LINE-UP ----------
+// ---------- LINE-UP ----------
 
 export function renderLineup(liste, hinweis) {
   // Die Slots stehen immer — auch ohne Namen. "Freitag 20:00 Opening"
   // sagt mehr als ein Sammelstempel, und die Lücke macht neugierig.
   for (const act of LINEUP) {
-    const zeile = el('li', 'act');
-    zeile.append(el('p', 'act__slot daten', `${act.tag} · ${act.zeit} · ${act.rolle}`));
+    const zeile = el('li', 'slot auf');
+    zeile.append(el('span', 'slot__tag mono', act.tag));
+    zeile.append(el('span', 'slot__zeit mono', `${act.zeit} Uhr`));
+    const name = act.name.trim();
+    const kopf = el('span', 'slot__name disp', name || act.rolle);
+    zeile.append(kopf);
     zeile.append(
-      act.name.trim()
-        ? el('p', 'act__name', act.name)
-        : el('p', 'act__name act__name--offen', 'wird gedruckt'),
+      name
+        ? el('span', 'slot__info mono', [act.rolle, act.genre].filter(Boolean).join(' · '))
+        : el('span', 'slot__frei mono', 'Slot frei'),
     );
-    if (act.genre) zeile.append(el('p', 'act__genre marginal', act.genre));
     liste.append(zeile);
   }
   hinweis.textContent = LINEUP_HINWEIS;
 }
 
-// ---------- 03 LAUFPLAN ----------
+// ---------- LAUFPLAN ----------
 
 /**
  * Der JETZT-Marker läuft nur während des Festivals. Slots nach
- * Mitternacht (z. B. 01:00 Afterhour) gehören kalendarisch schon
- * zum Folgetag — die werden bewusst dem Vorabend zugeschlagen,
- * so wie es auf einem Festival auch gelesen wird.
+ * Mitternacht (z. B. 01:00 Afterhour) werden bewusst dem Vorabend
+ * zugeschlagen, so wie es auf einem Festival auch gelesen wird.
  */
 function laufenderSlot(tagIndex) {
   if (phase() !== 'live') return -1;
   const jetzt = new Date();
-  const slots = TIMETABLE[tagIndex].slots;
   const minuten = jetzt.getHours() * 60 + jetzt.getMinutes();
   let treffer = -1;
-  slots.forEach((slot, i) => {
+  TIMETABLE[tagIndex].slots.forEach((slot, i) => {
     const [h, m] = slot.time.split(':').map(Number);
     if (h * 60 + m <= minuten) treffer = i;
   });
@@ -73,71 +73,72 @@ export function renderLaufplan(reiterWurzel, listeWurzel) {
   // Die Reiter werden EINMAL gebaut. Würden sie bei jedem Klick neu
   // entstehen, verlöre die Tastatur mitten in der Bedienung den Fokus.
   const knoepfe = TIMETABLE.map((tag, i) => {
-    const knopf = el('button', 'reiter__tag daten', tag.kurz);
+    const knopf = el('button', 'reiter__knopf', tag.day);
     knopf.type = 'button';
     knopf.setAttribute('role', 'tab');
     knopf.setAttribute('aria-controls', 'lauf-liste');
-    knopf.title = tag.day;
     knopf.addEventListener('click', () => {
       if (aktiv === i) return;
       aktiv = i;
-      uebergang(() => { markiereReiter(); zeichneSlots(); });
+      uebergang(() => { markiere(); zeichne(); });
     });
     reiterWurzel.append(knopf);
     return knopf;
   });
 
-  function markiereReiter() {
+  function markiere() {
     knoepfe.forEach((knopf, i) => knopf.setAttribute('aria-selected', String(i === aktiv)));
   }
 
-  function zeichneSlots() {
+  function zeichne() {
     listeWurzel.replaceChildren();
     const jetztIndex = laufenderSlot(aktiv);
-
     TIMETABLE[aktiv].slots.forEach((slot, i) => {
-      const zeile = el('li', 'lauf__zeile');
+      const zeile = el('li', 'lauf');
       if (i === jetztIndex) zeile.setAttribute('data-jetzt', '');
-
-      zeile.append(el('span', 'lauf__zeit daten', slot.time));
-
+      zeile.append(el('span', 'lauf__zeit disp', slot.time));
       const text = el('div', 'lauf__text');
       text.append(el('p', 'lauf__titel', slot.title));
-      if (slot.note) text.append(el('p', 'lauf__notiz marginal', slot.note));
-      if (i === jetztIndex) text.append(el('p', 'lauf__jetzt daten', 'Jetzt'));
+      if (slot.note) text.append(el('p', 'lauf__notiz', slot.note));
       zeile.append(text);
-
+      if (i === jetztIndex) zeile.append(el('span', 'lauf__jetzt mono', 'Jetzt'));
       listeWurzel.append(zeile);
     });
   }
 
-  markiereReiter();
-  zeichneSlots();
+  markiere();
+  zeichne();
 }
 
-// ---------- 04 TICKETS & BAR ----------
+// ---------- TICKETS & BAR ----------
 
 export function renderTickets(wurzel, hinweis) {
   for (const ticket of TICKETS) {
-    const karte = el('article', 'pressung' + (ticket.featured ? ' pressung--haupt' : ''));
+    const karte = el('article', 'ticket kippen' + (ticket.featured ? ' ticket--haupt' : ''));
 
-    if (ticket.badge) karte.append(el('p', 'pressung__marke daten', ticket.badge));
-    // h3, nicht h4: darüber steht die h2 "Preise". Ein Sprung h2 -> h4
-    // lässt Screenreader eine Ebene vermissen.
-    karte.append(el('h3', 'pressung__name daten', ticket.name));
-    karte.append(el('p', 'pressung__preis', ticket.preis));
-    karte.append(el('p', 'pressung__einheit daten', ticket.einheit));
+    const inhalt = el('div', 'ticket__inhalt');
+    const kopf = el('div', 'ticket__kopf');
+    // h3: darüber steht die h2 der Sektion.
+    kopf.append(el('h3', 'ticket__name mono', ticket.name));
+    if (ticket.badge) kopf.append(el('span', 'ticket__marke mono', ticket.badge));
+    inhalt.append(kopf);
+    inhalt.append(el('p', 'ticket__preis disp', ticket.preis));
+    inhalt.append(el('p', 'ticket__einheit mono', ticket.einheit));
 
-    const liste = el('ul', 'pressung__inhalt');
+    const liste = el('ul', 'ticket__liste');
     for (const punkt of ticket.includes) liste.append(el('li', null, punkt));
-    karte.append(liste);
+    inhalt.append(liste);
 
-    if (ticket.ctaText) {
-      const knopf = el('button', 'taste taste--voll pressung__taste', 'Ticket sichern');
-      knopf.type = 'button';
-      knopf.addEventListener('click', () => teilen(ticket.ctaText));
-      karte.append(knopf);
-    }
+    const knopf = el('a', 'knopf ' + (ticket.featured ? 'knopf--dunkel' : 'knopf--rand'), 'Ticket sichern');
+    knopf.href = '#dabei';
+    knopf.dataset.ticket = ticket.key;
+    inhalt.append(knopf);
+
+    const abriss = el('div', 'ticket__abriss');
+    abriss.setAttribute('aria-hidden', 'true');
+    abriss.append(el('span', 'ticket__code disp', `WB·27·${ticket.key === 'weekend' ? 'FR–SO' : 'TAG'}`));
+
+    karte.append(inhalt, abriss);
     wurzel.append(karte);
   }
   hinweis.textContent = TICKETS_HINWEIS;
@@ -146,15 +147,11 @@ export function renderTickets(wurzel, hinweis) {
 export function renderBar(wurzel) {
   for (const gruppe of BAR) {
     const block = el('div', 'bar__gruppe');
-    block.append(el('h4', 'bar__kategorie daten', gruppe.kategorie));
-
+    block.append(el('h4', 'bar__kategorie mono', gruppe.kategorie));
     const liste = el('ul', 'bar__liste');
     for (const drink of gruppe.drinks) {
       const zeile = el('li', 'bar__zeile');
-      zeile.append(el('span', 'bar__name', drink.name));
-      // Punktleader — die Zeile einer gedruckten Preisliste
-      zeile.append(el('span', 'bar__punkte'));
-      zeile.append(el('span', 'bar__preis daten', drink.preis));
+      zeile.append(el('span', null, drink.name), el('span', 'bar__preis', drink.preis));
       liste.append(zeile);
     }
     block.append(liste);
@@ -162,70 +159,60 @@ export function renderBar(wurzel) {
   }
 }
 
-// ---------- 06 RÜCKBLICK ----------
+// ---------- RÜCKBLICK ----------
 
-export function renderRueckblick(titel, text, bilder) {
-  titel.textContent = `Rückblick ${RUECKBLICK.jahr}`;
+export function renderRueckblick(titel, geist, text, bilder) {
+  titel.textContent = `05 — Rückblick ${RUECKBLICK.jahr}`;
+  geist.textContent = `${RUECKBLICK.jahr} `.repeat(4);
   text.textContent = RUECKBLICK.text;
 
   if (!RUECKBLICK.bilder.length) {
-    bilder.append(stempel('Bilder folgen — schickt eure besten in die Gruppe'));
+    // Drei leere Rahmen, leicht verdreht — die Einladung, Fotos zu schicken.
+    for (let i = 0; i < 3; i++) bilder.append(el('div', 'foto foto--leer mono', i === 1 ? 'Schick uns dein bestes Foto' : 'Foto folgt'));
     return;
   }
-
-  const strecke = el('ul', 'strecke');
-  RUECKBLICK.bilder.forEach((bild, i) => {
-    const kachel = el('li', 'strecke__kachel');
+  for (const bild of RUECKBLICK.bilder) {
+    const rahmen = el('figure', 'foto');
     const img = document.createElement('img');
     img.src = bild.src;
     img.alt = bild.alt ?? '';
     img.loading = 'lazy';
     img.decoding = 'async';
-    // Erstes Bild groß — eine Fotostrecke ohne Hierarchie ist ein Raster
-    if (i === 0) kachel.classList.add('strecke__kachel--gross');
-    kachel.append(img);
-    strecke.append(kachel);
-  });
-  bilder.append(strecke);
+    rahmen.append(img);
+    bilder.append(rahmen);
+  }
 }
 
-// ---------- 07 LAGEPLAN ----------
+// ---------- ANFAHRT ----------
 
 export function renderLageplan(wurzel, hinweise) {
   const offen = !ANFAHRT.name || ANFAHRT.name.startsWith('TBD');
 
   if (offen) {
-    // Kein Routen-Knopf, solange es kein Ziel gibt — ein toter Knopf
-    // ist schlimmer als gar keiner.
-    wurzel.append(stempel('Ort steht noch nicht fest'));
-    wurzel.append(el('p', 'sektion__intro', ANFAHRT.address));
+    // Kein Routen-Knopf, solange es kein Ziel gibt.
+    wurzel.append(el('p', 'ort__name disp', 'Ort folgt'));
+    wurzel.append(el('p', 'text', ANFAHRT.address));
   } else {
-    const block = el('div', 'ort');
-    block.append(el('p', 'ort__label daten', 'Gelände'));
-    block.append(el('p', 'ort__name', ANFAHRT.name));
-    block.append(el('p', 'ort__adresse daten', ANFAHRT.address));
+    wurzel.append(el('p', 'ort__name disp', ANFAHRT.name));
+    wurzel.append(el('p', 'text', ANFAHRT.address));
     if (ANFAHRT.mapsUrl) {
-      const link = el('a', 'taste', 'Route planen');
+      const link = el('a', 'knopf knopf--lime', 'Route planen ↗');
       link.href = ANFAHRT.mapsUrl;
       link.target = '_blank';
       link.rel = 'noopener';
-      block.append(link);
+      wurzel.append(link);
     }
-    wurzel.append(block);
   }
 
-  ANFAHRT.hints.forEach((hint, i) => {
-    const zeile = el('li', 'fussnote');
-    zeile.append(el('span', 'fussnote__nr daten', `◆ ${String(i + 1).padStart(2, '0')}`));
-    const text = el('div');
-    text.append(el('p', 'fussnote__titel daten', hint.titel));
-    text.append(el('p', 'fussnote__text', hint.text));
-    zeile.append(text);
+  for (const hint of ANFAHRT.hints) {
+    const zeile = el('li', 'hinweis');
+    zeile.append(el('span', 'hinweis__titel mono', hint.titel));
+    zeile.append(el('span', 'hinweis__text', hint.text));
     hinweise.append(zeile);
-  });
+  }
 }
 
-// ---------- 08 MITBRINGEN ----------
+// ---------- MITBRINGEN ----------
 
 const PACK_KEY = 'woodbeat-checked';
 
@@ -244,17 +231,13 @@ export function renderMitbringen(liste, stand) {
       /* privater Modus — Haken gelten dann nur für diese Sitzung */
     }
     const n = WUENSCHE.filter((w) => gehakt.has(w.item)).length;
-    stand.textContent =
-      n === WUENSCHE.length
-        ? `${n} von ${WUENSCHE.length} — alles gepackt`
-        : `${n} von ${WUENSCHE.length} gepackt`;
+    stand.textContent = n === WUENSCHE.length ? 'Alles gepackt' : `${n} / ${WUENSCHE.length} gepackt`;
     stand.toggleAttribute('data-voll', n === WUENSCHE.length);
   }
 
   for (const wunsch of WUENSCHE) {
-    const zeile = el('li', 'pack__zeile');
-    const label = el('label', 'pack__wahl');
-
+    const zeile = el('li');
+    const label = el('label', 'pack');
     const box = document.createElement('input');
     box.type = 'checkbox';
     box.checked = gehakt.has(wunsch.item);
@@ -263,80 +246,91 @@ export function renderMitbringen(liste, stand) {
       else gehakt.delete(wunsch.item);
       schreibStand();
     });
-
-    const kasten = el('span', 'pack__kasten');
-    kasten.setAttribute('aria-hidden', 'true');
-
+    const haken = el('span', 'pack__haken');
+    haken.setAttribute('aria-hidden', 'true');
     const text = el('span', 'pack__text');
     text.append(el('span', 'pack__item', wunsch.item));
-    if (wunsch.note) text.append(el('span', 'pack__notiz marginal', wunsch.note));
-
-    label.append(box, kasten, text);
+    if (wunsch.note) text.append(el('span', 'pack__notiz', wunsch.note));
+    label.append(box, haken, text);
     zeile.append(label);
     liste.append(zeile);
   }
-
   schreibStand();
 }
 
-// ---------- 09 PLAYLIST ----------
+// ---------- PLAYLIST ----------
 
 export function renderPlaylist(wurzel) {
   const id = SPOTIFY.playlistUrl?.match(/playlist\/([A-Za-z0-9]+)/)?.[1];
   if (!id) {
-    wurzel.append(stempel('Playlist folgt'));
+    wurzel.append(leer('Playlist folgt'));
     return;
   }
-  wurzel.append(el('p', 'etikett__label daten', 'Spotify · WoodBeat'));
-  const rahmen = el('div', 'etikett__rahmen');
-  const iframe = document.createElement('iframe');
-  iframe.src = `https://open.spotify.com/embed/playlist/${id}?theme=0`;
-  iframe.width = '100%';
-  iframe.height = '352';
-  iframe.loading = 'lazy';
-  iframe.allow = 'clipboard-write; encrypted-media; fullscreen; picture-in-picture';
-  iframe.title = 'WoodBeat-Playlist bei Spotify';
-  rahmen.append(iframe);
-  wurzel.append(rahmen);
+  const kopf = el('div', 'playlist__kopf');
+  kopf.append(el('h3', 'untertitel disp', 'Warm werden'));
+  const link = el('a', 'knopf knopf--rand', 'In Spotify öffnen ↗');
+  link.href = SPOTIFY.playlistUrl;
+  link.target = '_blank';
+  link.rel = 'noopener';
+  kopf.append(link);
+  wurzel.append(kopf);
+
+  // Der Player lädt erst auf Klick: spart ~1 MB Spotify-Skripte für
+  // alle, die nur das Datum nachschauen wollen.
+  const platz = el('button', 'playlist__platz');
+  platz.type = 'button';
+  platz.append(el('span', 'playlist__play', '▶'), el('span', 'mono', 'Playlist hier abspielen'));
+  platz.addEventListener('click', () => {
+    const iframe = document.createElement('iframe');
+    iframe.src = `https://open.spotify.com/embed/playlist/${id}?theme=0`;
+    iframe.width = '100%';
+    iframe.height = '352';
+    iframe.allow = 'clipboard-write; encrypted-media; fullscreen; picture-in-picture';
+    iframe.title = 'WoodBeat-Playlist bei Spotify';
+    platz.replaceWith(iframe);
+  });
+  wurzel.append(platz);
 }
 
-// ---------- 10 WALDKODEX & CREW ----------
+// ---------- WALDKODEX & CREW ----------
+
+const ROEMISCH = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'];
 
 export function renderKodex(liste, crewListe) {
   KODEX.forEach((eintrag, i) => {
-    const zeile = el('li', 'regel');
-    zeile.append(el('span', 'regel__nr daten', String(i + 1).padStart(2, '0')));
-    const text = el('div');
-    text.append(el('p', 'regel__titel daten', eintrag.regel));
-    text.append(el('p', 'regel__text', eintrag.text));
-    zeile.append(text);
+    const zeile = el('li', 'regel auf');
+    zeile.append(el('span', 'regel__nr mono', ROEMISCH[i] ?? String(i + 1)));
+    zeile.append(el('span', 'regel__titel disp', eintrag.regel));
+    zeile.append(el('span', 'regel__text', eintrag.text));
     liste.append(zeile);
   });
 
   for (const person of CREW) {
     const zeile = el('li', 'crew__zeile');
-    zeile.append(el('span', 'crew__rolle daten', person.rolle));
-    zeile.append(el('span', 'bar__punkte'));
-    zeile.append(
-      person.name.trim()
-        ? el('span', 'crew__name daten', person.name)
-        : el('span', 'crew__name crew__name--offen daten', 'offen'),
-    );
+    zeile.append(el('span', 'crew__rolle', person.rolle));
+    const name = person.name.trim();
+    zeile.append(name ? el('span', 'crew__name mono', name) : el('span', 'crew__offen mono', 'Hand heben'));
     crewListe.append(zeile);
   }
 }
 
-// ---------- 11 KLEINGEDRUCKTES ----------
+// ---------- FRAGEN ----------
 
 export function renderFaq(wurzel) {
   for (const eintrag of FAQ) {
-    const block = document.createElement('details');
-    block.className = 'faq';
-    const kopf = document.createElement('summary');
-    kopf.className = 'faq__frage daten';
-    kopf.textContent = eintrag.q;
-    const text = el('p', 'faq__text', eintrag.a);
-    block.append(kopf, text);
+    const block = el('details', 'frage');
+    const kopf = el('summary', 'frage__q');
+    kopf.append(el('span', null, eintrag.q), el('span', 'frage__zeichen disp'));
+    block.append(kopf, el('p', 'frage__a', eintrag.a));
     wurzel.append(block);
+  }
+}
+
+// ---------- "Ticket sichern" → Formular vorauswählen ----------
+
+export function ticketKnoepfeVerbinden(waehleTicket) {
+  for (const link of document.querySelectorAll('[data-ticket]')) {
+    if (link.tagName !== 'A') continue;
+    link.addEventListener('click', () => waehleTicket(link.dataset.ticket));
   }
 }

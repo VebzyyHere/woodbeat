@@ -55,7 +55,7 @@ function baueTicketwahl(wurzel) {
   const knoepfe = TICKETS.map((ticket) => {
     const knopf = document.createElement('button');
     knopf.type = 'button';
-    knopf.className = 'reiter__tag daten';
+    knopf.className = 'reiter__knopf';
     knopf.dataset.ticket = ticket.key;
     knopf.textContent = `${ticket.name} · ${ticket.preis}`;
     knopf.addEventListener('click', () => waehle(ticket.key));
@@ -75,7 +75,7 @@ const gewaehltesTicket = (wurzel) =>
   wurzel.querySelector('[aria-pressed="true"]')?.dataset.ticket ?? null;
 
 export function initRsvp({ form, zaehler, aufteilung, ticketWahl, name, notiz, senden, loeschen, status }) {
-  if (!form) return;
+  if (!form) return () => {};
 
   const meine = eigeneZusage();
   const waehleTicket = baueTicketwahl(ticketWahl);
@@ -159,4 +159,6 @@ export function initRsvp({ form, zaehler, aufteilung, ticketWahl, name, notiz, s
     status.textContent = 'Eintrag gelöscht.';
     hole();
   });
+
+  return waehleTicket;
 }

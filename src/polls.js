@@ -1,17 +1,20 @@
 // ============================================================
-// DER STIMMZETTEL
+// ABSTIMMUNGEN — die drei Umfragen und der Termin-Tipp.
 //
-// Der Ergebnisbalken ist kein <div> mit width, sondern das erste
-// Wort der Antwort, endlos wiederholt und bei --pct abgeschnitten.
-// Er ist Dekoration (aria-hidden) — die Prozentzahl daneben ist
-// die Information und steht als echter Text im DOM.
+// Beide laufen über dieselbe Auszählung (live.js); der Tipp ist
+// nur eine weitere Umfrage mit der poll-id `termin`, die als
+// Chip-Reihe statt als Liste gesetzt wird.
+//
+// Hinter jeder Antwort füllt sich eine Fläche bis --pct. Sie ist
+// Dekoration (aria-hidden) — die Prozentzahl daneben ist die
+// Information und steht als echter Text im DOM.
 //
 // Vor der eigenen Stimme bleiben die Zahlen verdeckt: das
 // verhindert den Ankereffekt und macht das Abstimmen zum
 // belohnten Moment.
 // ============================================================
 
-import { UMFRAGEN, UMFRAGEN_SHARE } from './data.js';
+import { FESTIVAL, TERMIN_TIPP, UMFRAGEN, UMFRAGEN_SHARE } from './data.js';
 import {
   castVote, eigeneWahl, fetchResults, flushOutbox,
   liveEnabled, outboxOffen, toPercent,
@@ -25,19 +28,10 @@ let geladen = false;     // lag schon einmal eine Auszählung vor?
 let lokal = !liveEnabled();
 let fehler = false;
 let ticker = 0;
-let sichtbar = false;
+const sichtbare = new Set();
 
-/** Das Wort, aus dem der Balken gesetzt wird. Nur das erste —
- *  sonst wird „Melodic Techno / House" zu Matsch. */
-function balkenWort(label) {
-  const wort = label
-    .split(/[\s—–/·]+/)[0]
-    .replace(/[^A-Za-zÄÖÜäöüß&]/g, '')
-    .toUpperCase()
-    .slice(0, 10);
-  const basis = wort || 'WOODBEAT';
-  return basis.repeat(Math.ceil(90 / basis.length));
-}
+/** Alle Umfragen, die gerade laufen — der Tipp nur, solange das Datum offen ist. */
+const aktive = () => (FESTIVAL.datumBekannt ? UMFRAGEN : [TERMIN_TIPP, ...UMFRAGEN]);
 
 /** Die eigene Stimme sofort einrechnen, bevor der Server antwortet. */
 function optimistisch(pollId, neueKeys, alteKeys) {
@@ -49,28 +43,26 @@ function optimistisch(pollId, neueKeys, alteKeys) {
   if (warSchonDabei && !neueKeys.length) topf.voters = Math.max(0, topf.voters - 1);
 }
 
-function fussText(poll, hatGewaehlt) {
-  const topf = stand[poll.id];
-  const voters = topf?.voters ?? 0;
+const uhrzeit = () =>
+  new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
 
+function fussText(poll, hatGewaehlt) {
+  const voters = stand[poll.id]?.voters ?? 0;
   if (!geladen) return 'Auszählung wird geholt';
   if (fehler) return 'Auszählung nicht erreichbar — deine Stimme ist gespeichert und geht raus, sobald du wieder Netz hast';
   if (!hatGewaehlt) {
     if (!voters) return 'Noch keine Stimme. Du machst den Anfang';
     return `Noch nicht abgestimmt · ${voters} ${voters === 1 ? 'hat' : 'haben'} schon`;
   }
-  if (lokal) return 'Auszählung läuft nur auf diesem Gerät — die gemeinsame Zählung kommt, sobald die Datenbank steht';
-  return `Auszählung · ${voters} ${voters === 1 ? 'Stimme' : 'Stimmen'} · Stand ${uhrzeit()}`;
+  if (lokal) return 'Gezählt wird bisher nur auf diesem Gerät — die gemeinsame Auszählung kommt, sobald die Datenbank steht';
+  return `${voters} ${voters === 1 ? 'Stimme' : 'Stimmen'} · Stand ${uhrzeit()}`;
 }
 
-const uhrzeit = () =>
-  new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
-
-function zeichne(wurzel) {
+function zeichne() {
   const wahl = eigeneWahl();
 
-  for (const poll of UMFRAGEN) {
-    const feld = wurzel.querySelector(`[data-poll="${poll.id}"]`);
+  for (const poll of aktive()) {
+    const feld = document.querySelector(`[data-poll="${poll.id}"]`);
     if (!feld) continue;
 
     const meine = wahl[poll.id] ?? [];
@@ -80,130 +72,110 @@ function zeichne(wurzel) {
     // Zahlen erst zeigen, wenn abgestimmt UND eine Auszählung vorliegt.
     // Sonst stünde nach dem Neuladen kurz "0 %" statt "– –".
     const zeigeZahlen = hatGewaehlt && geladen;
-
     feld.toggleAttribute('data-verdeckt', !zeigeZahlen);
 
     for (const option of poll.options) {
       const zeile = feld.querySelector(`[data-key="${option.key}"]`);
       if (!zeile) continue;
-
       const istMeine = meine.includes(option.key);
       zeile.toggleAttribute('data-mine', istMeine);
       zeile.querySelector('input').checked = istMeine;
 
       const anzahl = topf?.counts?.[option.key] ?? 0;
       const prozent = toPercent(anzahl, voters);
-
-      const balken = zeile.querySelector('.zettel__balken');
-      balken.style.setProperty('--pct', zeigeZahlen ? `${prozent}%` : '0%');
-
-      zeile.toggleAttribute('data-leer', !zeigeZahlen);
-      zeile.querySelector('.zettel__zahl').textContent = zeigeZahlen ? `${prozent} %` : '– –';
-      zeile.querySelector('.zettel__stimmen').textContent = zeigeZahlen ? String(anzahl) : '';
+      zeile.style.setProperty('--pct', zeigeZahlen ? `${prozent}%` : '0%');
+      // Im Tipp-Raster nur Wochenenden mit Stimmen beziffern — 13× „0 %“ ist Rauschen.
+      const zeigen = zeigeZahlen && (!feld.classList.contains('umfrage--chips') || anzahl > 0);
+      zeile.querySelector('.opt__zahl').textContent = zeigen ? `${prozent} %` : '';
     }
 
-    feld.querySelector('.zettel__fuss').textContent = fussText(poll, hatGewaehlt);
+    feld.querySelector('.umfrage__fuss').textContent = fussText(poll, hatGewaehlt);
   }
 }
 
-function baue(wurzel) {
-  for (const poll of UMFRAGEN) {
-    const feld = document.createElement('fieldset');
-    feld.className = 'zettel';
-    feld.dataset.poll = poll.id;
+function baueUmfrage(poll, wurzel, chips) {
+  const feld = document.createElement('fieldset');
+  feld.className = chips ? 'umfrage umfrage--chips' : 'umfrage auf';
+  feld.dataset.poll = poll.id;
 
-    const frage = document.createElement('legend');
-    frage.className = 'zettel__frage';
-    frage.textContent = poll.frage;
-
-    const modus = document.createElement('p');
-    modus.className = 'zettel__modus daten';
-    modus.textContent = poll.multi ? 'Mehrfachauswahl' : 'Eine Stimme';
-
-    const liste = document.createElement('ul');
-    liste.className = 'zettel__liste';
-
-    for (const option of poll.options) {
-      const zeile = document.createElement('li');
-      zeile.className = 'zettel__zeile';
-      zeile.dataset.key = option.key;
-
-      const wahl = document.createElement('label');
-      wahl.className = 'zettel__wahl';
-
-      const feldchen = document.createElement('input');
-      feldchen.type = poll.multi ? 'checkbox' : 'radio';
-      feldchen.name = `poll-${poll.id}`;
-      feldchen.value = option.key;
-
-      const kasten = document.createElement('span');
-      kasten.className = 'zettel__kasten';
-      kasten.setAttribute('aria-hidden', 'true');
-
-      const label = document.createElement('span');
-      label.className = 'zettel__label';
-      label.textContent = option.label;
-
-      wahl.append(feldchen, kasten, label);
-
-      const balken = document.createElement('span');
-      balken.className = 'zettel__balken';
-      balken.setAttribute('aria-hidden', 'true');
-      balken.textContent = balkenWort(option.label);
-
-      const zahlen = document.createElement('span');
-      zahlen.className = 'zettel__zahlen daten';
-      const zahl = document.createElement('span');
-      zahl.className = 'zettel__zahl';
-      const stimmen = document.createElement('span');
-      stimmen.className = 'zettel__stimmen';
-      zahlen.append(zahl, stimmen);
-
-      const mein = document.createElement('span');
-      mein.className = 'zettel__mein daten';
-      mein.textContent = '◀ Deine Stimme';
-
-      zeile.append(wahl, balken, zahlen, mein);
-      liste.append(zeile);
-
-      feldchen.addEventListener('change', () => stimmeAb(poll, option.key, wurzel));
-    }
-
-    const fuss = document.createElement('p');
-    fuss.className = 'zettel__fuss daten';
-    fuss.setAttribute('aria-live', 'polite');
-
-    feld.append(frage, modus, liste, fuss);
-    wurzel.append(feld);
-  }
-}
-
-async function stimmeAb(poll, key, wurzel) {
-  const wahl = eigeneWahl();
-  const alte = wahl[poll.id] ?? [];
-
-  let neue;
+  const frage = document.createElement('legend');
+  frage.className = 'umfrage__frage';
+  frage.textContent = poll.frage;
   if (poll.multi) {
-    neue = alte.includes(key) ? alte.filter((k) => k !== key) : [...alte, key];
-  } else {
-    neue = [key];
+    const modus = document.createElement('span');
+    modus.className = 'umfrage__modus mono';
+    modus.textContent = 'Mehrfachauswahl';
+    frage.append(' ', modus);
   }
 
-  // Der ganze Bogen zuckt — dieselbe Mechanik wie der Taktschlag.
-  puls(9, 140);
+  const liste = document.createElement('div');
+  liste.className = 'umfrage__liste';
+
+  for (const option of poll.options) {
+    const zeile = document.createElement('label');
+    zeile.className = 'opt';
+    zeile.dataset.key = option.key;
+
+    const feldchen = document.createElement('input');
+    feldchen.type = poll.multi ? 'checkbox' : 'radio';
+    feldchen.name = `poll-${poll.id}`;
+    feldchen.value = option.key;
+    feldchen.className = 'opt__input';
+    feldchen.addEventListener('change', () => stimmeAb(poll, option.key));
+
+    const fuellung = document.createElement('span');
+    fuellung.className = 'opt__fuell';
+    fuellung.setAttribute('aria-hidden', 'true');
+
+    const text = document.createElement('span');
+    text.className = 'opt__label';
+    if (option.monat) {
+      const monat = document.createElement('span');
+      monat.className = 'opt__monat mono';
+      monat.textContent = option.monat;
+      text.append(monat, ' ');
+    }
+    text.append(option.label);
+
+    const zahl = document.createElement('span');
+    zahl.className = 'opt__zahl mono';
+
+    const mein = document.createElement('span');
+    mein.className = 'opt__mein mono';
+    mein.textContent = chips ? 'Dein Tipp' : 'Deine Stimme';
+
+    zeile.append(feldchen, fuellung, text, zahl, mein);
+    liste.append(zeile);
+  }
+
+  const fuss = document.createElement('p');
+  fuss.className = 'umfrage__fuss mono';
+  fuss.setAttribute('aria-live', 'polite');
+
+  feld.append(frage, liste, fuss);
+  wurzel.append(feld);
+}
+
+async function stimmeAb(poll, key) {
+  const alte = eigeneWahl()[poll.id] ?? [];
+  let neue;
+  if (poll.multi) neue = alte.includes(key) ? alte.filter((k) => k !== key) : [...alte, key];
+  else neue = [key];
+
+  puls();
   navigator.vibrate?.(12);
 
   optimistisch(poll.id, neue, alte);
   geladen = true;   // ab jetzt gibt es Zahlen zu zeigen
-  uebergang(() => zeichne(wurzel));
+  uebergang(zeichne);
 
   const angekommen = await castVote(poll.id, neue);
   fehler = liveEnabled() && !angekommen;
-  if (angekommen) await hole(wurzel);
-  else zeichne(wurzel);
+  if (angekommen) await hole();
+  else zeichne();
 }
 
-async function hole(wurzel) {
+async function hole() {
   const frisch = await fetchResults();
   lokal = Boolean(frisch?._lokal) || !liveEnabled();
   if (frisch) {
@@ -212,56 +184,67 @@ async function hole(wurzel) {
     geladen = true;
     fehler = liveEnabled() && lokal;
   }
-  zeichne(wurzel);
+  zeichne();
 }
 
-function takt(wurzel) {
+function takt() {
   clearInterval(ticker);
-  if (!sichtbar || document.hidden || !liveEnabled()) return;
-  ticker = setInterval(() => hole(wurzel), AKTUALISIERUNG);
+  if (!sichtbare.size || document.hidden || !liveEnabled()) return;
+  ticker = setInterval(hole, AKTUALISIERUNG);
 }
 
-export function initPolls(wurzel, modusZeile) {
-  if (!wurzel) return;
-  baue(wurzel);
-  zeichne(wurzel);
+/**
+ * @param {{umfragen: HTMLElement, tipp: HTMLElement|null, modus: HTMLElement|null}} ziele
+ */
+export function initPolls({ umfragen, tipp, modus }) {
+  if (!umfragen) return;
+  for (const poll of UMFRAGEN) baueUmfrage(poll, umfragen, false);
+  if (tipp && !FESTIVAL.datumBekannt) baueUmfrage(TERMIN_TIPP, tipp, true);
+  zeichne();
 
-  if (modusZeile) {
-    modusZeile.textContent = liveEnabled()
-      ? 'Ein Gerät, eine Stimme. Meinung ändern geht jederzeit.'
+  if (modus) {
+    modus.textContent = liveEnabled()
+      ? 'Ein Gerät, eine Stimme pro Frage. Meinung geändert? Einfach die andere Antwort antippen.'
       : 'Die gemeinsame Auszählung ist noch nicht angeschlossen — deine Auswahl bleibt vorerst auf diesem Gerät.';
   }
 
-  // Ohne Server kostet die Auszählung nichts — sofort holen, damit die
-  // eigene Wahl nach dem Neuladen nicht erst beim Scrollen auftaucht.
-  if (!liveEnabled()) hole(wurzel);
+  // Ohne Server kostet die Auszählung nichts — sofort holen.
+  if (!liveEnabled()) hole();
 
-  // Mit Server: erst laden, wenn die Sektion wirklich ins Bild kommt.
-  new IntersectionObserver((eintraege) => {
-    sichtbar = eintraege[0].isIntersecting;
-    if (sichtbar) hole(wurzel);
-    takt(wurzel);
-  }, { threshold: 0.05 }).observe(wurzel);
+  // Mit Server: erst laden, wenn eine Abstimmung wirklich ins Bild kommt.
+  const beobachter = new IntersectionObserver((eintraege) => {
+    let neuSichtbar = false;
+    for (const e of eintraege) {
+      if (e.isIntersecting) {
+        if (!sichtbare.size) neuSichtbar = true;
+        sichtbare.add(e.target);
+      } else sichtbare.delete(e.target);
+    }
+    if (neuSichtbar) hole();
+    takt();
+  }, { threshold: 0.05 });
+  beobachter.observe(umfragen);
+  if (tipp) beobachter.observe(tipp);
 
   document.addEventListener('visibilitychange', () => {
-    if (!document.hidden && sichtbar) hole(wurzel);
-    takt(wurzel);
+    if (!document.hidden && sichtbare.size) hole();
+    takt();
   });
 
   addEventListener('online', async () => {
     if (await flushOutbox()) {
       fehler = false;
-      hole(wurzel);
+      hole();
     }
   });
 
-  if (outboxOffen()) flushOutbox().then((ok) => ok && hole(wurzel));
+  if (outboxOffen()) flushOutbox().then((ok) => ok && hole());
 }
 
 /** Text für den Teilen-Button: die Auszählung, nicht die eigene Stimme. */
 export function auszaehlungAlsText() {
   const zeilen = [UMFRAGEN_SHARE];
-  for (const poll of UMFRAGEN) {
+  for (const poll of aktive()) {
     const topf = stand[poll.id];
     if (!topf?.voters) continue;
     const sortiert = poll.options
@@ -269,7 +252,7 @@ export function auszaehlungAlsText() {
       .sort((a, b) => b.n - a.n)
       .filter((o) => o.n > 0)
       .slice(0, 3)
-      .map((o) => `${o.label} ${toPercent(o.n, topf.voters)}%`);
+      .map((o) => `${o.monat ? `${o.label} ${o.monat}` : o.label} ${toPercent(o.n, topf.voters)}%`);
     if (sortiert.length) zeilen.push(`${poll.frage}\n  ${sortiert.join(' · ')}`);
   }
   if (zeilen.length === 1) zeilen.push('Noch keine Stimmen. Mach den Anfang.');

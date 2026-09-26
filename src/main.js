@@ -1,185 +1,188 @@
 // ============================================================
 // WoodBeat — Bootstrapping.
 // Inhalte ändern? → src/data.js. Aussehen? → src/style.css.
-// Seitenschnitt ändern? → src/seiten.js.
 //
-// Fünf Seiten, ein Bündel: der Browser lädt JS und CSS beim ersten
-// Aufruf und hat sie danach für alle weiteren Seiten im Cache.
-// Was gerendert wird, entscheidet `data-seite` am <body>.
+// Eine Seite, neun Sektionen. Die Scroll- und Zoom-Animationen
+// sind reines CSS (animation-timeline); hier gibt es nur einen
+// kleinen Ersatz für Browser ohne Scroll-Timelines.
 // ============================================================
 
-import '@fontsource/bevan/latin-400.css';
+import '@fontsource-variable/anybody/standard.css';
+import '@fontsource-variable/familjen-grotesk/wght.css';
 import '@fontsource-variable/martian-mono/standard.css';
 import './style.css';
 
-import { FESTIVAL } from './data.js';
-import { AUSHAENGE, BASIS, urlVon } from './seiten.js';
-import { emblemeEinsetzen } from './glyphen.js';
-import { initCountdown } from './countdown.js';
-import { renderAushaenge } from './aushaenge.js';
+import { FESTIVAL, RSVP } from './data.js';
+import { initCountdown, phase } from './countdown.js';
 import { auszaehlungAlsText, initPolls } from './polls.js';
 import { initRsvp } from './rsvp.js';
 import { initAudio } from './audio.js';
 import { teilen } from './teilen.js';
+import { reducedMotion } from './register.js';
 import {
-  renderBar, renderFaq, renderKodex, renderLageplan, renderLaufplan,
-  renderLineup, renderMitbringen, renderPlaylist, renderRueckblick, renderTickets,
+  renderBar, renderFaq, renderKodex, renderLageplan, renderLaufplan, renderLineup,
+  renderMitbringen, renderPlaylist, renderRueckblick, renderTickets, ticketKnoepfeVerbinden,
 } from './sections.js';
 
 const $ = (wahl) => document.querySelector(wahl);
-const seite = document.body.dataset.seite;
 
-emblemeEinsetzen();
+// ---------- Kopf & Datum ----------
 
-// ---------- Gemeinsames auf jeder Seite ----------
+const datumSteht = FESTIVAL.datumBekannt;
+$('#hero-wann').textContent = datumSteht ? FESTIVAL.datumKurz : FESTIVAL.saison;
+$('#hero-satz').textContent = datumSteht
+  ? `Drei Tage, zwei Nächte, ein Wald. Ab ${FESTIVAL.abPreis}.`
+  : 'Das Datum wird bis Ende 2026 verkündet.';
 
-for (const feld of document.querySelectorAll('#kopf-jahr')) {
-  feld.textContent = String(FESTIVAL.jahr);
-}
-// Der Zurück-Link im Blattkopf steht als "../" im HTML — das stimmt
-// lokal wie unter /woodbeat/ und funktioniert auch ohne JavaScript.
-
-baueFuss();
-const uhrKlein = baueIndex();
-
-// ---------- Seitenspezifisches ----------
-
-if (seite === 'start') {
-  $('#marke-jahr').textContent = String(FESTIVAL.jahr);
-  $('#anschlag-fakten').textContent = `${FESTIVAL.datumKurz} · ab ${FESTIVAL.abPreis}`;
-  baueBanderole();
-  renderAushaenge($('#aushaenge-liste'));
-  renderRueckblick($('#rueckblick-titel'), $('#rueckblick-text'), $('#rueckblick-bilder'));
-  initCountdown($('#anschlag-uhr'), uhrKlein);
+if (datumSteht) {
+  $('#datum-titel').innerHTML = 'Es steht.<br /><em></em>';
+  $('#datum-titel em').textContent = FESTIVAL.datumKurz;
+  $('#datum-intro').textContent = 'Drei Tage, zwei Nächte, ein Wald. Trag’s dir ein — und sag unten Bescheid, ob du kommst.';
+  $('#tipp').hidden = true;
 } else {
-  initCountdown(null, uhrKlein);
+  $('#datum-titel').innerHTML = 'Wann?<br />Verraten wir<br /><em>bis Silvester.</em>';
+  $('#datum-intro').textContent =
+    `Ein Wochenende im ${FESTIVAL.saison}. Drei Tage, zwei Nächte, ein Wald. Das genaue Datum verkünden wir spätestens am 31. Dezember 2026 — bis dahin darfst du tippen.`;
 }
 
-if (seite === 'programm') {
-  renderLineup($('#lineup-liste'), $('#lineup-hinweis'));
-  renderLaufplan($('#tag-reiter'), $('#lauf-liste'));
-  renderPlaylist($('#spotify'));
-}
+$('#dabei-zeile').textContent = [
+  datumSteht ? FESTIVAL.datumKurz : `${FESTIVAL.saison} · Datum folgt bis 31.12.2026`,
+  FESTIVAL.locationShort,
+].join(' · ');
+$('#ab-preis').textContent = `${FESTIVAL.abPreis}.`;
 
-if (seite === 'tickets') {
-  renderTickets($('#tickets-liste'), $('#tickets-hinweis'));
-  renderBar($('#bar-liste'));
-  initRsvp({
-    form: $('#rsvp-form'),
-    zaehler: $('#rsvp-zaehler'),
-    aufteilung: $('#rsvp-aufteilung'),
-    ticketWahl: $('#rsvp-ticket'),
-    name: $('#rsvp-name'),
-    notiz: $('#rsvp-notiz'),
-    senden: $('#rsvp-senden'),
-    loeschen: $('#rsvp-loeschen'),
-    status: $('#rsvp-status'),
-  });
-}
+baueBand();
 
-if (seite === 'abstimmen') {
-  $('#zettel-kopf').textContent = `Stimmzettel · WoodBeat ${FESTIVAL.jahr} · Ausgabe 01`;
-  initPolls($('#umfragen'), $('#zettel-modus'));
-  $('#zettel-teilen').addEventListener('click', () => teilen(auszaehlungAlsText()));
-}
+initCountdown(
+  {
+    tage: $('#uhr-tage'), std: $('#uhr-std'), min: $('#uhr-min'),
+    sek: $('#uhr-sek'), label: $('#uhr-label'),
+  },
+  $('#nav-uhr'),
+);
 
-if (seite === 'praktisches') {
-  renderLageplan($('#lageplan-ort'), $('#lageplan-hinweise'));
-  renderMitbringen($('#pack-liste'), $('#pack-stand'));
-  renderKodex($('#kodex-liste'), $('#crew-liste'));
-  renderFaq($('#faq-liste'));
-}
+// ---------- Sektionen ----------
+
+initPolls({ umfragen: $('#umfragen'), tipp: $('#tipp'), modus: $('#abstimmen-modus') });
+$('#abstimmen-teilen').addEventListener('click', () => teilen(auszaehlungAlsText()));
+
+renderLineup($('#lineup-liste'), $('#lineup-hinweis'));
+renderLaufplan($('#tag-reiter'), $('#lauf-liste'));
+renderPlaylist($('#spotify'));
+renderTickets($('#tickets-liste'), $('#tickets-hinweis'));
+renderBar($('#bar-liste'));
+renderRueckblick($('#rueckblick-titel'), $('#rueckblick-geist'), $('#rueckblick-text'), $('#rueckblick-bilder'));
+renderLageplan($('#lageplan-ort'), $('#lageplan-hinweise'));
+renderMitbringen($('#pack-liste'), $('#pack-stand'));
+renderKodex($('#kodex-liste'), $('#crew-liste'));
+renderFaq($('#faq-liste'));
+
+$('#rsvp-hinweis').textContent = RSVP.hinweis;
+const waehleTicket = initRsvp({
+  form: $('#rsvp-form'),
+  zaehler: $('#rsvp-zaehler'),
+  aufteilung: $('#rsvp-aufteilung'),
+  ticketWahl: $('#rsvp-ticket'),
+  name: $('#rsvp-name'),
+  notiz: $('#rsvp-notiz'),
+  senden: $('#rsvp-senden'),
+  loeschen: $('#rsvp-loeschen'),
+  status: $('#rsvp-status'),
+});
+ticketKnoepfeVerbinden(waehleTicket);
 
 initAudio($('#ton'), $('#ton-label'));
+initMenue();
+initNavZustand();
+initRevealErsatz();
+
+// Während des Festivals ist der Laufplan das Wichtigste — direkt hin.
+if (phase() === 'live' && !location.hash) {
+  document.getElementById('programm')?.scrollIntoView();
+}
 
 // ============================================================
 // Bausteine
 // ============================================================
 
-/** Motto zweimal einfüllen → nahtlose Endlosschleife. */
-function baueBanderole() {
-  const spur = $('#banderole-spur');
-  if (!spur) return;
+/** Motto viermal einfüllen — das Band läuft beim Scrollen um 50 % weiter. */
+function baueBand() {
+  const spur = $('#band-spur');
   const teile = FESTIVAL.motto.split('·').map((s) => s.trim());
-  for (let runde = 0; runde < 2; runde++) {
+  for (let runde = 0; runde < 4; runde++) {
     for (const teil of teile) {
       const wort = document.createElement('span');
       wort.textContent = teil;
-      const raute = document.createElement('b');
-      raute.textContent = '◆';
-      spur.append(wort, raute);
+      const stern = document.createElement('span');
+      stern.className = 'band__stern';
+      stern.textContent = '✺';
+      spur.append(wort, stern);
     }
   }
 }
 
-function baueFuss() {
-  const fuss = document.createElement('footer');
-  fuss.className = 'fuss';
-  fuss.innerHTML = `
-    <svg class="fuss__siegel" viewBox="0 0 88 88" aria-hidden="true" focusable="false">
-      <use href="#emblem"></use>
-    </svg>
-    <p class="daten">WoodBeat · privat organisiert · ${FESTIVAL.jahr}</p>
-    <p class="marginal">Gesetzt am Küchentisch. 128 BPM.</p>`;
-  document.body.append(fuss);
+/** Mobil: die Links liegen in einem Vollbild-Menü. */
+function initMenue() {
+  const knopf = $('#menue-knopf');
+  const nav = $('.nav');
+  const setze = (offen) => {
+    nav.toggleAttribute('data-offen', offen);
+    knopf.setAttribute('aria-expanded', String(offen));
+    knopf.querySelector('.nav__menue-text').textContent = offen ? 'Zu' : 'Menü';
+    document.documentElement.classList.toggle('menue-offen', offen);
+  };
+  knopf.addEventListener('click', () => setze(!nav.hasAttribute('data-offen')));
+  for (const link of nav.querySelectorAll('.nav__links a, .nav__dabei, .nav__marke')) {
+    link.addEventListener('click', () => setze(false));
+  }
+  addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && nav.hasAttribute('data-offen')) {
+      setze(false);
+      knopf.focus();
+    }
+  });
 }
 
 /**
- * Die Index-Leiste: das einzige fixierte Element. Mobil unten am
- * Daumen, ab 780 px oben. Sie zeigt jetzt die SEITEN statt der
- * Abschnitte einer Endlosseite — das war der eigentliche Gewinn
- * des Seitenschnitts.
- * @returns das Countdown-Feld der Leiste
+ * Die Navigation wird erst nach dem Kopf massiv, und der Link der
+ * Sektion im Bild wird markiert.
  */
-function baueIndex() {
-  const leiste = document.createElement('nav');
-  leiste.className = 'index';
-  leiste.setAttribute('aria-label', 'Seiten');
+function initNavZustand() {
+  const nav = $('.nav');
+  new IntersectionObserver(([e]) => nav.toggleAttribute('data-fest', !e.isIntersecting), {
+    rootMargin: '-80px 0px 0px 0px',
+  }).observe($('#top'));
 
-  const heim = document.createElement('a');
-  heim.className = 'index__stempel';
-  heim.href = BASIS;
-  heim.setAttribute('aria-label', 'Zur Startseite');
-  heim.innerHTML = '<svg viewBox="0 0 88 88" aria-hidden="true" focusable="false"><use href="#emblem-klein"></use></svg>';
-  if (seite === 'start') heim.setAttribute('aria-current', 'page');
-
-  const liste = document.createElement('ul');
-  liste.className = 'index__liste';
-  for (const eintrag of AUSHAENGE) {
-    const li = document.createElement('li');
-    const a = document.createElement('a');
-    a.href = urlVon(eintrag);
-    if (eintrag.id === seite) a.setAttribute('aria-current', 'page');
-    const nr = document.createElement('span');
-    nr.className = 'index__nr';
-    nr.textContent = eintrag.nr;
-    a.append(nr, document.createTextNode(eintrag.titel));
-    li.append(a);
-    liste.append(li);
+  const links = new Map(
+    [...document.querySelectorAll('.nav__links a')].map((a) => [a.getAttribute('href').slice(1), a]),
+  );
+  const beobachter = new IntersectionObserver((eintraege) => {
+    for (const e of eintraege) {
+      if (!e.isIntersecting) continue;
+      for (const a of links.values()) a.removeAttribute('aria-current');
+      links.get(e.target.id)?.setAttribute('aria-current', 'true');
+    }
+  }, { rootMargin: '-45% 0px -50% 0px' });
+  for (const id of links.keys()) {
+    const sektion = document.getElementById(id);
+    if (sektion) beobachter.observe(sektion);
   }
+}
 
-  const ton = document.createElement('button');
-  ton.className = 'index__ton';
-  ton.type = 'button';
-  ton.id = 'ton';
-  ton.setAttribute('aria-pressed', 'false');
-  ton.innerHTML =
-    '<span class="index__ton-balken" aria-hidden="true"><i></i><i></i><i></i><i></i></span>' +
-    '<span id="ton-label">Ton</span>';
-
-  const uhr = document.createElement('p');
-  uhr.className = 'index__uhr daten';
-
-  leiste.append(heim, liste, ton, uhr);
-  document.body.append(leiste);
-
-  // Die aktive Seite mittig in die Leiste ziehen. Ausdrücklich NICHT
-  // über scrollIntoView(): die Leiste ist position:fixed und steht im
-  // DOM am Ende — scrollIntoView() reißt die Seite ans Dokumentende.
-  const aktiv = liste.querySelector('[aria-current="page"]');
-  if (aktiv) {
-    liste.scrollLeft = Math.max(0, aktiv.offsetLeft - (liste.clientWidth - aktiv.offsetWidth) / 2);
-  }
-
-  return uhr;
+/**
+ * Browser ohne Scroll-Timelines (Firefox, ältere Safari) bekommen
+ * dieselben Einblendungen per IntersectionObserver — einmalig statt
+ * scroll-synchron, aber nie unsichtbarer Inhalt.
+ */
+function initRevealErsatz() {
+  if (CSS.supports('animation-timeline: view()') || reducedMotion) return;
+  document.documentElement.classList.add('ohne-timeline');
+  const beobachter = new IntersectionObserver((eintraege) => {
+    for (const e of eintraege) {
+      if (!e.isIntersecting) continue;
+      e.target.classList.add('ist-da');
+      beobachter.unobserve(e.target);
+    }
+  }, { rootMargin: '0px 0px -8% 0px' });
+  for (const k of document.querySelectorAll('.auf, .dehnen, .kippen')) beobachter.observe(k);
 }

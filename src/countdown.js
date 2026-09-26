@@ -1,28 +1,31 @@
 // ============================================================
 // COUNTDOWN & FESTIVAL-PHASE
 //
-// Der Countdown wird nach Schwelle prominent, nicht dauerhaft:
-// ein dreistelliger Zähler sagt elf Monate lang „hier passiert
-// nichts". Erst ab 30 Tagen wird er groß, ab 24 Stunden glüht er.
+// Zwei Ziele, je nachdem ob der Termin feststeht:
+//   datumBekannt: false → zählt bis zur Verkündung (enthuellungISO)
+//   datumBekannt: true  → zählt bis zum ersten Kick (startISO)
 // ============================================================
 
 import { FESTIVAL } from './data.js';
 
-const TAG = 86_400_000;
-
-/** 'vor' | 'live' | 'nach' */
+/** 'offen' | 'verkuendet' | 'vor' | 'live' | 'nach' */
 export function phase(now = Date.now()) {
+  if (!FESTIVAL.datumBekannt) {
+    return now < +new Date(FESTIVAL.enthuellungISO) ? 'offen' : 'verkuendet';
+  }
   const start = +new Date(FESTIVAL.startISO);
   const ende = +new Date(FESTIVAL.endISO);
   if (now < start) return 'vor';
   return now <= ende ? 'live' : 'nach';
 }
 
+const zielISO = () => (FESTIVAL.datumBekannt ? FESTIVAL.startISO : FESTIVAL.enthuellungISO);
+
 export function tminus(now = Date.now()) {
-  const rest = +new Date(FESTIVAL.startISO) - now;
+  const rest = Math.max(0, +new Date(zielISO()) - now);
   return {
     rest,
-    tage: Math.floor(rest / TAG),
+    tage: Math.floor(rest / 86_400_000),
     std: Math.floor(rest / 3_600_000) % 24,
     min: Math.floor(rest / 60_000) % 60,
     sek: Math.floor(rest / 1000) % 60,
@@ -31,49 +34,42 @@ export function tminus(now = Date.now()) {
 
 const zwei = (n) => String(n).padStart(2, '0');
 
+/** Unterzeile unter den vier Ziffern + Kurztext für die Navigation. */
 function texte(now) {
-  const p = phase(now);
-  if (p === 'live') return { kurz: 'Jetzt', lang: 'Wir sind mittendrin.', glut: true, nah: true };
-  if (p === 'nach') return { kurz: 'Vorbei', lang: 'Das war’s. Bis nächstes Jahr.', glut: false, nah: false };
-
-  const { rest, tage, std, min, sek } = tminus(now);
-  if (rest <= TAG) {
-    return {
-      kurz: `T−${zwei(std)}:${zwei(min)}:${zwei(sek)}`,
-      lang: `T−${zwei(std)}:${zwei(min)}:${zwei(sek)} bis zum ersten Kick`,
-      glut: true,
-      nah: true,
-    };
+  const t = tminus(now);
+  switch (phase(now)) {
+    case 'offen':
+      return { label: 'bis zur Verkündung', kurz: `Datum in ${t.tage} T` };
+    case 'verkuendet':
+      return { label: 'Das Datum kommt in den nächsten Tagen', kurz: 'Datum gleich' };
+    case 'vor':
+      return { label: 'bis zum ersten Kick', kurz: `T−${t.tage}` };
+    case 'live':
+      return { label: 'Wir sind mittendrin', kurz: 'Jetzt' };
+    default:
+      return { label: 'Das war’s. Bis nächstes Jahr', kurz: 'Vorbei' };
   }
-  if (tage <= 30) {
-    return {
-      kurz: `T−${tage} · ${zwei(std)}:${zwei(min)}`,
-      lang: `T−${tage} Tage ${zwei(std)}:${zwei(min)}:${zwei(sek)}`,
-      glut: false,
-      nah: true,
-    };
-  }
-  return { kurz: `T−${tage}`, lang: `T−${tage} Tage bis zum ersten Kick`, glut: false, nah: false };
 }
 
 /**
- * Das einzige Element der Seite, das sich von selbst verändert —
- * und nur, wenn es etwas zu sagen hat. Pausiert im Hintergrund.
+ * @param {{tage, std, min, sek, label}|null} gross  die vier Ziffernfelder + Unterzeile
+ * @param {HTMLElement|null} klein  Kurzanzeige in der Navigation
  */
-export function initCountdown(uhrGross, uhrKlein) {
+export function initCountdown(gross, klein) {
   let timer = 0;
 
   function tick() {
-    const t = texte(Date.now());
-    if (uhrGross) {
-      uhrGross.textContent = t.lang;
-      uhrGross.toggleAttribute('data-nah', t.nah);
-      uhrGross.toggleAttribute('data-glut', t.glut);
+    const now = Date.now();
+    const t = tminus(now);
+    const x = texte(now);
+    if (gross) {
+      gross.tage.textContent = String(t.tage);
+      gross.std.textContent = zwei(t.std);
+      gross.min.textContent = zwei(t.min);
+      gross.sek.textContent = zwei(t.sek);
+      gross.label.textContent = x.label;
     }
-    if (uhrKlein) {
-      uhrKlein.textContent = t.kurz;
-      uhrKlein.toggleAttribute('data-glut', t.glut);
-    }
+    if (klein) klein.textContent = x.kurz;
   }
 
   function starte() {

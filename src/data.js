@@ -15,20 +15,27 @@
 export const FESTIVAL = {
   // Steuert die Wortmarke im Kopf. Eine Zeile ändern = neues Jahr.
   jahr: 2027,
-  // TBD — Termin steht noch nicht fest. Platzhalter: letztes volles
-  // Juli-Wochenende 2027, analog zu 2026 (Fr–So).
+  saison: 'Sommer 2027',
+
+  // DER TERMIN — steht noch nicht fest, wird bis Silvester verkündet.
+  // Solange `datumBekannt: false`:
+  //   · der Countdown zählt bis `enthuellungISO` (die Verkündung),
+  //   · Gäste tippen das Wochenende (TERMIN_TIPP unten),
+  //   · startISO/endISO/datumKurz werden NIRGENDS angezeigt.
+  // Datum steht fest? → die drei Felder darunter ausfüllen und
+  // `datumBekannt: true` setzen. Dann zählt der Countdown bis zum
+  // Festival, der Kopf zeigt das Datum, das Tippspiel verschwindet.
+  datumBekannt: false,
+  enthuellungISO: '2026-12-31T23:59',
   startISO: '2027-07-23T15:00',
   endISO: '2027-07-25T15:00',
   datumKurz: '23.–25. Juli 2027',
-  datumLang: 'Freitag 23. bis Sonntag 25. Juli 2027',
+
   abPreis: '10 €',
   locationShort: 'Ort folgt',
-  // Der Originaltext aus dem Banner-Artwork. Läuft in der Banderole.
+  // Der Originaltext aus dem Banner-Artwork. Läuft im Motto-Band.
   motto: 'Rave Culture · Love · Freedom · Friendship',
 };
-
-// Der Seitenschnitt steht in src/seiten.js — nicht hier, weil er
-// eine Struktur-, keine Inhaltsentscheidung ist.
 
 export const SPOTIFY = {
   // Playlist muss in Spotify auf "öffentlich" stehen, damit Gäste sie sehen.
@@ -79,7 +86,39 @@ export const UMFRAGEN = [
   },
 ];
 
-export const UMFRAGEN_SHARE = 'So steht die Abstimmung für WoodBeat 2027 🌲';
+// ============================================================
+// TERMIN-TIPP — solange das Datum offen ist, tippen die Gäste
+// ein Wochenende. Läuft über dieselbe Auszählung wie die Umfragen
+// (poll-id `termin`). Der key ist das Freitag-Datum — Speicher-
+// schlüssel, nie ändern. Wochenenden Juni bis August 2027.
+// ============================================================
+
+const MONATE = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'];
+
+function wochenenden(vonISO, bisISO) {
+  const liste = [];
+  const ende = new Date(`${bisISO}T12:00`);
+  for (let fr = new Date(`${vonISO}T12:00`); fr <= ende; fr.setDate(fr.getDate() + 7)) {
+    const so = new Date(fr);
+    so.setDate(so.getDate() + 2);
+    const zwei = (n) => String(n).padStart(2, '0');
+    const key = `${fr.getFullYear()}-${zwei(fr.getMonth() + 1)}-${zwei(fr.getDate())}`;
+    const label = so.getMonth() === fr.getMonth()
+      ? `${fr.getDate()}.–${so.getDate()}.`
+      : `${fr.getDate()}.–${so.getDate()}. ${MONATE[so.getMonth()]}`;
+    liste.push({ key, label, monat: MONATE[fr.getMonth()] });
+  }
+  return liste;
+}
+
+export const TERMIN_TIPP = {
+  id: 'termin',
+  frage: 'Welches Wochenende wird’s?',
+  multi: false,
+  options: wochenenden('2027-06-04', '2027-08-27'),
+};
+
+export const UMFRAGEN_SHARE ='So steht die Abstimmung für WoodBeat 2027 🌲';
 
 // ============================================================
 // LINE-UP — wer spielt. Leere Slots bleiben leer: die Seite

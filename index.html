@@ -4,87 +4,238 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="robots" content="noindex, nofollow" />
-  <meta name="theme-color" content="#0d150f" />
+  <meta name="theme-color" content="#0e1810" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
-  <!-- Link-Vorschau (WhatsApp & Co.).
-       og:image MUSS ~1,91:1 sein — banner.jpg (3:1) wurde von WhatsApp so
-       beschnitten, dass genau die Wortmarke wegfiel. -->
+  <!-- Link-Vorschau (WhatsApp & Co.). og:image MUSS 1200×630 bleiben. -->
   <meta property="og:title" content="WoodBeat 2027 🌲" />
-  <meta property="og:description" content="23.–25. Juli 2027. Drei Tage, zwei Nächte, ein Wald. Stimm ab, was wir bauen." />
+  <meta property="og:description" content="Sommer 2027. Drei Tage, zwei Nächte, ein Wald. Das Datum kommt bis Silvester — tipp mit." />
   <meta property="og:type" content="website" />
   <meta property="og:image" content="https://vebzyyhere.github.io/woodbeat/og-image.png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <title>WoodBeat 2027</title>
 </head>
-<body data-seite="start">
+<body>
   <a class="sprung" href="#inhalt">Zum Inhalt springen</a>
 
-  <!-- =====================================================================
-       DER ANSCHLAG — der Kopf des Plakats.
-       Hartkodiert, weil die Wortmarke das LCP-Element ist: sie darf nicht
-       auf JavaScript warten. Drei Druckplatten pro Zeile (zwei davon
-       aria-hidden), die per --reg gegeneinander versetzt sind.
-       ===================================================================== -->
-  <header class="anschlag bleed" id="top">
-    <svg class="anschlag__stempel" viewBox="0 0 88 88" aria-hidden="true" focusable="false">
-      <use href="#emblem" />
-    </svg>
-
-    <div class="anschlag__inhalt">
-      <p class="anschlag__kicker daten">Privat · Nur wer den Link hat</p>
-
-      <h1 class="marke">
-        <span class="marke__zeile">
-          <span class="marke__geist marke__geist--gold" aria-hidden="true">WOOD</span>
-          <span class="marke__geist marke__geist--creme" aria-hidden="true">WOOD</span>
-          <span class="marke__ist">WOOD</span>
-        </span>
-        <span class="marke__zeile">
-          <span class="marke__geist marke__geist--gold" aria-hidden="true">BEAT</span>
-          <span class="marke__geist marke__geist--creme" aria-hidden="true">BEAT</span>
-          <span class="marke__ist">BEAT</span>
-        </span>
-      </h1>
-
-      <!-- Auf breiten Schirmen rückt dieser Block NEBEN die Wortmarke,
-           statt sie nach unten zu schieben. -->
-      <div class="anschlag__daten">
-        <p class="marke__jahr daten" id="marke-jahr"></p>
-        <p class="anschlag__fakten daten" id="anschlag-fakten"></p>
-        <p class="anschlag__uhr" id="anschlag-uhr"></p>
-      </div>
+  <!-- ================= NAVIGATION ================= -->
+  <nav class="nav" aria-label="Hauptnavigation">
+    <a class="nav__marke" href="#top">WoodBeat<span>*</span>27</a>
+    <ul class="nav__links" id="nav-links">
+      <li><a href="#datum">Datum</a></li>
+      <li><a href="#abstimmen">Abstimmen</a></li>
+      <li><a href="#programm">Programm</a></li>
+      <li><a href="#tickets">Tickets</a></li>
+      <li><a href="#praktisch">Praktisch</a></li>
+      <li><a href="#fragen">Fragen</a></li>
+    </ul>
+    <div class="nav__rechts">
+      <span class="nav__uhr" id="nav-uhr"></span>
+      <button class="nav__ton" type="button" id="ton" aria-pressed="false">
+        <span class="nav__eq" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span id="ton-label">Ton</span>
+      </button>
+      <a class="knopf knopf--lime nav__dabei" href="#dabei">Ich bin dabei</a>
+      <button class="nav__menue" type="button" id="menue-knopf" aria-expanded="false" aria-controls="nav-links">
+        <span class="nav__menue-strich" aria-hidden="true"></span>
+        <span class="nav__menue-text">Menü</span>
+      </button>
     </div>
+  </nav>
 
-    <div class="ornament" aria-hidden="true"></div>
+  <!-- ================= HERO ================= -->
+  <!-- Hartkodiert: die Wortmarke ist das LCP-Element und wartet nicht auf JS. -->
+  <header class="hero" id="top">
+    <div class="hero__ringe" aria-hidden="true">
+      <svg class="hero__ringe-svg" viewBox="0 0 400 400" fill="none" stroke="currentColor">
+        <circle cx="200" cy="200" r="190" stroke-opacity=".10"/>
+        <circle cx="203" cy="198" r="162" stroke-opacity=".14" stroke-width="1.5" stroke-dasharray="3 7"/>
+        <circle cx="198" cy="202" r="134" stroke-opacity=".18"/>
+        <circle cx="201" cy="199" r="104" stroke-opacity=".24" stroke-width="2" stroke-dasharray="40 6 2 6"/>
+        <circle cx="199" cy="201" r="76" stroke-opacity=".3"/>
+        <circle cx="200" cy="200" r="48" stroke-opacity=".42" stroke-width="1.5"/>
+        <circle cx="200" cy="200" r="22" stroke-opacity=".6"/>
+      </svg>
+    </div>
+    <p class="hero__kicker mono hero__auf">Privates Techno-Festival · Open Air im Wald</p>
+    <h1 class="hero__wort disp">Woodbeat</h1>
+    <div class="hero__fuss hero__auf">
+      <span class="pille disp" id="hero-wann">Sommer 2027</span>
+      <span class="hero__satz mono" id="hero-satz">Das Datum wird bis Ende 2026 verkündet.</span>
+    </div>
+    <p class="hero__scroll mono" aria-hidden="true">
+      <span>Scroll rein in den Wald</span>
+      <svg width="18" height="28" viewBox="0 0 18 28" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="16" height="26" rx="8"/><line class="blink" x1="9" y1="7" x2="9" y2="12"/></svg>
+    </p>
   </header>
 
-  <!-- Das Motto — im alten Stand lag es unlesbar im Banner-JPEG begraben.
-       Einziges rotiertes Element der ganzen Seite. -->
-  <div class="banderole" aria-hidden="true">
-    <div class="banderole__blatt">
-      <div class="banderole__spur" id="banderole-spur"></div>
-    </div>
+  <!-- Motto — läuft mit dem Scrollen, nicht von selbst. -->
+  <div class="band" aria-hidden="true">
+    <div class="band__spur disp" id="band-spur"></div>
   </div>
 
   <main id="inhalt">
-    <!-- DIE AUSHÄNGE — die Startseite IST das Inhaltsverzeichnis des
-         Plakats. Jeder Aushang trägt eine echte Zahl, damit die Seite
-         informiert statt nur zu verlinken. -->
-    <section class="sektion sektion--laut" id="aushaenge">
-      <div class="satzspiegel">
-        <ol class="aushaenge" id="aushaenge-liste"></ol>
+
+    <!-- ================= 01 DATUM ================= -->
+    <section class="sek raster" id="datum" aria-labelledby="datum-titel">
+      <div class="datum__kopf">
+        <p class="nr mono">01 — Das große Geheimnis</p>
+        <h2 class="titel disp dehnen" id="datum-titel"></h2>
+      </div>
+      <p class="datum__intro auf" id="datum-intro"></p>
+
+      <div class="uhr auf" role="timer" aria-live="off">
+        <div class="uhr__feld"><span class="uhr__zahl disp uhr__zahl--lime" id="uhr-tage">–</span><span class="mono">Tage</span></div>
+        <div class="uhr__feld"><span class="uhr__zahl disp" id="uhr-std">–</span><span class="mono">Stunden</span></div>
+        <div class="uhr__feld"><span class="uhr__zahl disp" id="uhr-min">–</span><span class="mono">Minuten</span></div>
+        <div class="uhr__feld"><span class="uhr__zahl disp" id="uhr-sek">–</span><span class="mono">Sekunden</span></div>
+        <p class="uhr__label mono" id="uhr-label"></p>
+      </div>
+
+      <!-- Tippspiel: nur solange FESTIVAL.datumBekannt === false -->
+      <div class="tipp" id="tipp"></div>
+    </section>
+
+    <!-- ================= DREI / ZWEI / EIN ================= -->
+    <section class="gleiten" aria-label="Drei Tage, zwei Nächte, ein Wald">
+      <p class="gleiten__zeile disp gleiten--l">Drei Tage <span class="kontur">Drei Tage</span></p>
+      <p class="gleiten__zeile gleiten__zeile--lime disp gleiten--r">Zwei Nächte <span class="kontur">Zwei Nächte</span></p>
+      <p class="gleiten__zeile disp gleiten--l">Ein Wald <span class="kontur">Ein Wald Ein Wald</span></p>
+    </section>
+
+    <!-- ================= 02 ABSTIMMEN (hell) ================= -->
+    <section class="sek sek--hell sek--rund" id="abstimmen" aria-labelledby="abstimmen-titel">
+      <div class="raster">
+        <div class="abstimmen__kopf">
+          <p class="nr mono">02 — Du entscheidest mit</p>
+          <h2 class="titel disp dehnen" id="abstimmen-titel">Bau dir dein Festival.</h2>
+          <p class="text" id="abstimmen-modus"></p>
+          <button class="knopf knopf--rand" type="button" id="abstimmen-teilen">Stand in die Gruppe schicken</button>
+        </div>
+        <div class="umfragen" id="umfragen"></div>
       </div>
     </section>
 
-    <!-- RÜCKBLICK — der Beweis, dass es das wirklich gibt. -->
-    <section class="sektion" id="rueckblick">
-      <div class="satzspiegel">
-        <h2 class="sektion__titel" id="rueckblick-titel">Rückblick</h2>
-        <p class="sektion__intro" id="rueckblick-text"></p>
-        <div id="rueckblick-bilder"></div>
+    <!-- ================= 03 PROGRAMM (hell) ================= -->
+    <section class="sek sek--hell" id="programm" aria-labelledby="programm-titel">
+      <div class="linie-kopf">
+        <div>
+          <p class="nr mono">03 — Programm</p>
+          <h2 class="titel disp dehnen" id="programm-titel">Wer spielt?</h2>
+        </div>
+        <p class="text" id="lineup-hinweis"></p>
       </div>
+      <ol class="lineup" id="lineup-liste"></ol>
+
+      <div class="laufplan">
+        <div class="laufplan__kopf">
+          <h3 class="untertitel disp">Laufplan</h3>
+          <div class="reiter" role="tablist" aria-label="Festivaltag" id="tag-reiter"></div>
+        </div>
+        <ol class="laufplan__liste" id="lauf-liste"></ol>
+      </div>
+
+      <div class="playlist auf" id="spotify"></div>
+    </section>
+
+    <!-- ================= 04 TICKETS & BAR ================= -->
+    <section class="sek" id="tickets" aria-labelledby="tickets-titel">
+      <p class="nr mono">04 — Tickets &amp; Bar</p>
+      <h2 class="titel titel--xl disp dehnen" id="tickets-titel">Rein kommst du<br />ab <em id="ab-preis"></em></h2>
+      <div class="tickets" id="tickets-liste"></div>
+      <p class="kleingedruckt mono" id="tickets-hinweis"></p>
+
+      <div class="bar raster auf">
+        <h3 class="bar__titel disp">Die<br />Bar.</h3>
+        <div class="bar__spalten" id="bar-liste"></div>
+      </div>
+    </section>
+
+    <!-- ================= 05 RÜCKBLICK ================= -->
+    <section class="sek rueckblick" id="rueckblick" aria-labelledby="rueckblick-titel">
+      <p class="rueckblick__jahr disp gleiten--r" aria-hidden="true" id="rueckblick-geist"></p>
+      <div class="raster auf rueckblick__inhalt">
+        <h2 class="nr mono rueckblick__nr" id="rueckblick-titel"></h2>
+        <p class="rueckblick__text" id="rueckblick-text"></p>
+        <div class="rueckblick__bilder" id="rueckblick-bilder"></div>
+      </div>
+    </section>
+
+    <!-- ================= 06 PRAKTISCH ================= -->
+    <section class="sek" id="praktisch" aria-labelledby="praktisch-titel">
+      <p class="nr mono">06 — Praktisch</p>
+      <h2 class="titel disp dehnen" id="praktisch-titel">Hinkommen.<br />Einpacken.<br /><em>Klarkommen.</em></h2>
+
+      <div class="praktisch raster">
+        <div class="anfahrt auf">
+          <h3 class="untertitel disp">Anfahrt</h3>
+          <div id="lageplan-ort"></div>
+          <ul class="hinweise" id="lageplan-hinweise"></ul>
+        </div>
+        <div class="packen auf">
+          <div class="packen__kopf">
+            <h3 class="untertitel disp">Mitbringen</h3>
+            <p class="mono packen__stand" id="pack-stand" aria-live="polite"></p>
+          </div>
+          <ul class="packliste" id="pack-liste"></ul>
+        </div>
+      </div>
+
+      <div class="kodex" id="kodex">
+        <h3 class="untertitel disp">Waldkodex</h3>
+        <ol class="kodex__liste" id="kodex-liste"></ol>
+      </div>
+
+      <div class="crew auf">
+        <h3 class="untertitel disp">Crew</h3>
+        <ul class="crew__liste" id="crew-liste"></ul>
+      </div>
+    </section>
+
+    <!-- ================= 07 FRAGEN ================= -->
+    <section class="sek raster" id="fragen" aria-labelledby="fragen-titel">
+      <div class="fragen__kopf">
+        <p class="nr mono">07 — Kleingedrucktes</p>
+        <h2 class="titel disp dehnen" id="fragen-titel">Fragen?</h2>
+      </div>
+      <div class="faq" id="faq-liste"></div>
+    </section>
+
+    <!-- ================= DABEI (lime) ================= -->
+    <section class="dabei sek--rund" id="dabei" aria-labelledby="dabei-titel">
+      <p class="mono" id="dabei-zeile"></p>
+      <h2 class="dabei__titel disp" id="dabei-titel">Kommst du?</h2>
+      <p class="dabei__zaehler disp" id="rsvp-zaehler" aria-live="polite"></p>
+      <p class="mono dabei__aufteilung" id="rsvp-aufteilung"></p>
+
+      <form class="rsvp" id="rsvp-form" novalidate>
+        <div class="feld">
+          <label class="feld__label mono" for="rsvp-name">Dein Name</label>
+          <input class="feld__eingabe" id="rsvp-name" name="name" type="text"
+            autocomplete="given-name" maxlength="40" required placeholder="Vorname reicht" />
+        </div>
+        <fieldset class="feld">
+          <legend class="feld__label mono">Was nimmst du?</legend>
+          <div class="reiter reiter--dunkel" id="rsvp-ticket"></div>
+        </fieldset>
+        <div class="feld">
+          <label class="feld__label mono" for="rsvp-notiz">Anmerkung (optional)</label>
+          <input class="feld__eingabe" id="rsvp-notiz" name="notiz" type="text"
+            maxlength="140" placeholder="Komme später, bringe Grill mit, …" />
+        </div>
+        <p class="rsvp__status" id="rsvp-status" aria-live="polite"></p>
+        <div class="rsvp__aktion">
+          <button class="knopf knopf--dunkel knopf--gross disp" type="submit" id="rsvp-senden">Ich bin dabei</button>
+          <button class="knopf knopf--rand-dunkel" type="button" id="rsvp-loeschen" hidden>Eintrag löschen</button>
+        </div>
+        <p class="rsvp__hinweis" id="rsvp-hinweis"></p>
+      </form>
+
+      <footer class="fuss">
+        <span class="fuss__marke disp">WoodBeat</span>
+        <span class="mono fuss__text">Privat · Freundeskreis<br />Gesetzt am Küchentisch. 128 BPM.</span>
+      </footer>
     </section>
   </main>
 
