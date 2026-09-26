@@ -132,7 +132,7 @@ export function initRsvp({ form, zaehler, aufteilung, ticketWahl, name, notiz, s
     senden.disabled = true;
     status.textContent = 'Wird eingetragen …';
     puls(9, 140);
-    navigator.vibrate?.(12);
+    if (navigator.userActivation?.isActive) navigator.vibrate?.(12);
 
     const angekommen = await saveRsvp({ name: gewaehlt, ticket, notiz: notiz.value.trim() });
     senden.disabled = false;

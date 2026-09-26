@@ -21,7 +21,7 @@ import { teilen } from './teilen.js';
 import { reducedMotion } from './register.js';
 import {
   renderBar, renderFaq, renderKodex, renderLageplan, renderLaufplan, renderLineup,
-  renderMitbringen, renderPlaylist, renderRueckblick, renderTickets, ticketKnoepfeVerbinden,
+  renderMitbringen, renderPlaylist, renderRueckblick, renderSound, renderTickets, ticketKnoepfeVerbinden,
 } from './sections.js';
 
 const $ = (wahl) => document.querySelector(wahl);
@@ -66,6 +66,7 @@ initCountdown(
 initPolls({ umfragen: $('#umfragen'), tipp: $('#tipp'), modus: $('#abstimmen-modus') });
 $('#abstimmen-teilen').addEventListener('click', () => teilen(auszaehlungAlsText()));
 
+renderSound($('#sound-bpm'), $('#sound-satz'), $('#sound-liste'));
 renderLineup($('#lineup-liste'), $('#lineup-hinweis'));
 renderLaufplan($('#tag-reiter'), $('#lauf-liste'));
 renderPlaylist($('#spotify'));

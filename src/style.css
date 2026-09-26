@@ -34,7 +34,7 @@
   --rand: clamp(16px, 4vw, 48px);  /* seitlicher Satzrand */
   --luft: clamp(96px, 14vw, 180px); /* Abstand zwischen Sektionen */
   --kick: 0;                        /* Herzschlag, siehe register.js */
-  --bpm: 128;
+  --bpm: 150;
   --schlag: calc(60s / var(--bpm));
 
   color-scheme: dark;
@@ -360,6 +360,30 @@ html:not(.ton-an) .hero__ringe { animation: schlag var(--schlag) infinite; }
 .gleiten__zeile:nth-child(3) { padding-left: 8vw; }
 .gleiten__zeile--lime { color: var(--lime); }
 
+/* Der Sound — 150+ BPM, die Genres als Treppe */
+.sound { padding-top: 0; }
+.sound__bpm { font-size: clamp(96px, 22vw, 320px); font-stretch: 120%; color: var(--lime); line-height: .8; }
+.sound__einheit { font-size: .32em; color: var(--creme); vertical-align: top; }
+.sound__satz { font-size: clamp(20px, 2.4vw, 28px); line-height: 1.35; max-width: 640px; margin: 32px 0 40px; }
+.sound__liste { border-top: 1px solid var(--linie); }
+.genre {
+  display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap;
+  padding: 16px 0; border-bottom: 1px solid var(--linie);
+}
+.genre__nr { color: var(--lime); min-width: 28px; }
+.genre__name {
+  font-size: clamp(36px, 7vw, 96px); font-stretch: 90%;
+  transition: font-stretch .35s cubic-bezier(.2, .8, .2, 1), color .2s;
+}
+.genre:hover .genre__name { font-stretch: 150%; color: var(--lime); }
+.genre--selten .genre__name { -webkit-text-stroke: 1.5px var(--creme); color: transparent; }
+.genre--selten:hover .genre__name { -webkit-text-stroke-color: var(--lime); color: transparent; }
+.genre__marke { border: 1.5px dashed var(--lime); color: var(--lime); padding: 4px 10px; border-radius: 999px; }
+@media (min-width: 800px) {
+  .genre:nth-child(odd) { padding-left: 0; }
+  .genre:nth-child(even) { padding-left: 8vw; }
+}
+
 /* ---------- 7  ABSTIMMEN ---------- */
 .abstimmen__kopf { display: flex; flex-direction: column; gap: 24px; align-items: flex-start; }
 .umfragen { display: flex; flex-direction: column; gap: 56px; min-width: 0; }
@@ -640,7 +664,7 @@ html:not(.ton-an) .hero__ringe { animation: schlag var(--schlag) infinite; }
   border: 2px solid var(--nacht); background: rgba(255, 255, 255, .35); color: var(--nacht);
   font-size: 18px;
 }
-.feld__eingabe::placeholder { color: rgba(14, 24, 16, .55); }
+.feld__eingabe::placeholder { color: rgba(14, 24, 16, .7); }
 .feld__eingabe:focus-visible { outline: 3px solid var(--nacht); outline-offset: 2px; background: rgba(255, 255, 255, .6); }
 .feld__eingabe[aria-invalid="true"] { border-style: dashed; }
 .rsvp__status { font-weight: 600; min-height: 1.5em; }

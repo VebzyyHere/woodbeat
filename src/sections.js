@@ -11,7 +11,7 @@
 
 import {
   ANFAHRT, BAR, CREW, FAQ, KODEX, LINEUP, LINEUP_HINWEIS,
-  RUECKBLICK, SPOTIFY, TICKETS, TICKETS_HINWEIS, TIMETABLE, WUENSCHE,
+  RUECKBLICK, SOUND, SPOTIFY, TICKETS, TICKETS_HINWEIS, TIMETABLE, WUENSCHE,
 } from './data.js';
 import { phase } from './countdown.js';
 import { uebergang } from './register.js';
@@ -25,6 +25,20 @@ const el = (tag, klasse, text) => {
 
 /** Leerzustand: gestrichelte Fläche mit Hinweis. */
 const leer = (text) => el('p', 'leer mono', text);
+
+// ---------- DER SOUND ----------
+
+export function renderSound(bpm, satz, liste) {
+  bpm.textContent = SOUND.bpm;
+  satz.textContent = SOUND.satz;
+  SOUND.genres.forEach((genre, i) => {
+    const zeile = el('li', 'genre auf' + (genre.selten ? ' genre--selten' : ''));
+    zeile.append(el('span', 'genre__nr mono', String(i + 1).padStart(2, '0')));
+    zeile.append(el('span', 'genre__name disp', genre.name));
+    if (genre.selten) zeile.append(el('span', 'genre__marke mono', 'ab und zu'));
+    liste.append(zeile);
+  });
+}
 
 // ---------- LINE-UP ----------
 

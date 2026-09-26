@@ -3,7 +3,7 @@
 //
 // `--kick` (0…1) auf <html> ist der Herzschlag der Seite: die
 // Jahresringe im Kopf und die Pille "Sommer 2027" wachsen mit ihm.
-// Ohne Ton pulsiert er per CSS im 128-BPM-Takt; läuft der Ton,
+// Ohne Ton pulsiert er per CSS im 150-BPM-Takt; läuft der Ton,
 // gibt der Audio-Takt den Schlag vor. Eine Stimmabgabe oder Zusage
 // löst einen Extra-Schlag aus — lokale Handlung, seitenweite Folge.
 // ============================================================

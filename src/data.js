@@ -43,6 +43,24 @@ export const SPOTIFY = {
 };
 
 // ============================================================
+// DER SOUND — wofür WoodBeat steht. `selten: true` = läuft ab und zu.
+// ============================================================
+
+export const SOUND = {
+  bpm: '150+',
+  satz: 'Wir sind eher bei 150 BPM aufwärts unterwegs. Das hier läuft in der Regel:',
+  genres: [
+    { name: 'Hard Groove' },
+    { name: 'Hardtechno' },
+    { name: 'Hardstyle' },
+    { name: 'Uptempo / Frenchcore' },
+    { name: 'Tech House' },
+    { name: 'Drum & Bass' },
+    { name: 'Psytrance', selten: true },
+  ],
+};
+
+// ============================================================
 // UMFRAGEN
 // `multi: true` = Mehrfachauswahl. `key` ist der Speicherschlüssel
 // und darf NIE geändert werden — `label` jederzeit.
@@ -51,13 +69,18 @@ export const SPOTIFY = {
 export const UMFRAGEN = [
   {
     id: 'sound',
-    frage: 'Welcher Sound soll nachts laufen?',
-    multi: false,
+    frage: 'Was soll nachts laufen?',
+    multi: true,
+    // Keys = Speicherschlüssel. 'dnb' und 'goa' stammen aus der alten
+    // Liste und bleiben, damit frühere Stimmen gültig sind.
     options: [
-      { key: 'techno', label: 'Techno — hart & treibend' },
-      { key: 'melodic', label: 'Melodic Techno / House' },
+      { key: 'hardgroove', label: 'Hard Groove' },
+      { key: 'hardtechno', label: 'Hardtechno' },
+      { key: 'hardstyle', label: 'Hardstyle' },
+      { key: 'uptempo', label: 'Uptempo / Frenchcore' },
+      { key: 'techhouse', label: 'Tech House' },
       { key: 'dnb', label: 'Drum & Bass' },
-      { key: 'goa', label: 'Goa / Psytrance' },
+      { key: 'goa', label: 'Psytrance' },
     ],
   },
   {

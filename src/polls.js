@@ -163,7 +163,7 @@ async function stimmeAb(poll, key) {
   else neue = [key];
 
   puls();
-  navigator.vibrate?.(12);
+  if (navigator.userActivation?.isActive) navigator.vibrate?.(12);
 
   optimistisch(poll.id, neue, alte);
   geladen = true;   // ab jetzt gibt es Zahlen zu zeigen

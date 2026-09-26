@@ -15,7 +15,7 @@
 
 import { cssPulsAktiv, puls, reducedMotion } from './register.js';
 
-const BPM = 128;
+const BPM = 150;
 const BEAT = 60 / BPM;
 const VORLAUF = 0.12;   // Sekunden, die im Voraus geplant werden
 const TAKT = 25;        // Millisekunden zwischen zwei Planungsläufen

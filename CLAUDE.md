@@ -126,7 +126,7 @@ Ein Rave im nächtlichen Wald. Entworfen auf der Design-Canvas
   **Browser ohne Scroll-Timelines** bekommen `html.ohne-timeline` + einmalige
   Einblendungen per IntersectionObserver (`initRevealErsatz()`).
 - **Herzschlag:** `--kick` (0…1) skaliert die Hero-Ringe. Ohne Ton pulsiert CSS
-  im 128-BPM-Takt; läuft der Ton, schaltet `html.ton-an` das ab und der Audio-Takt
+  im 150-BPM-Takt; läuft der Ton, schaltet `html.ton-an` das ab und der Audio-Takt
   schlägt. Stimmabgabe/Zusage = Extra-Schlag via `puls()`.
 - **Keine Emoji in der UI.** Ausnahme: `og:title` und Share-Texte.
 - **Leerzustände sind entworfen:** „Slot frei", „Foto folgt", „Hand heben", nie „TBD".
