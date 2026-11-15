@@ -36,7 +36,11 @@ function zeichneZaehler(zaehlerEl, aufteilungEl) {
     .filter(([, anzahl]) => anzahl > 0)
     .map(([key, anzahl]) => `${anzahl}× ${ticketName(key)}`);
 
-  if (stand.lokal) {
+  if (stand.lokal && liveEnabled()) {
+    // Server eingerichtet, aber gerade nicht erreichbar (z. B. pausiert).
+    aufteilungEl.textContent =
+      'Die gemeinsame Zählung ist gerade nicht erreichbar — hier steht vorerst nur deine eigene Zusage.';
+  } else if (stand.lokal) {
     aufteilungEl.textContent =
       'Gezählt wird bisher nur auf diesem Gerät — die gemeinsame Zählung kommt, sobald die Datenbank steht.';
   } else {
@@ -97,15 +101,9 @@ export function initRsvp({ form, zaehler, aufteilung, ticketWahl, name, notiz, s
     zeichneZaehler(zaehler, aufteilung);
   }
 
-  // Ohne Server kostet das nichts — sofort holen.
-  if (!liveEnabled()) hole();
-  else {
-    new IntersectionObserver((eintraege, beobachter) => {
-      if (!eintraege[0].isIntersecting) return;
-      beobachter.disconnect();
-      hole();
-    }, { threshold: 0.05 }).observe(form);
-  }
+  // Sofort holen — eine winzige Anfrage. Früher erst beim Reinscrollen
+  // (IntersectionObserver); das hing, wo der Observer nie feuerte.
+  hole();
 
   form.addEventListener('submit', async (ereignis) => {
     ereignis.preventDefault();

@@ -14,9 +14,10 @@ name: Supabase wach halten
 
 on:
   schedule:
-    # 06:17 UTC, alle drei Tage. Krumme Minute mit Absicht: zur vollen
-    # Stunde sind die GitHub-Runner am stärksten überbucht.
-    - cron: '17 6 */3 * *'
+    # 06:17 UTC, täglich (alle 3 Tage reichte im Okt. 2026 nicht).
+    # Krumme Minute mit Absicht: zur vollen Stunde sind die
+    # GitHub-Runner am stärksten überbucht.
+    - cron: '17 6 * * *'
   workflow_dispatch:
 
 permissions:
@@ -42,10 +43,20 @@ jobs:
             exit 0
           fi
 
-          echo "Rufe poll_results() auf ..."
-          curl -sS --fail-with-body -X POST "$URL/rest/v1/rpc/poll_results" \
-            -H "apikey: $KEY" \
-            -H "Authorization: Bearer $KEY" \
-            -H "Content-Type: application/json" \
-            -d '{}' \
-            -o /dev/null -w 'HTTP %{http_code} in %{time_total}s\n'
+          rpc() {
+            curl -sS --retry 3 --retry-delay 20 --fail-with-body -X POST "$URL/rest/v1/rpc/$1" \
+              -H "apikey: $KEY" \
+              -H "Authorization: Bearer $KEY" \
+              -H "Content-Type: application/json" \
+              -d "$2" \
+              -o /dev/null -w "$1: HTTP %{http_code} in %{time_total}s\n"
+          }
+
+          # Okt. 2026: Nur-Lese-Aufrufe alle 3 Tage haben die Pause NICHT
+          # verhindert. Deshalb jetzt täglich und mit echtem Schreibzugriff:
+          # eine Stimme in der Umfrage `keepalive` (zeigt die Seite nie an)
+          # setzen und sofort wieder entfernen.
+          V=00000000-0000-4000-8000-00000000a11e
+          rpc cast_vote "{\"p_poll\":\"keepalive\",\"p_voter\":\"$V\",\"p_options\":[\"ping\"]}"
+          rpc cast_vote "{\"p_poll\":\"keepalive\",\"p_voter\":\"$V\",\"p_options\":[]}"
+          rpc poll_results '{}'

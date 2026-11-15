@@ -49,7 +49,7 @@ const uhrzeit = () =>
 function fussText(poll, hatGewaehlt) {
   const voters = stand[poll.id]?.voters ?? 0;
   if (!geladen) return 'Auszählung wird geholt';
-  if (fehler) return 'Auszählung nicht erreichbar — deine Stimme ist gespeichert und geht raus, sobald du wieder Netz hast';
+  if (fehler) return 'Auszählung nicht erreichbar — deine Stimme ist gespeichert und geht raus, sobald die Zählung wieder erreichbar ist';
   if (!hatGewaehlt) {
     if (!voters) return 'Noch keine Stimme. Du machst den Anfang';
     return `Noch nicht abgestimmt · ${voters} ${voters === 1 ? 'hat' : 'haben'} schon`;
@@ -208,8 +208,10 @@ export function initPolls({ umfragen, tipp, modus }) {
       : 'Die gemeinsame Auszählung ist noch nicht angeschlossen — deine Auswahl bleibt vorerst auf diesem Gerät.';
   }
 
-  // Ohne Server kostet die Auszählung nichts — sofort holen.
-  if (!liveEnabled()) hole();
+  // Einmal sofort holen (auch mit Server — eine kleine Anfrage), damit
+  // nie dauerhaft "wird geholt" stehen bleibt. Das 20-s-Nachladen
+  // läuft weiterhin nur, solange eine Abstimmung im Bild ist.
+  hole();
 
   // Mit Server: erst laden, wenn eine Abstimmung wirklich ins Bild kommt.
   const beobachter = new IntersectionObserver((eintraege) => {
